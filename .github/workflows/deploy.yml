@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy-api:
+    name: Deploy API to Railway
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy API
+        working-directory: apps/api
+        run: railway up --service africa-api --detach
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+
+  # Vercel deploys automatically when it detects a push to main
+  # (configured in Vercel dashboard to watch apps/web directory)
+  # This job just reports the status
+  notify-vercel:
+    name: Vercel deploy (automatic)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Vercel deploys automatically on push to main
+        run: echo "Vercel is watching main branch — deploy triggered automatically."
