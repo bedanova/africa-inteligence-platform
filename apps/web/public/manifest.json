@@ -1,0 +1,25 @@
+{
+  "name": "Africa Intelligence Platform",
+  "short_name": "Africa Intel",
+  "description": "Daily AI briefs, verified partners, and actionable insights for Africa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f1629",
+  "theme_color": "#0f1629",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news", "education", "productivity"]
+}
