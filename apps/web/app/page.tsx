@@ -3,13 +3,35 @@ import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { CountryCard } from "@/components/ui/country-card";
 import { ScoreChip } from "@/components/ui/score-chip";
-import { api } from "@/lib/api";
-import type { HomeOverview } from "@/types";
+import { getCountries, getBriefs } from "@/lib/supabase-server";
+import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
+import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";
+
+function buildLeaderboard(countries: CountrySummary[], key: "need" | "opportunity" | "stability", desc = true, limit = 4): LeaderboardEntry[] {
+  return [...countries]
+    .sort((a, b) => desc ? b.scores[key] - a.scores[key] : a.scores[key] - b.scores[key])
+    .slice(0, limit)
+    .map((c) => ({ iso3: c.iso3, name: c.name, flag_emoji: c.flag_emoji, score: c.scores[key] }));
+}
 
 async function getHomeData(): Promise<HomeOverview | null> {
   try {
-    const res = await api.get<HomeOverview>("/api/v1/home/overview");
-    return res.data;
+    const [countries, briefs] = await Promise.all([getCountries(), getBriefs()]);
+    return {
+      snapshot_date: new Date().toISOString(),
+      ingest_status: "ok",
+      leaderboards: {
+        highest_need: buildLeaderboard(countries, "need"),
+        fastest_opportunity: buildLeaderboard(countries, "opportunity"),
+        most_improved_stability: buildLeaderboard(countries, "stability"),
+        attention_gap: buildLeaderboard(countries, "need").filter((e) => {
+          const c = countries.find((c) => c.iso3 === e.iso3);
+          return c ? c.scores.opportunity < 60 : false;
+        }),
+      },
+      top_briefs: briefs.slice(0, 3),
+      countries,
+    };
   } catch {
     return null;
   }

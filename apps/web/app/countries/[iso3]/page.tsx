@@ -7,16 +7,32 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
-import { api } from "@/lib/api";
+import { getCountry, getMetrics, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
+import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
 import type { CountryProfile } from "@/types";
 import type { Metadata } from "next";
 
-async function getCountry(iso3: string): Promise<CountryProfile | null> {
+async function getCountryProfile(iso3: string): Promise<CountryProfile | null> {
   try {
-    const res = await api.get<CountryProfile>(`/api/v1/countries/${iso3.toUpperCase()}`);
-    return res.data;
+    const [summary, metrics, sectors, actions, brief] = await Promise.all([
+      getCountry(iso3),
+      getMetrics(iso3),
+      getSectors(iso3),
+      getActions(iso3),
+      getCountryBriefFromDb(iso3),
+    ]);
+    if (!summary) return null;
+    return { ...summary, ai_brief: brief, metrics, priority_sectors: sectors, trusted_actions: actions };
   } catch {
-    return null;
+    const summary = MOCK_COUNTRIES.find((c) => c.iso3 === iso3);
+    if (!summary) return null;
+    return {
+      ...summary,
+      ai_brief: getCountryBrief(iso3),
+      metrics: MOCK_METRICS[iso3] ?? [],
+      priority_sectors: MOCK_SECTORS[iso3] ?? [],
+      trusted_actions: MOCK_ACTIONS[iso3] ?? [],
+    };
   }
 }
 
@@ -26,12 +42,9 @@ export async function generateMetadata({
   params: Promise<{ iso3: string }>;
 }): Promise<Metadata> {
   const { iso3 } = await params;
-  const country = await getCountry(iso3);
+  const country = await getCountryProfile(iso3.toUpperCase());
   if (!country) return { title: "Country not found" };
-  return {
-    title: country.name,
-    description: country.ai_brief?.summary,
-  };
+  return { title: country.name, description: country.ai_brief?.summary };
 }
 
 export default async function CountryPage({
@@ -40,7 +53,7 @@ export default async function CountryPage({
   params: Promise<{ iso3: string }>;
 }) {
   const { iso3 } = await params;
-  const country = await getCountry(iso3);
+  const country = await getCountryProfile(iso3.toUpperCase());
 
   if (!country) notFound();
 
@@ -77,10 +90,7 @@ export default async function CountryPage({
           {country.priority_sectors.length > 0 && (
             <div className="flex gap-2 flex-wrap">
               {country.priority_sectors.map((s) => (
-                <span
-                  key={s}
-                  className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200"
-                >
+                <span key={s} className="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
                   {s}
                 </span>
               ))}
@@ -89,7 +99,6 @@ export default async function CountryPage({
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left: AI brief + metrics */}
           <div className="lg:col-span-2 space-y-6">
             {country.ai_brief && (
               <div>
@@ -110,7 +119,6 @@ export default async function CountryPage({
             )}
           </div>
 
-          {/* Right: Trusted Actions */}
           {country.trusted_actions.length > 0 && (
             <div>
               <SectionHeader title="Trusted Actions" />
