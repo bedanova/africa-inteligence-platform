@@ -1,6 +1,6 @@
 /**
  * Data ingest endpoint — fetches live data from three public sources:
- *   1. World Bank Open Data (CC BY 4.0) — GDP growth, internet access, under-5 mortality
+ *   1. World Bank Open Data (CC BY 4.0) — 19 indicators: GDP growth, internet, mortality, poverty, gender, education, governance
  *   2. WHO Global Health Observatory (CC BY-NC-SA 3.0 IGO) — life expectancy, maternal mortality
  *   3. UN SDG API (UN Open Data) — electricity access
  *
@@ -32,8 +32,17 @@ const METRIC_META: Record<string, { label: string; unit: string | null; source: 
   unemployment:         { label: 'Unemployment Rate',                unit: '%',        source: 'World Bank' },
   water_access:         { label: 'Safe Drinking Water Access',       unit: '%',        source: 'World Bank' },
   co2_per_capita:       { label: 'CO₂ Emissions per Capita',        unit: 't/capita', source: 'World Bank' },
-  political_stability:  { label: 'Political Stability Index',        unit: '/100',     source: 'World Bank WGI' },
-  population:           { label: 'Population',                       unit: null,       source: 'World Bank' },
+  political_stability:          { label: 'Political Stability Index',          unit: '/100',    source: 'World Bank WGI' },
+  population:                   { label: 'Population',                          unit: null,      source: 'World Bank' },
+  // Education (SDG 4) — World Bank
+  school_enrollment_primary:    { label: 'Net Primary School Enrollment',       unit: '%',       source: 'World Bank' },
+  school_enrollment_secondary:  { label: 'Net Secondary School Enrollment',     unit: '%',       source: 'World Bank' },
+  literacy_rate:                { label: 'Adult Literacy Rate',                 unit: '%',       source: 'World Bank' },
+  primary_completion:           { label: 'Primary Completion Rate',             unit: '%',       source: 'World Bank' },
+  // Gender equality (SDG 5) — World Bank
+  women_in_parliament:          { label: 'Women in Parliament',                 unit: '%',       source: 'World Bank' },
+  female_labor_participation:   { label: 'Female Labour Force Participation',   unit: '%',       source: 'World Bank' },
+  gender_parity_education:      { label: 'Gender Parity Index — Education',     unit: 'GPI',     source: 'World Bank' },
   // WHO GHO
   life_expectancy:      { label: 'Life Expectancy',                  unit: 'years',    source: 'WHO GHO' },
   maternal_mortality:   { label: 'Maternal Mortality',               unit: 'per 100k', source: 'WHO GHO' },

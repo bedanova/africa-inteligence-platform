@@ -45,6 +45,15 @@ export const INDICATORS = {
   political_stability: 'PV.EST',         // Political Stability index (-2.5 to +2.5)
   // Demographics
   population:        'SP.POP.TOTL',      // Population, total
+  // Education (SDG 4)
+  school_enrollment_primary:   'SE.PRM.NENR',      // Net primary school enrollment (%)
+  school_enrollment_secondary: 'SE.SEC.NENR',      // Net secondary school enrollment (%)
+  literacy_rate:               'SE.ADT.LITR.ZS',  // Adult literacy rate (% ages 15+)
+  primary_completion:          'SE.PRM.CMPT.ZS',  // Primary completion rate (% of relevant age group)
+  // Gender equality (SDG 5)
+  women_in_parliament:         'SG.GEN.PARL.ZS',  // Women in parliament (% of seats)
+  female_labor_participation:  'SL.TLF.TOTL.FE.ZS', // Female labour force participation (%)
+  gender_parity_education:     'SE.ENR.PRSC.FM.ZS', // Gender parity index — primary+secondary GPI
 } as const
 
 export type IndicatorKey = keyof typeof INDICATORS
@@ -112,6 +121,13 @@ export async function fetchAllIndicators(): Promise<WBDataPoint[]> {
     fetchIndicator('co2_per_capita'),
     fetchIndicator('political_stability'),
     fetchIndicator('population'),
+    fetchIndicator('school_enrollment_primary'),
+    fetchIndicator('school_enrollment_secondary'),
+    fetchIndicator('literacy_rate'),
+    fetchIndicator('primary_completion'),
+    fetchIndicator('women_in_parliament'),
+    fetchIndicator('female_labor_participation'),
+    fetchIndicator('gender_parity_education'),
   ])
 
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))

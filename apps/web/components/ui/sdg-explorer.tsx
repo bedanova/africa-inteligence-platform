@@ -209,7 +209,17 @@ const SDG_METRICS: Record<number, MetricDef[]> = {
     { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',   higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   4: [
-    { key: 'internet_access', label: 'Internet access — digital education proxy (%)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'school_enrollment_primary',   label: 'Net primary school enrollment (%)',       higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'school_enrollment_secondary', label: 'Net secondary school enrollment (%)',      higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'literacy_rate',               label: 'Adult literacy rate (% ages 15+)',         higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'primary_completion',          label: 'Primary completion rate (%)',               higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'internet_access',             label: 'Internet access — digital learning proxy (%)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+  ],
+  5: [
+    { key: 'women_in_parliament',        label: 'Women in parliament (% of seats)',         higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'female_labor_participation', label: 'Female labour force participation (%)',     higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gender_parity_education',    label: 'Gender parity index — education (GPI)',     higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
+    { key: 'maternal_mortality',         label: 'Maternal mortality (per 100,000)',          higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
   ],
   6: [
     { key: 'water_access', label: 'Safely managed drinking water (%)', higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
@@ -227,8 +237,10 @@ const SDG_METRICS: Record<number, MetricDef[]> = {
     { key: 'fdi',             label: 'FDI net inflows (% of GDP)',     higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: '% GDP' },
   ],
   10: [
-    { key: 'gini',         label: 'Gini index (income inequality)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '' },
-    { key: 'mortality_u5', label: 'Under-5 mortality — inequality proxy (per 1,000)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 'per 1k' },
+    { key: 'gini',                        label: 'Gini index (income inequality)',              higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '' },
+    { key: 'mortality_u5',                label: 'Under-5 mortality — inequality proxy',        higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'gender_parity_education',     label: 'Gender parity in education (GPI)',            higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
+    { key: 'women_in_parliament',         label: 'Women in parliament (% of seats)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
   ],
   13: [
     { key: 'co2_per_capita', label: 'CO₂ emissions per capita (tonnes)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 't/cap' },
@@ -351,8 +363,16 @@ export function SDGExplorer({ countries, metrics }: Props) {
           </div>
 
           {!goalMetrics && (
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-              <p className="text-sm text-blue-700">Live data indicators for this goal are coming in Phase 3 — UNICEF, FAO, and UN SDG API data sources.</p>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
+              <p className="text-sm font-semibold text-blue-800">Live data coming soon</p>
+              <p className="text-sm text-blue-700">
+                {selected === 11 && 'SDG 11 (Sustainable Cities): urban slum population data from UN-Habitat and World Bank urban indicators are planned for the next phase.'}
+                {selected === 12 && 'SDG 12 (Responsible Consumption): food loss statistics (FAO) and material footprint data are planned for the next phase.'}
+                {selected === 14 && 'SDG 14 (Life Below Water): marine protected area coverage and fisheries health data from FAO FishStat are planned.'}
+                {selected === 15 && 'SDG 15 (Life on Land): forest area change (World Bank FO.FRST) and terrestrial protected areas are planned for the next phase.'}
+                {selected === 2 && 'SDG 2 (Zero Hunger): FAOSTAT food security prevalence and stunting data from UNICEF/WHO are planned for the next phase.'}
+                {![2,11,12,14,15].includes(selected ?? 0) && 'Specialist data sources (UNICEF, FAO, UN SDG API) are planned for the next phase.'}
+              </p>
             </div>
           )}
 
