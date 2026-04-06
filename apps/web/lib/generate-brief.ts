@@ -1,16 +1,16 @@
 /**
- * AI Brief generation using Claude API.
- * Generates structured country and continent intelligence briefs
- * grounded in live data from World Bank, WHO, and UN SDG.
+ * AI Brief generation using Google Gemini API (free tier).
+ * Free tier: 15 RPM, 1M tokens/day — more than sufficient for daily briefs.
+ * API key: https://aistudio.google.com → Get API Key (no credit card required)
  */
 
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { AIBrief, AIBriefCitation, CountryMetric, CountrySummary } from '@/types'
 
-const MODEL = 'claude-haiku-4-5-20251001'
+const MODEL = 'gemini-2.0-flash'
 
 function getClient() {
-  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
 }
 
 // Known citation URLs per metric key
@@ -26,10 +26,7 @@ const CITATION_URLS: Record<string, { label: string; url: string; source_type: '
 function buildCitations(metrics: CountryMetric[]): AIBriefCitation[] {
   return metrics
     .filter((m) => CITATION_URLS[m.key])
-    .map((m, i) => ({
-      id: `c${i + 1}`,
-      ...CITATION_URLS[m.key],
-    }))
+    .map((m, i) => ({ id: `c${i + 1}`, ...CITATION_URLS[m.key] }))
 }
 
 function metricsToText(metrics: CountryMetric[]): string {
@@ -46,20 +43,20 @@ interface BriefJSON {
   confidence: number
 }
 
-async function callClaude(prompt: string): Promise<BriefJSON> {
-  const client = getClient()
-  const message = await client.messages.create({
+async function callGemini(prompt: string): Promise<BriefJSON> {
+  const model = getClient().getGenerativeModel({
     model: MODEL,
-    max_tokens: 800,
-    messages: [{ role: 'user', content: prompt }],
-    system: `You are an intelligence analyst for the Africa Intelligence Platform.
+    systemInstruction: `You are an intelligence analyst for the Africa Intelligence Platform.
 Generate concise, factual briefs grounded strictly in the provided data.
-Never invent statistics. Cite the source for every claim.
-Respond ONLY with valid JSON — no markdown, no code fences, no extra text.`,
+Never invent statistics. Respond ONLY with valid JSON — no markdown, no code fences, no extra text.`,
   })
 
-  const text = message.content[0].type === 'text' ? message.content[0].text : ''
-  return JSON.parse(text) as BriefJSON
+  const result = await model.generateContent(prompt)
+  const text = result.response.text()
+
+  // Strip markdown code fences if Gemini adds them anyway
+  const clean = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
+  return JSON.parse(clean) as BriefJSON
 }
 
 export async function generateCountryBrief(
@@ -82,26 +79,25 @@ ${metricsText || 'No indicators available yet.'}
 Return this exact JSON structure:
 {
   "title": "string — one compelling sentence, max 12 words",
-  "summary": "string — 2-3 sentences synthesis of the country's current situation",
+  "summary": "string — 2-3 sentences synthesis of the country current situation",
   "bullets": ["string", "string", "string"],
   "risk_flags": ["string"],
-  "confidence": 0.0-1.0
+  "confidence": 0.0
 }
 
 Rules:
 - bullets: exactly 3 key insights grounded in the data above
-- risk_flags: 1-2 items only if data shows genuine concern (high mortality, low stability, etc.), otherwise empty array
+- risk_flags: 1-2 items only if data shows genuine concern, otherwise empty array []
 - confidence: 0.9 if all key indicators present, 0.7 if partial data, 0.5 if no indicators`
 
-  const result = await callClaude(prompt)
-  const citations = buildCitations(metrics)
+  const result = await callGemini(prompt)
 
   return {
     title: result.title,
     summary: result.summary,
     bullets: result.bullets,
     risk_flags: result.risk_flags,
-    citations,
+    citations: buildCitations(metrics),
     scope: 'country',
     country_iso3: country.iso3,
     freshness: 'fresh',
@@ -115,9 +111,8 @@ export async function generateContinentBrief(
   countries: CountrySummary[],
 ): Promise<Omit<AIBrief, 'id'>> {
   const avgNeed = Math.round(countries.reduce((s, c) => s + c.scores.need, 0) / countries.length)
-  const avgOpp = Math.round(countries.reduce((s, c) => s + c.scores.opportunity, 0) / countries.length)
+  const avgOpp  = Math.round(countries.reduce((s, c) => s + c.scores.opportunity, 0) / countries.length)
   const avgStab = Math.round(countries.reduce((s, c) => s + c.scores.stability, 0) / countries.length)
-
   const topNeed = [...countries].sort((a, b) => b.scores.need - a.scores.need)[0]
   const topOpp  = [...countries].sort((a, b) => b.scores.opportunity - a.scores.opportunity)[0]
 
@@ -147,10 +142,9 @@ Return this exact JSON structure:
 
 Rules:
 - bullets: 3 cross-country insights or trends
-- risk_flags: 0-2 items max, only genuine concerns
-- Keep it factual and grounded in the scores above`
+- risk_flags: 0-2 items max, only genuine concerns`
 
-  const result = await callClaude(prompt)
+  const result = await callGemini(prompt)
 
   return {
     title: result.title,
