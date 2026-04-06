@@ -130,6 +130,37 @@ export async function getBriefs(iso3?: string): Promise<AIBrief[]> {
   return (data ?? []).map(rowToBrief)
 }
 
+export async function getAllActions(): Promise<import('@/types').ActionCard[]> {
+  const { data, error } = await getClient()
+    .from('actions')
+    .select('*')
+    .order('type')
+  if (error) throw error
+  return (data ?? []).map(rowToAction)
+}
+
+export async function getOrganizations(): Promise<import('@/types').Organization[]> {
+  const { data, error } = await getClient()
+    .from('organizations')
+    .select('*')
+    .order('name')
+  if (error) throw error
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return (data ?? []).map((row: any) => ({
+    id: row.id,
+    name: row.name,
+    website: row.website ?? undefined,
+    mission: row.mission,
+    countries: row.countries ?? [],
+    sectors: row.sectors ?? [],
+    sdg_tags: row.sdg_tags ?? [],
+    verification_tier: row.verification_tier,
+    last_reviewed_at: row.last_reviewed_at,
+    action_types: row.action_types ?? [],
+    logo_url: row.logo_url ?? undefined,
+  }))
+}
+
 export async function getCountryBriefFromDb(iso3: string): Promise<AIBrief | null> {
   const { data, error } = await getClient()
     .from('briefs')
