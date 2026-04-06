@@ -22,8 +22,7 @@ function getSupabase() {
   return createClient(url, key)
 }
 
-export async function POST(_request: Request) {
-
+async function runIngest() {
   const supabase = getSupabase()
   const results: { iso3: string; updated: string[] }[] = []
   const errors: string[] = []
@@ -116,7 +115,10 @@ export async function POST(_request: Request) {
   }
 }
 
-// Vercel Cron calls GET
+export async function POST() {
+  return runIngest()
+}
+
 export async function GET() {
-  return POST(new Request(''))
+  return runIngest()
 }
