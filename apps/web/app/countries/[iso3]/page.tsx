@@ -12,7 +12,7 @@ import type { Metadata } from "next";
 
 async function getCountry(iso3: string): Promise<CountryProfile | null> {
   try {
-    const res = await api.get<CountryProfile>(`/v1/countries/${iso3.toUpperCase()}`);
+    const res = await api.get<CountryProfile>(`/api/v1/countries/${iso3.toUpperCase()}`);
     return res.data;
   } catch {
     return null;

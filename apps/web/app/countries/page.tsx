@@ -6,7 +6,7 @@ import type { CountrySummary } from "@/types";
 
 async function getCountries(): Promise<CountrySummary[]> {
   try {
-    const res = await api.get<CountrySummary[]>("/v1/countries");
+    const res = await api.get<CountrySummary[]>("/api/v1/countries");
     return res.data;
   } catch {
     return [];

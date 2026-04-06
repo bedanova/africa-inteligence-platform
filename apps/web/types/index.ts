@@ -1,6 +1,6 @@
 // ============================================================
 // Africa Intelligence Platform — Shared TypeScript types
-// Keep in sync with FastAPI Pydantic schemas (apps/api)
+// Keep in sync with Next.js API routes (apps/web/app/api/v1)
 // ============================================================
 
 export type Freshness = "fresh" | "aging" | "stale";

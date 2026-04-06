@@ -8,7 +8,7 @@ import type { HomeOverview } from "@/types";
 
 async function getHomeData(): Promise<HomeOverview | null> {
   try {
-    const res = await api.get<HomeOverview>("/v1/home/overview");
+    const res = await api.get<HomeOverview>("/api/v1/home/overview");
     return res.data;
   } catch {
     return null;

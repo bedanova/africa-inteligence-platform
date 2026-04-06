@@ -1,5 +1,3 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
-
 export interface ApiMeta {
   generated_at: string;
   freshness: "fresh" | "aging" | "stale";
@@ -13,8 +11,19 @@ export interface ApiResponse<T> {
   meta: ApiMeta;
 }
 
+function resolveUrl(path: string): string {
+  // On the server, fetch requires an absolute URL
+  if (typeof window === 'undefined') {
+    const base = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+    return `${base}${path}`
+  }
+  // On the client, relative paths work fine
+  return path
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<ApiResponse<T>> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const url = resolveUrl(path)
+  const res = await fetch(url, {
     ...init,
     headers: {
       "Content-Type": "application/json",
