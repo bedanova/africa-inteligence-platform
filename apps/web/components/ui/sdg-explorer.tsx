@@ -23,39 +23,46 @@ const GOALS = [
   { n: 17, label: 'Partnerships',            color: '#19486a' },
 ]
 
+type DisplayType = 'percent' | 'rate'
+
 interface MetricDef {
   key: string
   label: string
-  // "good" direction: higher = good → green bar at high values
-  //                   lower = good → green at low values, red at high
   higherIsBetter: boolean
   source: string
+  display: DisplayType // 'percent' = absolute bar 0–100, 'rate' = ranked list with color badge
+  unit?: string
 }
 
-// Maps SDG number → relevant metric keys from our DB
 const SDG_METRICS: Record<number, MetricDef[]> = {
   1: [
-    { key: 'gdp_growth', label: 'GDP growth rate (% annual)', higherIsBetter: true, source: 'World Bank' },
+    { key: 'gdp_growth',      label: 'GDP growth (% annual)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
   ],
   2: [
-    { key: 'mortality_u5', label: 'Under-5 mortality (per 1,000 live births)', higherIsBetter: false, source: 'World Bank' },
+    { key: 'mortality_u5',    label: 'Under-5 mortality (per 1,000)',  higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   3: [
-    { key: 'life_expectancy',    label: 'Life expectancy at birth (years)',           higherIsBetter: true,  source: 'WHO GHO' },
-    { key: 'maternal_mortality', label: 'Maternal mortality ratio (per 100k births)', higherIsBetter: false, source: 'WHO GHO' },
-    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000 live births)',  higherIsBetter: false, source: 'World Bank' },
+    { key: 'life_expectancy',    label: 'Life expectancy (years)',          higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'yrs' },
+    { key: 'maternal_mortality', label: 'Maternal mortality (per 100k)',    higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
+    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+  ],
+  4: [
+    { key: 'internet_access', label: 'Internet access — digital education proxy (%)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   7: [
-    { key: 'electricity_access', label: 'Population with electricity access (%)', higherIsBetter: true, source: 'UN SDG' },
+    { key: 'electricity_access', label: 'Electricity access (%)',       higherIsBetter: true,  source: 'UN SDG',     display: 'percent', unit: '%' },
   ],
   8: [
-    { key: 'gdp_growth',     label: 'GDP growth rate (% annual)',    higherIsBetter: true, source: 'World Bank' },
+    { key: 'gdp_growth',      label: 'GDP growth (% annual)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
   ],
   9: [
-    { key: 'internet_access', label: 'Internet users (% of population)', higherIsBetter: true, source: 'World Bank' },
+    { key: 'internet_access', label: 'Internet users (% population)',  higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+  ],
+  10: [
+    { key: 'mortality_u5',    label: 'Under-5 mortality — inequality proxy (per 1,000)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 'per 1k' },
   ],
   16: [
-    { key: 'score_stability', label: 'Governance & peace score (0–100)', higherIsBetter: true, source: 'Platform composite' },
+    { key: 'score_stability', label: 'Governance & peace score (0–100)', higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
   ],
 }
 
@@ -64,15 +71,14 @@ interface Props {
   metrics: Record<string, CountryMetric[]>
 }
 
-function getBarColor(pctGood: number): string {
-  if (pctGood >= 70) return '#22c55e' // green
-  if (pctGood >= 40) return '#f59e0b' // amber
-  return '#ef4444'                     // red
+function perfColor(goodPct: number) {
+  if (goodPct >= 70) return { bg: '#dcfce7', text: '#16a34a', dot: '#22c55e' }
+  if (goodPct >= 40) return { bg: '#fef9c3', text: '#b45309', dot: '#f59e0b' }
+  return { bg: '#fee2e2', text: '#dc2626', dot: '#ef4444' }
 }
 
 export function SDGExplorer({ countries, metrics }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
-
   const goalMetrics = selected ? SDG_METRICS[selected] : undefined
   const hasData = (n: number) => !!SDG_METRICS[n]
 
@@ -105,7 +111,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
               <p className="text-xs font-medium text-slate-700 leading-snug">{label}</p>
               {active && (
                 <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 w-fit border border-emerald-100">
-                  Live data ↗
+                  Live data
                 </span>
               )}
             </button>
@@ -115,7 +121,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
 
       {/* Detail panel */}
       {selected && goalMetrics && (
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8 animate-in fade-in duration-200">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0"
@@ -126,47 +132,37 @@ export function SDGExplorer({ countries, metrics }: Props) {
             <div>
               <h2 className="font-semibold text-slate-900 text-lg">SDG {selected} — {GOALS[selected - 1].label}</h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                {goalMetrics.map(m => m.source).filter((v, i, a) => a.indexOf(v) === i).join(' · ')}
+                {[...new Set(goalMetrics.map(m => m.source))].join(' · ')}
               </p>
             </div>
-            <button
-              onClick={() => setSelected(null)}
-              className="ml-auto text-slate-300 hover:text-slate-500 text-xl leading-none"
-            >
-              ×
-            </button>
+            <button onClick={() => setSelected(null)} className="ml-auto text-slate-300 hover:text-slate-500 text-2xl leading-none">×</button>
           </div>
 
           <div className="space-y-8">
-            {goalMetrics.map(({ key, label, higherIsBetter, source }) => {
-              const rows = countries
-                .map((c) => {
-                  // Special virtual metrics derived from country scores
-                  if (key === 'score_stability') {
-                    return {
-                      country: c,
-                      metric: { key, label, value: c.scores.stability, unit: '/100', source, source_year: new Date().getFullYear(), freshness: 'fresh' } as CountryMetric,
-                    }
+            {goalMetrics.map(({ key, label, higherIsBetter, source, display, unit }) => {
+              const rows = countries.map((c) => {
+                if (key === 'score_stability') {
+                  return {
+                    country: c,
+                    metric: { key, label, value: c.scores.stability, unit: '/100', source, source_year: new Date().getFullYear(), freshness: 'fresh' } as CountryMetric,
                   }
-                  const m = (metrics[c.iso3] ?? []).find((x) => x.key === key)
-                  return { country: c, metric: m }
-                })
-                .filter((r) => r.metric != null)
-                // Sort best performers first
-                .sort((a, b) =>
-                  higherIsBetter
-                    ? (b.metric!.value as number) - (a.metric!.value as number)
-                    : (a.metric!.value as number) - (b.metric!.value as number)
-                )
+                }
+                const m = (metrics[c.iso3] ?? []).find((x) => x.key === key)
+                return { country: c, metric: m }
+              })
+              .filter((r) => r.metric != null)
+              .sort((a, b) =>
+                higherIsBetter
+                  ? (b.metric!.value as number) - (a.metric!.value as number)
+                  : (a.metric!.value as number) - (b.metric!.value as number)
+              )
 
-              if (rows.length === 0) {
-                return (
-                  <div key={key}>
-                    <p className="text-sm font-medium text-slate-600 mb-1">{label}</p>
-                    <p className="text-xs text-slate-400">No data available yet — will populate after next ingest.</p>
-                  </div>
-                )
-              }
+              if (rows.length === 0) return (
+                <div key={key}>
+                  <p className="text-sm font-semibold text-slate-700 mb-1">{label}</p>
+                  <p className="text-xs text-slate-400">No data yet — will populate after next ingest.</p>
+                </div>
+              )
 
               const values = rows.map((r) => r.metric!.value as number)
               const max = Math.max(...values)
@@ -177,49 +173,66 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 <div key={key}>
                   <div className="flex items-baseline justify-between mb-3">
                     <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
-                    <span className="text-[11px] text-slate-400">{source} · {higherIsBetter ? 'higher = better' : 'lower = better'}</span>
+                    <span className="text-[11px] text-slate-400">{source} · {higherIsBetter ? 'higher = better ↑' : 'lower = better ↓'}</span>
                   </div>
-                  <div className="space-y-2.5">
-                    {rows.map(({ country, metric }, rank) => {
-                      const val = metric!.value as number
-                      // barPct: raw proportion of the value within the range (0–100%)
-                      const rawPct = ((val - min) / range) * 100
-                      // goodPct: how "good" this value is (0=worst, 100=best)
-                      const goodPct = higherIsBetter ? rawPct : 100 - rawPct
-                      const barColor = getBarColor(goodPct)
-                      // bar width = rawPct so it reflects the actual value scale
-                      const barWidth = Math.max(3, rawPct)
 
-                      return (
-                        <div key={country.iso3} className="flex items-center gap-3">
-                          <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">
-                            {rank + 1}
-                          </span>
-                          <span className="text-base leading-none flex-shrink-0">{country.flag_emoji}</span>
-                          <span className="text-xs text-slate-600 w-24 flex-shrink-0 truncate">{country.name}</span>
-                          <div className="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                            <div
-                              className="h-2.5 rounded-full transition-all duration-500"
-                              style={{ width: `${barWidth}%`, backgroundColor: barColor }}
-                            />
+                  {display === 'percent' ? (
+                    /* ── Percentage bar chart (absolute scale 0–100) ── */
+                    <div className="space-y-2.5">
+                      {rows.map(({ country, metric }, rank) => {
+                        const val = metric!.value as number
+                        const goodPct = higherIsBetter ? val : 100 - val
+                        const { dot } = perfColor(goodPct)
+                        // bar = absolute value (0–100 scale)
+                        const barWidth = Math.min(100, Math.max(2, Math.abs(val)))
+                        return (
+                          <div key={country.iso3} className="flex items-center gap-3">
+                            <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">{rank + 1}</span>
+                            <span className="text-base leading-none flex-shrink-0">{country.flag_emoji}</span>
+                            <span className="text-xs text-slate-600 w-24 flex-shrink-0 truncate">{country.name}</span>
+                            <div className="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                              <div className="h-2.5 rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: dot }} />
+                            </div>
+                            <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
+                              {val.toFixed(1)}{unit ? ` ${unit}` : ''}
+                            </span>
                           </div>
-                          <span className="text-xs font-semibold text-slate-700 w-20 text-right flex-shrink-0">
-                            {val.toFixed(val % 1 === 0 ? 0 : 1)}
-                            {metric!.unit ? ` ${metric!.unit}` : ''}
-                          </span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  {/* Scale reference */}
-                  <div className="flex justify-between mt-1.5 px-8">
-                    <span className="text-[10px] text-slate-300">
-                      min {min.toFixed(min % 1 === 0 ? 0 : 1)}
-                    </span>
-                    <span className="text-[10px] text-slate-300">
-                      max {max.toFixed(max % 1 === 0 ? 0 : 1)}
-                    </span>
-                  </div>
+                        )
+                      })}
+                      <div className="flex ml-[7.5rem] mt-1">
+                        <span className="text-[10px] text-slate-300">0%</span>
+                        <span className="flex-1 text-center text-[10px] text-slate-300">50%</span>
+                        <span className="text-[10px] text-slate-300">100%</span>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ── Rate / non-percentage: ranked cards ── */
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {rows.map(({ country, metric }, rank) => {
+                        const val = metric!.value as number
+                        const rawPct = ((val - min) / range) * 100
+                        const goodPct = higherIsBetter ? rawPct : 100 - rawPct
+                        const { bg, text, dot } = perfColor(goodPct)
+                        return (
+                          <div key={country.iso3} className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3">
+                            <span className="text-[11px] font-bold text-slate-300 w-4 flex-shrink-0">{rank + 1}</span>
+                            <span className="text-xl leading-none flex-shrink-0">{country.flag_emoji}</span>
+                            <span className="text-sm text-slate-700 flex-1 truncate">{country.name}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
+                              <span
+                                className="text-sm font-bold px-2 py-0.5 rounded-lg"
+                                style={{ backgroundColor: bg, color: text }}
+                              >
+                                {val % 1 === 0 ? val : val.toFixed(1)}
+                                <span className="text-[10px] font-normal ml-0.5">{unit}</span>
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -235,15 +248,15 @@ export function SDGExplorer({ countries, metrics }: Props) {
           { color: '#ef4444', label: 'Needs attention' },
         ].map(({ color, label }) => (
           <div key={label} className="flex items-center gap-1.5 text-xs text-slate-500">
-            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
             {label}
           </div>
         ))}
-        <span className="text-xs text-slate-400">· Best performers ranked first</span>
+        <span className="text-xs text-slate-400">· Ranked best to worst within platform countries</span>
       </div>
 
       <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 max-w-lg">
-        <p className="text-sm font-semibold text-blue-800 mb-1">SDGs 4, 5, 6, 10–15, 17</p>
+        <p className="text-sm font-semibold text-blue-800 mb-1">SDGs 5, 6, 11–15, 17</p>
         <p className="text-sm text-blue-700">
           Additional indicators coming in Phase 3 — UNICEF, FAO, and UN SDG API data sources.
         </p>
