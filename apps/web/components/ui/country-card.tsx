@@ -1,9 +1,60 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { ScoreChip } from "./score-chip";
 import { FreshnessBadge } from "./freshness-badge";
 import { CountryFlag } from '@/components/ui/country-flag'
 import type { CountrySummary } from "@/types";
+
+function scoreLabel(value: number, type: 'need' | 'opportunity' | 'stability'): string {
+  if (type === 'need') {
+    if (value >= 70) return 'Critical'
+    if (value >= 45) return 'High'
+    return 'Moderate'
+  }
+  if (type === 'opportunity') {
+    if (value >= 70) return 'Strong'
+    if (value >= 45) return 'Emerging'
+    return 'Early stage'
+  }
+  // stability
+  if (value >= 70) return 'Stable'
+  if (value >= 45) return 'Fragile'
+  return 'Volatile'
+}
+
+interface ScoreRowProps {
+  label: string
+  value: number
+  type: 'need' | 'opportunity' | 'stability'
+  tooltip: string
+}
+
+function ScoreRow({ label, value, type, tooltip }: ScoreRowProps) {
+  const rounded = Math.round(value)
+  const bar = {
+    need: 'bg-red-400',
+    opportunity: 'bg-emerald-500',
+    stability: 'bg-blue-400',
+  }[type]
+  const labelColor = {
+    need: 'text-red-600',
+    opportunity: 'text-emerald-600',
+    stability: 'text-blue-600',
+  }[type]
+
+  return (
+    <div title={tooltip}>
+      <div className="flex items-center justify-between mb-0.5">
+        <span className="text-[10px] font-medium text-slate-500 uppercase tracking-wide">{label}</span>
+        <span className={cn("text-[10px] font-semibold", labelColor)}>
+          {scoreLabel(value, type)} · {rounded}
+        </span>
+      </div>
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+        <div className={cn("h-1.5 rounded-full transition-all", bar)} style={{ width: `${rounded}%` }} />
+      </div>
+    </div>
+  )
+}
 
 interface CountryCardProps {
   country: CountrySummary;
@@ -45,10 +96,25 @@ export function CountryCard({ country, className, loading }: CountryCardProps) {
         </div>
       </div>
 
-      <div className="flex gap-1.5 flex-wrap mb-3">
-        <ScoreChip type="need" value={country.scores.need} size="sm" />
-        <ScoreChip type="opportunity" value={country.scores.opportunity} size="sm" />
-        <ScoreChip type="stability" value={country.scores.stability} size="sm" />
+      <div className="flex flex-col gap-1.5 mb-3">
+        <ScoreRow
+          label="Need"
+          value={country.scores.need}
+          type="need"
+          tooltip="Humanitarian & health pressure — higher = more urgent need for support (0–100)"
+        />
+        <ScoreRow
+          label="Opportunity"
+          value={country.scores.opportunity}
+          type="opportunity"
+          tooltip="Economic & connectivity potential — higher = stronger development opportunity (0–100)"
+        />
+        <ScoreRow
+          label="Stability"
+          value={country.scores.stability}
+          type="stability"
+          tooltip="Governance & peace score — higher = more politically stable environment (0–100)"
+        />
       </div>
 
       <FreshnessBadge freshness={country.freshness} updatedAt={country.scores.updated_at} />

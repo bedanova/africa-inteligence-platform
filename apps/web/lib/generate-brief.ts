@@ -32,7 +32,7 @@ function metricsToText(metrics: CountryMetric[]): string {
   return metrics
     .map((m) => {
       const v = typeof m.value === 'number'
-        ? (Number.isInteger(m.value) ? m.value : Number(m.value).toFixed(4))
+        ? (Number.isInteger(m.value) ? m.value : Number(m.value).toFixed(2))
         : m.value
       return `- ${m.label}: ${v}${m.unit ? ' ' + m.unit : ''} (${m.source}, ${m.source_year})`
     })

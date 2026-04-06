@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Minus, Plus, X, ChevronRight } from 'lucide-react'
 import { CountryFlag } from '@/components/ui/country-flag'
+import { formatNum } from '@/lib/utils'
 import type { CountrySummary, CountryMetric } from '@/types'
 
 interface GoalDef {
@@ -451,7 +452,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                               <div className="h-2.5 rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: dot }} />
                             </div>
                             <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
-                              {Number.isInteger(val) ? val : val.toFixed(4)}{unit ? ` ${unit}` : ''}
+                              {formatNum(val)}{unit ? ` ${unit}` : ''}
                             </span>
                           </div>
                         )
@@ -481,7 +482,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                                 className="text-sm font-bold px-2 py-0.5 rounded-lg"
                                 style={{ backgroundColor: bg, color: text }}
                               >
-                                {Number.isInteger(val) ? val : val.toFixed(4)}
+                                {formatNum(val)}
                                 <span className="text-[10px] font-normal ml-0.5">{unit}</span>
                               </span>
                             </div>
