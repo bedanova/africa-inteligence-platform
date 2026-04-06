@@ -28,38 +28,36 @@ async function runGenerate() {
   try {
     const countries = await getCountries()
 
-    // Generate country briefs in parallel (8 countries)
-    await Promise.all(
-      countries.map(async (country) => {
-        try {
-          const metrics = await getMetrics(country.iso3)
-          const brief = await generateCountryBrief(country, metrics)
+    // Generate country briefs sequentially to stay within free tier rate limits
+    for (const country of countries) {
+      try {
+        const metrics = await getMetrics(country.iso3)
+        const brief = await generateCountryBrief(country, metrics)
 
-          const { error } = await supabase.from('briefs').upsert(
-            {
-              id: `country-${country.iso3.toLowerCase()}`,
-              title: brief.title,
-              summary: brief.summary,
-              bullets: brief.bullets,
-              risk_flags: brief.risk_flags,
-              citations: brief.citations,
-              scope: brief.scope,
-              country_iso3: brief.country_iso3,
-              freshness: brief.freshness,
-              generated_at: brief.generated_at,
-              model_name: brief.model_name,
-              confidence: brief.confidence,
-            },
-            { onConflict: 'id' }
-          )
+        const { error } = await supabase.from('briefs').upsert(
+          {
+            id: `country-${country.iso3.toLowerCase()}`,
+            title: brief.title,
+            summary: brief.summary,
+            bullets: brief.bullets,
+            risk_flags: brief.risk_flags,
+            citations: brief.citations,
+            scope: brief.scope,
+            country_iso3: brief.country_iso3,
+            freshness: brief.freshness,
+            generated_at: brief.generated_at,
+            model_name: brief.model_name,
+            confidence: brief.confidence,
+          },
+          { onConflict: 'id' }
+        )
 
-          if (error) errors.push(`${country.iso3}: ${error.message}`)
-          else results.push(country.iso3)
-        } catch (err) {
-          errors.push(`${country.iso3}: ${err instanceof Error ? err.message : String(err)}`)
-        }
-      })
-    )
+        if (error) errors.push(`${country.iso3}: ${error.message}`)
+        else results.push(country.iso3)
+      } catch (err) {
+        errors.push(`${country.iso3}: ${err instanceof Error ? err.message : String(err)}`)
+      }
+    }
 
     // Generate continent overview brief
     try {
