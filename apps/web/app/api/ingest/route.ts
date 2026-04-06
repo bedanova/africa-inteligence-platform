@@ -22,19 +22,7 @@ function getSupabase() {
   return createClient(url, key)
 }
 
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET
-  // If no secret configured, allow (development mode)
-  if (!secret) return true
-  const auth = request.headers.get('authorization')
-  // Accept both Vercel cron header and manual Bearer token
-  return auth === `Bearer ${secret}` || request.headers.get('x-cron-secret') === secret
-}
-
-export async function POST(request: Request) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+export async function POST(_request: Request) {
 
   const supabase = getSupabase()
   const results: { iso3: string; updated: string[] }[] = []
@@ -129,6 +117,6 @@ export async function POST(request: Request) {
 }
 
 // Vercel Cron calls GET
-export async function GET(request: Request) {
-  return POST(request)
+export async function GET() {
+  return POST(new Request(''))
 }
