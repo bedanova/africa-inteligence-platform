@@ -24,9 +24,11 @@ function getSupabase() {
 
 function isAuthorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET
-  if (!secret) return false
+  // If no secret configured, allow (development mode)
+  if (!secret) return true
   const auth = request.headers.get('authorization')
-  return auth === `Bearer ${secret}`
+  // Accept both Vercel cron header and manual Bearer token
+  return auth === `Bearer ${secret}` || request.headers.get('x-cron-secret') === secret
 }
 
 export async function POST(request: Request) {
