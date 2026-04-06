@@ -8,7 +8,7 @@
  * No authentication required on the endpoint (data is public; writes go to our own DB).
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { fetchAllIndicators, calculateScores, type AllDataPoint } from '@/lib/ingest/world-bank'
 import { fetchAllWHOIndicators } from '@/lib/ingest/who'
@@ -119,5 +119,17 @@ async function runIngest() {
   }
 }
 
-export async function POST() { return runIngest() }
-export async function GET()  { return runIngest() }
+function isAuthorized(req: NextRequest) {
+  const secret = process.env.CRON_SECRET
+  if (!secret) return false
+  return req.headers.get('authorization') === `Bearer ${secret}`
+}
+
+export async function POST(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return runIngest()
+}
+export async function GET(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return runIngest()
+}

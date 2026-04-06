@@ -5,7 +5,7 @@
  * Also callable manually via GET/POST.
  */
 
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateCountryBrief, generateContinentBrief } from '@/lib/generate-brief'
 import { getCountries, getMetrics } from '@/lib/supabase-server'
@@ -100,5 +100,17 @@ async function runGenerate() {
   }
 }
 
-export async function GET() { return runGenerate() }
-export async function POST() { return runGenerate() }
+function isAuthorized(req: NextRequest) {
+  const secret = process.env.CRON_SECRET
+  if (!secret) return false
+  return req.headers.get('authorization') === `Bearer ${secret}`
+}
+
+export async function GET(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return runGenerate()
+}
+export async function POST(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return runGenerate()
+}

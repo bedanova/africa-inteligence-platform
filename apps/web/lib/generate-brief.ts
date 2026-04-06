@@ -61,7 +61,11 @@ Never invent statistics. Respond ONLY with valid JSON — no markdown, no code f
 
   const text = completion.choices[0]?.message?.content ?? ''
   const clean = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
-  return JSON.parse(clean) as BriefJSON
+  try {
+    return JSON.parse(clean) as BriefJSON
+  } catch {
+    throw new Error(`Groq returned invalid JSON: ${clean.slice(0, 200)}`)
+  }
 }
 
 export async function generateCountryBrief(

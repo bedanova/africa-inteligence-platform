@@ -3,10 +3,6 @@
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install",
   "outputDirectory": ".next",
-  "env": {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://vluqobrrgdquoujursww.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_sJbshDLTTEmxUgOnJ1q7Gw_EH0X0daP"
-  },
   "crons": [
     { "path": "/api/ingest",          "schedule": "0 6 * * *" },
     { "path": "/api/briefs/generate", "schedule": "0 7 * * *" }
