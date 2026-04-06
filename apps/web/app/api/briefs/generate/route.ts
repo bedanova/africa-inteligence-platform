@@ -17,8 +17,8 @@ function getSupabase() {
 }
 
 async function runGenerate() {
-  if (!process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ ok: false, error: 'GEMINI_API_KEY not set' }, { status: 500 })
+  if (!process.env.GROQ_API_KEY) {
+    return NextResponse.json({ ok: false, error: 'GROQ_API_KEY not set' }, { status: 500 })
   }
 
   const supabase = getSupabase()

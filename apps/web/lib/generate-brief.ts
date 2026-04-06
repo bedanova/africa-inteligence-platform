@@ -1,26 +1,25 @@
 /**
- * AI Brief generation using Google Gemini API (free tier).
- * Free tier: 15 RPM, 1M tokens/day — more than sufficient for daily briefs.
- * API key: https://aistudio.google.com → Get API Key (no credit card required)
+ * AI Brief generation using Groq API (free tier).
+ * Free tier: 14,400 requests/day — more than sufficient for 9 daily briefs.
+ * API key: https://console.groq.com (no credit card required, works in EU)
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import Groq from 'groq-sdk'
 import type { AIBrief, AIBriefCitation, CountryMetric, CountrySummary } from '@/types'
 
-const MODEL = 'gemini-2.0-flash'
+const MODEL = 'llama-3.1-8b-instant'
 
 function getClient() {
-  return new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+  return new Groq({ apiKey: process.env.GROQ_API_KEY })
 }
 
-// Known citation URLs per metric key
 const CITATION_URLS: Record<string, { label: string; url: string; source_type: 'official_data' }> = {
-  gdp_growth:         { label: 'World Bank — GDP Growth',           url: 'https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG', source_type: 'official_data' },
-  internet_access:    { label: 'World Bank — Internet Access',      url: 'https://data.worldbank.org/indicator/IT.NET.USER.ZS',    source_type: 'official_data' },
-  mortality_u5:       { label: 'World Bank — Under-5 Mortality',    url: 'https://data.worldbank.org/indicator/SH.DYN.MORT',       source_type: 'official_data' },
-  life_expectancy:    { label: 'WHO GHO — Life Expectancy',         url: 'https://www.who.int/data/gho/data/indicators/indicator-details/GHO/life-expectancy-at-birth-(years)', source_type: 'official_data' },
-  maternal_mortality: { label: 'WHO GHO — Maternal Mortality',      url: 'https://www.who.int/data/gho/data/indicators/indicator-details/GHO/maternal-mortality-ratio-(per-100-000-live-births)', source_type: 'official_data' },
-  electricity_access: { label: 'UN SDG — Electricity Access',       url: 'https://unstats.un.org/sdgs/dataportal/database',        source_type: 'official_data' },
+  gdp_growth:         { label: 'World Bank — GDP Growth',        url: 'https://data.worldbank.org/indicator/NY.GDP.MKTP.KD.ZG', source_type: 'official_data' },
+  internet_access:    { label: 'World Bank — Internet Access',   url: 'https://data.worldbank.org/indicator/IT.NET.USER.ZS',    source_type: 'official_data' },
+  mortality_u5:       { label: 'World Bank — Under-5 Mortality', url: 'https://data.worldbank.org/indicator/SH.DYN.MORT',       source_type: 'official_data' },
+  life_expectancy:    { label: 'WHO GHO — Life Expectancy',      url: 'https://www.who.int/data/gho/data/indicators/indicator-details/GHO/life-expectancy-at-birth-(years)', source_type: 'official_data' },
+  maternal_mortality: { label: 'WHO GHO — Maternal Mortality',   url: 'https://www.who.int/data/gho/data/indicators/indicator-details/GHO/maternal-mortality-ratio-(per-100-000-live-births)', source_type: 'official_data' },
+  electricity_access: { label: 'UN SDG — Electricity Access',    url: 'https://unstats.un.org/sdgs/dataportal/database',        source_type: 'official_data' },
 }
 
 function buildCitations(metrics: CountryMetric[]): AIBriefCitation[] {
@@ -43,18 +42,24 @@ interface BriefJSON {
   confidence: number
 }
 
-async function callGemini(prompt: string): Promise<BriefJSON> {
-  const model = getClient().getGenerativeModel({
+async function callGroq(prompt: string): Promise<BriefJSON> {
+  const client = getClient()
+  const completion = await client.chat.completions.create({
     model: MODEL,
-    systemInstruction: `You are an intelligence analyst for the Africa Intelligence Platform.
+    messages: [
+      {
+        role: 'system',
+        content: `You are an intelligence analyst for the Africa Intelligence Platform.
 Generate concise, factual briefs grounded strictly in the provided data.
 Never invent statistics. Respond ONLY with valid JSON — no markdown, no code fences, no extra text.`,
+      },
+      { role: 'user', content: prompt },
+    ],
+    temperature: 0.3,
+    max_tokens: 600,
   })
 
-  const result = await model.generateContent(prompt)
-  const text = result.response.text()
-
-  // Strip markdown code fences if Gemini adds them anyway
+  const text = completion.choices[0]?.message?.content ?? ''
   const clean = text.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim()
   return JSON.parse(clean) as BriefJSON
 }
@@ -63,34 +68,30 @@ export async function generateCountryBrief(
   country: CountrySummary,
   metrics: CountryMetric[],
 ): Promise<Omit<AIBrief, 'id'>> {
-  const metricsText = metricsToText(metrics)
   const { need, opportunity, stability } = country.scores
 
   const prompt = `Generate an intelligence brief for ${country.name} (${country.region}).
 
 SCORES (0–100):
-- Need: ${need} (humanitarian & health pressure — higher = more need)
-- Opportunity: ${opportunity} (economic & connectivity — higher = more opportunity)
-- Stability: ${stability} (governance & peace — higher = more stable)
+- Need: ${need} (humanitarian & health pressure)
+- Opportunity: ${opportunity} (economic & connectivity)
+- Stability: ${stability} (governance & peace)
 
 VERIFIED DATA INDICATORS:
-${metricsText || 'No indicators available yet.'}
+${metricsToText(metrics) || 'No indicators available yet.'}
 
-Return this exact JSON structure:
+Return this exact JSON:
 {
-  "title": "string — one compelling sentence, max 12 words",
-  "summary": "string — 2-3 sentences synthesis of the country current situation",
-  "bullets": ["string", "string", "string"],
-  "risk_flags": ["string"],
-  "confidence": 0.0
+  "title": "one compelling sentence, max 12 words",
+  "summary": "2-3 sentences synthesis of the country current situation",
+  "bullets": ["insight 1", "insight 2", "insight 3"],
+  "risk_flags": [],
+  "confidence": 0.8
 }
 
-Rules:
-- bullets: exactly 3 key insights grounded in the data above
-- risk_flags: 1-2 items only if data shows genuine concern, otherwise empty array []
-- confidence: 0.9 if all key indicators present, 0.7 if partial data, 0.5 if no indicators`
+Rules: bullets must be grounded in the data above. risk_flags: 1-2 items only if data shows genuine concern, otherwise empty array.`
 
-  const result = await callGemini(prompt)
+  const result = await callGroq(prompt)
 
   return {
     title: result.title,
@@ -118,33 +119,21 @@ export async function generateContinentBrief(
 
   const prompt = `Generate an Africa-wide intelligence overview brief.
 
-PLATFORM COUNTRIES: ${countries.map((c) => c.name).join(', ')}
+COUNTRIES: ${countries.map((c) => c.name).join(', ')}
+AVERAGE SCORES: Need ${avgNeed}, Opportunity ${avgOpp}, Stability ${avgStab}
+HIGHLIGHTS: Highest need: ${topNeed.name} (${topNeed.scores.need}), Top opportunity: ${topOpp.name} (${topOpp.scores.opportunity})
+SOURCES: World Bank, WHO, UN SDG
 
-AVERAGE SCORES ACROSS ALL 8 COUNTRIES (0–100):
-- Need: ${avgNeed}
-- Opportunity: ${avgOpp}
-- Stability: ${avgStab}
-
-HIGHLIGHTS:
-- Highest need: ${topNeed.name} (${topNeed.scores.need})
-- Top opportunity: ${topOpp.name} (${topOpp.scores.opportunity})
-
-DATA SOURCES: World Bank Open Data, WHO Global Health Observatory, UN SDG API
-
-Return this exact JSON structure:
+Return this exact JSON:
 {
-  "title": "string — one headline for Africa today, max 12 words",
-  "summary": "string — 2-3 sentences continental synthesis",
-  "bullets": ["string", "string", "string"],
-  "risk_flags": ["string"],
+  "title": "one headline for Africa today, max 12 words",
+  "summary": "2-3 sentences continental synthesis",
+  "bullets": ["trend 1", "trend 2", "trend 3"],
+  "risk_flags": [],
   "confidence": 0.75
-}
+}`
 
-Rules:
-- bullets: 3 cross-country insights or trends
-- risk_flags: 0-2 items max, only genuine concerns`
-
-  const result = await callGemini(prompt)
+  const result = await callGroq(prompt)
 
   return {
     title: result.title,
@@ -152,9 +141,9 @@ Rules:
     bullets: result.bullets,
     risk_flags: result.risk_flags,
     citations: [
-      { id: 'c1', label: 'World Bank Open Data', url: 'https://data.worldbank.org', source_type: 'official_data' },
-      { id: 'c2', label: 'WHO Global Health Observatory', url: 'https://www.who.int/data/gho', source_type: 'official_data' },
-      { id: 'c3', label: 'UN SDG Database', url: 'https://unstats.un.org/sdgs/dataportal', source_type: 'official_data' },
+      { id: 'c1', label: 'World Bank Open Data',          url: 'https://data.worldbank.org',              source_type: 'official_data' },
+      { id: 'c2', label: 'WHO Global Health Observatory', url: 'https://www.who.int/data/gho',             source_type: 'official_data' },
+      { id: 'c3', label: 'UN SDG Database',               url: 'https://unstats.un.org/sdgs/dataportal',  source_type: 'official_data' },
     ],
     scope: 'continent',
     freshness: 'fresh',
