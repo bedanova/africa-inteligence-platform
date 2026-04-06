@@ -7,6 +7,7 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
+import { ScoreGaugeChart } from "@/components/ui/score-gauge-chart";
 import { getCountry, getMetrics, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
 import type { CountryProfile } from "@/types";
@@ -86,6 +87,12 @@ export default async function CountryPage({
             <ScoreChip type="opportunity" value={country.scores.opportunity} size="lg" />
             <ScoreChip type="stability" value={country.scores.stability} size="lg" />
           </div>
+
+          <ScoreGaugeChart
+            need={country.scores.need}
+            opportunity={country.scores.opportunity}
+            stability={country.scores.stability}
+          />
 
           {country.priority_sectors.length > 0 && (
             <div className="flex gap-2 flex-wrap">

@@ -3,6 +3,7 @@ import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { CountryCard } from "@/components/ui/country-card";
 import { ScoreChip } from "@/components/ui/score-chip";
+import { CountryComparisonChart } from "@/components/ui/country-comparison-chart";
 import { getCountries, getBriefs } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
 import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";
@@ -125,6 +126,16 @@ export default async function HomePage() {
               entries={data.leaderboards.attention_gap}
               scoreType="need"
             />
+          </div>
+        )}
+
+        {/* Country comparison chart */}
+        {data && data.countries.length > 0 && (
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 mb-10">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+              Score Comparison — All Countries
+            </h3>
+            <CountryComparisonChart countries={data.countries} />
           </div>
         )}
 
