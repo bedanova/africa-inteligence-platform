@@ -3,7 +3,7 @@ import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { CountryCard } from "@/components/ui/country-card";
 import { ScoreChip } from "@/components/ui/score-chip";
-import { CountryComparisonChart } from "@/components/ui/country-comparison-chart";
+import { CountryComparisonChart } from "@/components/ui/charts-client";
 import { getCountries, getBriefs } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
 import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";

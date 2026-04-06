@@ -7,7 +7,7 @@ import { MetricCard } from "@/components/ui/metric-card";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
-import { ScoreGaugeChart } from "@/components/ui/score-gauge-chart";
+import { ScoreGaugeChart } from "@/components/ui/charts-client";
 import { getCountry, getMetrics, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
 import type { CountryProfile } from "@/types";
