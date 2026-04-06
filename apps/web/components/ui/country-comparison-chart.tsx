@@ -16,7 +16,6 @@ export function CountryComparisonChart({ countries }: Props) {
   // Sort by need score descending
   const sorted = [...countries].sort((a, b) => b.scores.need - a.scores.need)
   const names = sorted.map((c) => `${c.flag_emoji} ${c.name}`)
-  const height = Math.max(360, sorted.length * 58 + 48)
 
   const option = {
     tooltip: {
@@ -27,59 +26,58 @@ export function CountryComparisonChart({ countries }: Props) {
         params.map((p) => `${p.marker} ${p.seriesName}: <b>${p.value}</b>`).join('<br/>'),
     },
     legend: {
-      top: 4,
-      right: 0,
+      bottom: 0,
       itemWidth: 10,
       itemHeight: 10,
-      itemGap: 16,
+      itemGap: 20,
       textStyle: { color: '#64748b', fontSize: 11, fontFamily: 'inherit' },
       data: ['Need', 'Opportunity', 'Stability'],
     },
-    grid: { left: 12, right: 40, bottom: 8, top: 36, containLabel: true },
+    grid: { left: 8, right: 8, bottom: 40, top: 16, containLabel: true },
     xAxis: {
+      type: 'category',
+      data: names,
+      axisLabel: { color: '#334155', fontSize: 11, fontFamily: 'inherit', interval: 0 },
+      axisTick: { show: false },
+      axisLine: { show: false },
+    },
+    yAxis: {
       type: 'value',
       min: 0,
       max: 100,
       interval: 25,
-      axisLabel: { color: '#94a3b8', fontSize: 10, fontFamily: 'inherit', formatter: '{value}' },
+      axisLabel: { color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
       splitLine: { lineStyle: { color: '#f1f5f9' } },
       axisLine: { show: false },
       axisTick: { show: false },
-    },
-    yAxis: {
-      type: 'category',
-      data: names,
-      axisLabel: { color: '#334155', fontSize: 12, fontFamily: 'inherit' },
-      axisTick: { show: false },
-      axisLine: { show: false },
     },
     series: [
       {
         name: 'Need',
         type: 'bar',
-        barMaxWidth: 14,
-        barCategoryGap: '35%',
-        barGap: '8%',
-        itemStyle: { color: '#ef4444', borderRadius: [0, 4, 4, 0] },
-        label: { show: true, position: 'right', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
+        barMaxWidth: 18,
+        barCategoryGap: '30%',
+        barGap: '6%',
+        itemStyle: { color: '#ef4444', borderRadius: [4, 4, 0, 0] },
+        label: { show: true, position: 'top', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
         data: sorted.map((c) => c.scores.need),
       },
       {
         name: 'Opportunity',
         type: 'bar',
-        barMaxWidth: 14,
-        barGap: '8%',
-        itemStyle: { color: '#3b82f6', borderRadius: [0, 4, 4, 0] },
-        label: { show: true, position: 'right', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
+        barMaxWidth: 18,
+        barGap: '6%',
+        itemStyle: { color: '#3b82f6', borderRadius: [4, 4, 0, 0] },
+        label: { show: true, position: 'top', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
         data: sorted.map((c) => c.scores.opportunity),
       },
       {
         name: 'Stability',
         type: 'bar',
-        barMaxWidth: 14,
-        barGap: '8%',
-        itemStyle: { color: '#10b981', borderRadius: [0, 4, 4, 0] },
-        label: { show: true, position: 'right', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
+        barMaxWidth: 18,
+        barGap: '6%',
+        itemStyle: { color: '#10b981', borderRadius: [4, 4, 0, 0] },
+        label: { show: true, position: 'top', color: '#94a3b8', fontSize: 10, fontFamily: 'inherit' },
         data: sorted.map((c) => c.scores.stability),
       },
     ],
@@ -88,7 +86,7 @@ export function CountryComparisonChart({ countries }: Props) {
   return (
     <ReactECharts
       option={option}
-      style={{ height }}
+      style={{ height: 320 }}
       opts={{ renderer: 'svg' }}
     />
   )

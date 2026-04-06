@@ -68,41 +68,6 @@ export function ImpactCharts({ orgs, actions }: Props) {
     }],
   }
 
-  const countryOption = {
-    tooltip: { trigger: 'axis', textStyle: { fontFamily: 'inherit', fontSize: 12 } },
-    grid: { left: 12, right: 24, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: 'value', axisLabel: { color: '#94a3b8', fontFamily: 'inherit', fontSize: 10 }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
-    yAxis: {
-      type: 'category',
-      data: byCountry.map((c) => `${FLAGS[c.iso3] ?? ''} ${NAMES[c.iso3] ?? c.iso3}`),
-      axisLabel: { color: '#334155', fontFamily: 'inherit', fontSize: 12 },
-      axisTick: { show: false }, axisLine: { show: false },
-    },
-    series: [{
-      type: 'bar', barMaxWidth: 20,
-      itemStyle: { color: '#3b82f6', borderRadius: [0, 6, 6, 0] },
-      label: { show: true, position: 'right', color: '#334155', fontFamily: 'inherit', fontSize: 11 },
-      data: byCountry.map((c) => c.count),
-    }],
-  }
-
-  const sectorOption = {
-    tooltip: { trigger: 'axis', textStyle: { fontFamily: 'inherit', fontSize: 12 } },
-    grid: { left: 12, right: 24, top: 8, bottom: 8, containLabel: true },
-    xAxis: { type: 'value', axisLabel: { color: '#94a3b8', fontFamily: 'inherit', fontSize: 10 }, splitLine: { lineStyle: { color: '#f1f5f9' } } },
-    yAxis: {
-      type: 'category',
-      data: bySector.map(([s]) => s),
-      axisLabel: { color: '#334155', fontFamily: 'inherit', fontSize: 11 },
-      axisTick: { show: false }, axisLine: { show: false },
-    },
-    series: [{
-      type: 'bar', barMaxWidth: 16,
-      itemStyle: { color: '#8b5cf6', borderRadius: [0, 6, 6, 0] },
-      label: { show: true, position: 'right', color: '#334155', fontFamily: 'inherit', fontSize: 11 },
-      data: bySector.map(([, n]) => n),
-    }],
-  }
 
   return (
     <div className="space-y-8">
@@ -137,13 +102,34 @@ export function ImpactCharts({ orgs, actions }: Props) {
       {/* Actions per country */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Actions per Country</h3>
-        <ReactECharts option={countryOption} style={{ height: Math.max(180, byCountry.length * 40) }} opts={{ renderer: 'svg' }} />
+        <div className="space-y-2">
+          {byCountry.map(({ iso3, count }) => (
+            <div key={iso3} className="flex items-center gap-3">
+              <span className="text-base leading-none flex-shrink-0">{FLAGS[iso3] ?? ''}</span>
+              <span className="text-sm text-slate-600 w-28 flex-shrink-0">{NAMES[iso3] ?? iso3}</span>
+              <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                <div
+                  className="h-2 rounded-full bg-blue-400 transition-all duration-500"
+                  style={{ width: `${Math.round((count / (byCountry[0]?.count ?? 1)) * 100)}%` }}
+                />
+              </div>
+              <span className="text-sm font-semibold text-slate-700 w-6 text-right flex-shrink-0">{count}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Sector coverage */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
         <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Sector Coverage — Partners per Sector</h3>
-        <ReactECharts option={sectorOption} style={{ height: Math.max(180, bySector.length * 36) }} opts={{ renderer: 'svg' }} />
+        <div className="flex flex-wrap gap-2">
+          {bySector.map(([sector, count]) => (
+            <div key={sector} className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2">
+              <span className="text-lg font-bold text-violet-600">{count}</span>
+              <span className="text-xs text-slate-600">{sector}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Partner cards */}
