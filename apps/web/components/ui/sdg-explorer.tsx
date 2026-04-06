@@ -451,7 +451,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                               <div className="h-2.5 rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: dot }} />
                             </div>
                             <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
-                              {val.toFixed(1)}{unit ? ` ${unit}` : ''}
+                              {Number.isInteger(val) ? val : val.toFixed(4)}{unit ? ` ${unit}` : ''}
                             </span>
                           </div>
                         )
@@ -481,7 +481,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                                 className="text-sm font-bold px-2 py-0.5 rounded-lg"
                                 style={{ backgroundColor: bg, color: text }}
                               >
-                                {val % 1 === 0 ? val : val.toFixed(1)}
+                                {Number.isInteger(val) ? val : val.toFixed(4)}
                                 <span className="text-[10px] font-normal ml-0.5">{unit}</span>
                               </span>
                             </div>

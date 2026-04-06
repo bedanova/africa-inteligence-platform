@@ -80,7 +80,9 @@ export function MetricCard({ metric, className, loading }: MetricCardProps) {
 
       <div className="flex items-baseline gap-1 mb-2">
         <span className="text-2xl font-bold text-slate-900 tabular-nums">
-          {metric.value}
+          {typeof metric.value === 'number'
+            ? (Number.isInteger(metric.value) ? metric.value : Number(metric.value).toFixed(4))
+            : metric.value}
         </span>
         {metric.unit && (
           <span className="text-sm text-slate-400 font-medium">{metric.unit}</span>

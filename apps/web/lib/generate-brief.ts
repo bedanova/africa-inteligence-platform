@@ -30,7 +30,12 @@ function buildCitations(metrics: CountryMetric[]): AIBriefCitation[] {
 
 function metricsToText(metrics: CountryMetric[]): string {
   return metrics
-    .map((m) => `- ${m.label}: ${m.value}${m.unit ? ' ' + m.unit : ''} (${m.source}, ${m.source_year})`)
+    .map((m) => {
+      const v = typeof m.value === 'number'
+        ? (Number.isInteger(m.value) ? m.value : Number(m.value).toFixed(4))
+        : m.value
+      return `- ${m.label}: ${v}${m.unit ? ' ' + m.unit : ''} (${m.source}, ${m.source_year})`
+    })
     .join('\n')
 }
 
