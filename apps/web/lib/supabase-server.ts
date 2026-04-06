@@ -1,10 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import type { CountrySummary, CountryMetric, ActionCard, AIBrief } from '@/types'
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-)
+function getClient() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+}
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -75,7 +77,7 @@ function rowToBrief(row: any): AIBrief {
 // ── queries ────────────────────────────────────────────────────────────────────
 
 export async function getCountries(region?: string): Promise<CountrySummary[]> {
-  let query = supabase.from('countries').select('*').order('name')
+  let query = getClient().from('countries').select('*').order('name')
   if (region) query = query.eq('region', region)
   const { data, error } = await query
   if (error) throw error
@@ -83,7 +85,7 @@ export async function getCountries(region?: string): Promise<CountrySummary[]> {
 }
 
 export async function getCountry(iso3: string): Promise<CountrySummary | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from('countries')
     .select('*')
     .eq('iso3', iso3)
@@ -93,7 +95,7 @@ export async function getCountry(iso3: string): Promise<CountrySummary | null> {
 }
 
 export async function getMetrics(iso3: string): Promise<CountryMetric[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from('metrics')
     .select('*')
     .eq('country_iso3', iso3)
@@ -102,7 +104,7 @@ export async function getMetrics(iso3: string): Promise<CountryMetric[]> {
 }
 
 export async function getSectors(iso3: string): Promise<string[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from('sectors')
     .select('name')
     .eq('country_iso3', iso3)
@@ -112,7 +114,7 @@ export async function getSectors(iso3: string): Promise<string[]> {
 }
 
 export async function getActions(iso3: string): Promise<ActionCard[]> {
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from('actions')
     .select('*')
     .eq('country_iso3', iso3)
@@ -121,7 +123,7 @@ export async function getActions(iso3: string): Promise<ActionCard[]> {
 }
 
 export async function getBriefs(iso3?: string): Promise<AIBrief[]> {
-  let query = supabase.from('briefs').select('*').order('generated_at', { ascending: false })
+  let query = getClient().from('briefs').select('*').order('generated_at', { ascending: false })
   if (iso3) query = query.eq('country_iso3', iso3)
   const { data, error } = await query
   if (error) throw error
@@ -129,7 +131,7 @@ export async function getBriefs(iso3?: string): Promise<AIBrief[]> {
 }
 
 export async function getCountryBriefFromDb(iso3: string): Promise<AIBrief | null> {
-  const { data, error } = await supabase
+  const { data, error } = await getClient()
     .from('briefs')
     .select('*')
     .eq('country_iso3', iso3)

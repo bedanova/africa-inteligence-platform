@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import type { ActionCard } from '@/types'
 import { MOCK_ACTIONS } from '@/lib/mock-data'
 
-const supabase = createClient(
+const getClient = () => createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )
@@ -13,7 +13,7 @@ export async function GET(request: Request) {
   const actionType = searchParams.get('type') ?? undefined
 
   try {
-    let query = supabase.from('actions').select('*').order('type')
+    let query = getClient().from('actions').select('*').order('type')
     if (actionType) query = query.eq('type', actionType)
     const { data, error } = await query
     if (error) throw error
