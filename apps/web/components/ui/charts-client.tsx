@@ -13,10 +13,19 @@ const CountryComparisonChartInner = dynamic(
   { ssr: false }
 )
 
+const AfricaMapInner = dynamic(
+  () => import('./africa-map-inner').then((m) => m.AfricaMapInner),
+  { ssr: false }
+)
+
 export function ScoreGaugeChart(props: { need: number; opportunity: number; stability: number }) {
   return <ScoreGaugeChartInner {...props} />
 }
 
 export function CountryComparisonChart(props: { countries: CountrySummary[] }) {
   return <CountryComparisonChartInner {...props} />
+}
+
+export function AfricaMap(props: { countries: CountrySummary[] }) {
+  return <AfricaMapInner {...props} />
 }

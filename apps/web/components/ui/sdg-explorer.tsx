@@ -197,33 +197,48 @@ interface MetricDef {
 
 const SDG_METRICS: Record<number, MetricDef[]> = {
   1: [
-    { key: 'gdp_growth',      label: 'GDP growth (% annual)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gdp_growth',   label: 'GDP growth (% annual)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'poverty_215',  label: 'Poverty headcount at $2.15/day (% pop)', higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   2: [
-    { key: 'mortality_u5',    label: 'Under-5 mortality (per 1,000)',  higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'mortality_u5', label: 'Under-5 mortality (per 1,000)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   3: [
-    { key: 'life_expectancy',    label: 'Life expectancy (years)',          higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'yrs' },
-    { key: 'maternal_mortality', label: 'Maternal mortality (per 100k)',    higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
-    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'life_expectancy',    label: 'Life expectancy (years)',         higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'yrs' },
+    { key: 'maternal_mortality', label: 'Maternal mortality (per 100k)',   higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
+    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',   higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   4: [
     { key: 'internet_access', label: 'Internet access — digital education proxy (%)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
   ],
+  6: [
+    { key: 'water_access', label: 'Safely managed drinking water (%)', higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+  ],
   7: [
-    { key: 'electricity_access', label: 'Electricity access (%)',       higherIsBetter: true,  source: 'UN SDG',     display: 'percent', unit: '%' },
+    { key: 'electricity_access', label: 'Electricity access (%)',      higherIsBetter: true,  source: 'UN SDG',     display: 'percent', unit: '%' },
   ],
   8: [
-    { key: 'gdp_growth',      label: 'GDP growth (% annual)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gdp_growth',    label: 'GDP growth (% annual)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'unemployment',  label: 'Unemployment rate (%)',            higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'inflation',     label: 'Inflation, CPI (% annual)',        higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '%' },
   ],
   9: [
-    { key: 'internet_access', label: 'Internet users (% population)',  higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'internet_access', label: 'Internet users (% population)', higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'fdi',             label: 'FDI net inflows (% of GDP)',     higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: '% GDP' },
   ],
   10: [
-    { key: 'mortality_u5',    label: 'Under-5 mortality — inequality proxy (per 1,000)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 'per 1k' },
+    { key: 'gini',         label: 'Gini index (income inequality)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '' },
+    { key: 'mortality_u5', label: 'Under-5 mortality — inequality proxy (per 1,000)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 'per 1k' },
+  ],
+  13: [
+    { key: 'co2_per_capita', label: 'CO₂ emissions per capita (tonnes)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 't/cap' },
   ],
   16: [
-    { key: 'score_stability', label: 'Governance & peace score (0–100)', higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
+    { key: 'score_stability',    label: 'Governance & peace score (0–100)',   higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
+    { key: 'political_stability', label: 'Political stability index (0–100)', higherIsBetter: true, source: 'World Bank WGI',     display: 'percent', unit: '/100' },
+  ],
+  17: [
+    { key: 'fdi', label: 'FDI net inflows (% of GDP) — investment proxy', higherIsBetter: true, source: 'World Bank', display: 'rate', unit: '% GDP' },
   ],
 }
 
@@ -350,6 +365,15 @@ export function SDGExplorer({ countries, metrics }: Props) {
                     country: c,
                     metric: { key, label, value: c.scores.stability, unit: '/100', source, source_year: new Date().getFullYear(), freshness: 'fresh' } as CountryMetric,
                   }
+                }
+                // political_stability from WGI is stored as raw -2.5→+2.5 in metrics — normalize to 0-100
+                if (key === 'political_stability') {
+                  const raw = (metrics[c.iso3] ?? []).find((x) => x.key === 'political_stability')
+                  if (raw) {
+                    const normalized = Math.min(100, Math.max(0, Math.round((Number(raw.value) + 2.5) * 20)))
+                    return { country: c, metric: { ...raw, value: normalized, unit: '/100' } as CountryMetric }
+                  }
+                  return { country: c, metric: undefined }
                 }
                 const m = (metrics[c.iso3] ?? []).find((x) => x.key === key)
                 return { country: c, metric: m }

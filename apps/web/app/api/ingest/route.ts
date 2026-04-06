@@ -21,12 +21,24 @@ function getSupabase() {
 }
 
 const METRIC_META: Record<string, { label: string; unit: string | null; source: string }> = {
-  gdp_growth:          { label: 'GDP Growth',           unit: '%',       source: 'World Bank' },
-  internet_access:     { label: 'Internet Access',      unit: '%',       source: 'World Bank' },
-  mortality_u5:        { label: 'Under-5 Mortality',    unit: 'per 1k',  source: 'World Bank' },
-  life_expectancy:     { label: 'Life Expectancy',      unit: 'years',   source: 'WHO GHO' },
-  maternal_mortality:  { label: 'Maternal Mortality',   unit: 'per 100k',source: 'WHO GHO' },
-  electricity_access:  { label: 'Electricity Access',   unit: '%',       source: 'UN SDG' },
+  // World Bank
+  gdp_growth:           { label: 'GDP Growth',                      unit: '%',        source: 'World Bank' },
+  inflation:            { label: 'Inflation (CPI)',                  unit: '%',        source: 'World Bank' },
+  fdi:                  { label: 'FDI Inflows',                      unit: '% GDP',    source: 'World Bank' },
+  internet_access:      { label: 'Internet Access',                  unit: '%',        source: 'World Bank' },
+  mortality_u5:         { label: 'Under-5 Mortality',                unit: 'per 1k',   source: 'World Bank' },
+  poverty_215:          { label: 'Poverty Headcount ($2.15/day)',    unit: '%',        source: 'World Bank' },
+  gini:                 { label: 'Gini Index',                       unit: null,       source: 'World Bank' },
+  unemployment:         { label: 'Unemployment Rate',                unit: '%',        source: 'World Bank' },
+  water_access:         { label: 'Safe Drinking Water Access',       unit: '%',        source: 'World Bank' },
+  co2_per_capita:       { label: 'CO₂ Emissions per Capita',        unit: 't/capita', source: 'World Bank' },
+  political_stability:  { label: 'Political Stability Index',        unit: '/100',     source: 'World Bank WGI' },
+  population:           { label: 'Population',                       unit: null,       source: 'World Bank' },
+  // WHO GHO
+  life_expectancy:      { label: 'Life Expectancy',                  unit: 'years',    source: 'WHO GHO' },
+  maternal_mortality:   { label: 'Maternal Mortality',               unit: 'per 100k', source: 'WHO GHO' },
+  // UN SDG
+  electricity_access:   { label: 'Electricity Access',               unit: '%',        source: 'UN SDG' },
 }
 
 async function runIngest() {

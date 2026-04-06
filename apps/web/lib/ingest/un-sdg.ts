@@ -7,16 +7,20 @@
 
 const SDG_BASE = 'https://unstats.un.org/SDGAPI/v1/sdg'
 
-// UN M.49 numeric area codes for platform countries
+// UN M.49 numeric area codes for all 20 platform countries
 const COUNTRY_CODES: Record<string, number> = {
-  KEN: 404,
-  NGA: 566,
-  ETH: 231,
-  GHA: 288,
-  ZAF: 710,
-  TZA: 834,
-  RWA: 646,
-  SEN: 686,
+  // Eastern Africa
+  KEN: 404, ETH: 231, TZA: 834, RWA: 646, UGA: 800, MOZ: 508,
+  // Western Africa
+  NGA: 566, GHA: 288, SEN: 686, CIV: 384, CMR: 120,
+  // Southern Africa
+  ZAF: 710, ZMB: 894, AGO: 24,
+  // Northern Africa
+  EGY: 818, MAR: 504, DZA: 12, TUN: 788,
+  // Central Africa
+  COD: 180,
+  // Island
+  MDG: 450,
 }
 
 // SDG indicator codes — total/all-areas series only

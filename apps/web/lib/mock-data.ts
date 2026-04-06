@@ -7,70 +7,32 @@ import type {
 } from '@/types'
 
 export const MOCK_COUNTRIES: CountrySummary[] = [
-  {
-    iso3: 'KEN',
-    name: 'Kenya',
-    region: 'Eastern Africa' as Region,
-    flag_emoji: '🇰🇪',
-    scores: { need: 62, opportunity: 74, stability: 55, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'NGA',
-    name: 'Nigeria',
-    region: 'Western Africa' as Region,
-    flag_emoji: '🇳🇬',
-    scores: { need: 71, opportunity: 68, stability: 41, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'ETH',
-    name: 'Ethiopia',
-    region: 'Eastern Africa' as Region,
-    flag_emoji: '🇪🇹',
-    scores: { need: 78, opportunity: 52, stability: 38, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'GHA',
-    name: 'Ghana',
-    region: 'Western Africa' as Region,
-    flag_emoji: '🇬🇭',
-    scores: { need: 48, opportunity: 71, stability: 72, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'ZAF',
-    name: 'South Africa',
-    region: 'Southern Africa' as Region,
-    flag_emoji: '🇿🇦',
-    scores: { need: 44, opportunity: 66, stability: 63, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'TZA',
-    name: 'Tanzania',
-    region: 'Eastern Africa' as Region,
-    flag_emoji: '🇹🇿',
-    scores: { need: 65, opportunity: 61, stability: 60, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'RWA',
-    name: 'Rwanda',
-    region: 'Eastern Africa' as Region,
-    flag_emoji: '🇷🇼',
-    scores: { need: 52, opportunity: 70, stability: 75, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
-  {
-    iso3: 'SEN',
-    name: 'Senegal',
-    region: 'Western Africa' as Region,
-    flag_emoji: '🇸🇳',
-    scores: { need: 55, opportunity: 64, stability: 67, updated_at: new Date().toISOString() },
-    freshness: 'fresh',
-  },
+  // Eastern Africa
+  { iso3: 'KEN', name: 'Kenya',          region: 'Eastern Africa',  flag_emoji: '🇰🇪', scores: { need: 62, opportunity: 74, stability: 55, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'ETH', name: 'Ethiopia',       region: 'Eastern Africa',  flag_emoji: '🇪🇹', scores: { need: 78, opportunity: 52, stability: 38, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'TZA', name: 'Tanzania',       region: 'Eastern Africa',  flag_emoji: '🇹🇿', scores: { need: 65, opportunity: 61, stability: 60, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'RWA', name: 'Rwanda',         region: 'Eastern Africa',  flag_emoji: '🇷🇼', scores: { need: 52, opportunity: 70, stability: 75, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'UGA', name: 'Uganda',         region: 'Eastern Africa',  flag_emoji: '🇺🇬', scores: { need: 68, opportunity: 58, stability: 48, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'MOZ', name: 'Mozambique',     region: 'Eastern Africa',  flag_emoji: '🇲🇿', scores: { need: 74, opportunity: 55, stability: 44, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  // Western Africa
+  { iso3: 'NGA', name: 'Nigeria',        region: 'Western Africa',  flag_emoji: '🇳🇬', scores: { need: 71, opportunity: 68, stability: 41, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'GHA', name: 'Ghana',          region: 'Western Africa',  flag_emoji: '🇬🇭', scores: { need: 48, opportunity: 71, stability: 72, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'SEN', name: 'Senegal',        region: 'Western Africa',  flag_emoji: '🇸🇳', scores: { need: 55, opportunity: 64, stability: 67, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'CIV', name: "Côte d'Ivoire", region: 'Western Africa',  flag_emoji: '🇨🇮', scores: { need: 58, opportunity: 66, stability: 55, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'CMR', name: 'Cameroon',       region: 'Western Africa',  flag_emoji: '🇨🇲', scores: { need: 60, opportunity: 57, stability: 45, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  // Southern Africa
+  { iso3: 'ZAF', name: 'South Africa',   region: 'Southern Africa', flag_emoji: '🇿🇦', scores: { need: 44, opportunity: 66, stability: 63, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'ZMB', name: 'Zambia',         region: 'Southern Africa', flag_emoji: '🇿🇲', scores: { need: 66, opportunity: 58, stability: 54, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'AGO', name: 'Angola',         region: 'Southern Africa', flag_emoji: '🇦🇴', scores: { need: 70, opportunity: 56, stability: 50, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  // Northern Africa
+  { iso3: 'EGY', name: 'Egypt',          region: 'Northern Africa', flag_emoji: '🇪🇬', scores: { need: 50, opportunity: 65, stability: 52, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'MAR', name: 'Morocco',        region: 'Northern Africa', flag_emoji: '🇲🇦', scores: { need: 42, opportunity: 68, stability: 64, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'DZA', name: 'Algeria',        region: 'Northern Africa', flag_emoji: '🇩🇿', scores: { need: 38, opportunity: 59, stability: 57, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  { iso3: 'TUN', name: 'Tunisia',        region: 'Northern Africa', flag_emoji: '🇹🇳', scores: { need: 36, opportunity: 61, stability: 48, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  // Central Africa
+  { iso3: 'COD', name: 'DR Congo',       region: 'Central Africa',  flag_emoji: '🇨🇩', scores: { need: 82, opportunity: 44, stability: 28, updated_at: new Date().toISOString() }, freshness: 'fresh' },
+  // Indian Ocean
+  { iso3: 'MDG', name: 'Madagascar',     region: 'Eastern Africa',  flag_emoji: '🇲🇬', scores: { need: 72, opportunity: 48, stability: 50, updated_at: new Date().toISOString() }, freshness: 'fresh' },
 ]
 
 export const MOCK_BRIEFS: AIBrief[] = [

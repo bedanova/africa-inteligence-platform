@@ -7,8 +7,14 @@
 
 const WHO_BASE = 'https://ghoapi.azureedge.net/api'
 
-// ISO3 codes for platform countries
-const COUNTRIES = ['KEN', 'NGA', 'ETH', 'GHA', 'ZAF', 'TZA', 'RWA', 'SEN']
+// ISO3 codes for all 20 platform countries
+const COUNTRIES = [
+  'KEN', 'ETH', 'TZA', 'RWA', 'UGA', 'MOZ',
+  'NGA', 'GHA', 'SEN', 'CIV', 'CMR',
+  'ZAF', 'ZMB', 'AGO',
+  'EGY', 'MAR', 'DZA', 'TUN',
+  'COD', 'MDG',
+]
 
 // WHO indicator codes — from GHO catalogue
 export const WHO_INDICATORS = {
