@@ -8,8 +8,10 @@ import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
 import { ScoreGaugeChart } from "@/components/ui/charts-client";
+import { CountryEducationPanel } from "@/components/ui/country-education-panel";
 import { getCountry, getMetrics, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
+import { COUNTRY_EDUCATION } from "@/lib/country-education";
 import type { CountryProfile } from "@/types";
 import type { Metadata } from "next";
 
@@ -104,6 +106,15 @@ export default async function CountryPage({
             </div>
           )}
         </div>
+
+        {COUNTRY_EDUCATION[country.iso3] && (
+          <div className="mb-6">
+            <CountryEducationPanel
+              education={COUNTRY_EDUCATION[country.iso3]}
+              countryName={country.name}
+            />
+          </div>
+        )}
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">

@@ -341,7 +341,8 @@ export function SDGExplorer({ countries, metrics }: Props) {
             </div>
           )}
 
-          {goalMetrics && <div className="space-y-8">
+          {goalMetrics && (
+          <div className="space-y-8">
             {goalMetrics.map(({ key, label, higherIsBetter, source, display, unit }) => {
               const rows = countries.map((c) => {
                 if (key === 'score_stability') {
@@ -439,7 +440,8 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 </div>
               )
             })}
-          </div>}
+          </div>
+          )}
         </div>
       )}
 
