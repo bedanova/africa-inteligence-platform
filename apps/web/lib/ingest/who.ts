@@ -7,7 +7,6 @@
 
 const WHO_BASE = 'https://ghoapi.azureedge.net/api'
 
-// ISO3 codes for all 20 platform countries
 const COUNTRIES = [
   'KEN', 'ETH', 'TZA', 'RWA', 'UGA', 'MOZ',
   'NGA', 'GHA', 'SEN', 'CIV', 'CMR',
@@ -16,10 +15,13 @@ const COUNTRIES = [
   'COD', 'MDG',
 ]
 
-// WHO indicator codes — from GHO catalogue
-export const WHO_INDICATORS = {
-  life_expectancy:    'WHOSIS_000001', // Life expectancy at birth (years)
-  maternal_mortality: 'MDG_0000000026', // Maternal mortality ratio (per 100k live births)
+// WHO indicator codes + optional Dim1 filter (for sex-disaggregated indicators)
+const WHO_INDICATORS = {
+  life_expectancy:     { code: 'WHOSIS_000001',  dim1Filter: null },
+  maternal_mortality:  { code: 'MDG_0000000026', dim1Filter: null },
+  ncd_mortality:       { code: 'NCDMORT3070',    dim1Filter: 'SEX_BTSX' }, // NCD premature death probability (%)
+  obesity_rate:        { code: 'NCD_BMI_30A',    dim1Filter: 'SEX_BTSX' }, // Obesity prevalence (%)
+  physicians_per_10k:  { code: 'HWF_0001',       dim1Filter: null },       // Medical doctors per 10,000
 } as const
 
 export type WHOIndicatorKey = keyof typeof WHO_INDICATORS
@@ -33,8 +35,10 @@ export interface WHODataPoint {
 }
 
 async function fetchWHOIndicator(indicator: WHOIndicatorKey): Promise<WHODataPoint[]> {
-  const code = WHO_INDICATORS[indicator]
-  const filter = `SpatialDimType eq 'COUNTRY' and ParentLocationCode ne null`
+  const { code, dim1Filter } = WHO_INDICATORS[indicator]
+  let filter = `SpatialDimType eq 'COUNTRY' and ParentLocationCode ne null`
+  if (dim1Filter) filter += ` and Dim1 eq '${dim1Filter}'`
+
   const url = `${WHO_BASE}/${code}?$filter=${encodeURIComponent(filter)}&$orderby=TimeDim desc`
 
   const res = await fetch(url, {
@@ -48,7 +52,6 @@ async function fetchWHOIndicator(indicator: WHOIndicatorKey): Promise<WHODataPoi
   const rows: WHODataPoint[] = []
   const seen = new Set<string>()
 
-  // Take most recent value per country
   for (const r of (json.value ?? [])) {
     const iso3: string = r.SpatialDim
     if (!COUNTRIES.includes(iso3)) continue
@@ -70,9 +73,12 @@ async function fetchWHOIndicator(indicator: WHOIndicatorKey): Promise<WHODataPoi
 }
 
 export async function fetchAllWHOIndicators(): Promise<WHODataPoint[]> {
-  const [lifeExp, maternal] = await Promise.all([
+  const results = await Promise.allSettled([
     fetchWHOIndicator('life_expectancy'),
     fetchWHOIndicator('maternal_mortality'),
+    fetchWHOIndicator('ncd_mortality'),
+    fetchWHOIndicator('obesity_rate'),
+    fetchWHOIndicator('physicians_per_10k'),
   ])
-  return [...lifeExp, ...maternal]
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
 }

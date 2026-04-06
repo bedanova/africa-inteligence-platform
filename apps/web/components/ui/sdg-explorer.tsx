@@ -197,35 +197,45 @@ interface MetricDef {
 
 const SDG_METRICS: Record<number, MetricDef[]> = {
   1: [
-    { key: 'gdp_growth',   label: 'GDP growth (% annual)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gdp_growth',   label: 'GDP growth (% annual)',                   higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
     { key: 'poverty_215',  label: 'Poverty headcount at $2.15/day (% pop)', higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   2: [
-    { key: 'mortality_u5', label: 'Under-5 mortality (per 1,000)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'undernourishment', label: 'Undernourishment prevalence (%)',           higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'stunting_u5',      label: 'Stunting, children under 5 (%)',             higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'food_insecurity',  label: 'Moderate/severe food insecurity (%)',        higherIsBetter: false, source: 'UN SDG',     display: 'percent', unit: '%' },
+    { key: 'mortality_u5',     label: 'Under-5 mortality — nutrition proxy (per 1k)', higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   3: [
-    { key: 'life_expectancy',    label: 'Life expectancy (years)',         higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'yrs' },
-    { key: 'maternal_mortality', label: 'Maternal mortality (per 100k)',   higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
-    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',   higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'life_expectancy',    label: 'Life expectancy (years)',              higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'yrs' },
+    { key: 'maternal_mortality', label: 'Maternal mortality (per 100,000)',     higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
+    { key: 'mortality_u5',       label: 'Under-5 mortality (per 1,000)',        higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'ncd_mortality',      label: 'NCD premature mortality prob. (%)',    higherIsBetter: false, source: 'WHO GHO',    display: 'percent', unit: '%' },
+    { key: 'obesity_rate',       label: 'Obesity prevalence (%)',               higherIsBetter: false, source: 'WHO GHO',    display: 'percent', unit: '%' },
+    { key: 'physicians_per_10k', label: 'Medical doctors (per 10,000)',         higherIsBetter: true,  source: 'WHO GHO',    display: 'rate',    unit: 'per 10k' },
+    { key: 'health_expenditure', label: 'Health expenditure (% of GDP)',        higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'hospital_beds',      label: 'Hospital beds (per 1,000)',            higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'per 1k' },
   ],
   4: [
-    { key: 'school_enrollment_primary',   label: 'Net primary school enrollment (%)',       higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'school_enrollment_secondary', label: 'Net secondary school enrollment (%)',      higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'literacy_rate',               label: 'Adult literacy rate (% ages 15+)',         higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'primary_completion',          label: 'Primary completion rate (%)',               higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'school_enrollment_primary',   label: 'Net primary school enrollment (%)',        higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'school_enrollment_secondary', label: 'Net secondary school enrollment (%)',       higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'literacy_rate',               label: 'Adult literacy rate (% ages 15+)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'primary_completion',          label: 'Primary completion rate (%)',                higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'education_expenditure',       label: 'Gov. education expenditure (% of GDP)',     higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
     { key: 'internet_access',             label: 'Internet access — digital learning proxy (%)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   5: [
-    { key: 'women_in_parliament',        label: 'Women in parliament (% of seats)',         higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'female_labor_participation', label: 'Female labour force participation (%)',     higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'gender_parity_education',    label: 'Gender parity index — education (GPI)',     higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
-    { key: 'maternal_mortality',         label: 'Maternal mortality (per 100,000)',          higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
+    { key: 'women_in_parliament',        label: 'Women in parliament (% of seats)',          higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'female_labor_participation', label: 'Female labour force participation (%)',      higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gender_parity_education',    label: 'Gender parity index — education (GPI)',      higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
+    { key: 'maternal_mortality',         label: 'Maternal mortality (per 100,000)',           higherIsBetter: false, source: 'WHO GHO',    display: 'rate',    unit: 'per 100k' },
   ],
   6: [
     { key: 'water_access', label: 'Safely managed drinking water (%)', higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
   ],
   7: [
-    { key: 'electricity_access', label: 'Electricity access (%)',      higherIsBetter: true,  source: 'UN SDG',     display: 'percent', unit: '%' },
+    { key: 'electricity_access',   label: 'Electricity access (%)',                higherIsBetter: true, source: 'UN SDG',     display: 'percent', unit: '%' },
+    { key: 'renewable_electricity', label: 'Renewable electricity output (%)',     higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   8: [
     { key: 'gdp_growth',    label: 'GDP growth (% annual)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
@@ -233,21 +243,39 @@ const SDG_METRICS: Record<number, MetricDef[]> = {
     { key: 'inflation',     label: 'Inflation, CPI (% annual)',        higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '%' },
   ],
   9: [
-    { key: 'internet_access', label: 'Internet users (% population)', higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'fdi',             label: 'FDI net inflows (% of GDP)',     higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: '% GDP' },
+    { key: 'internet_access',  label: 'Internet users (% population)',        higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'mobile_coverage',  label: '4G mobile network coverage (%)',       higherIsBetter: true, source: 'UN SDG',     display: 'percent', unit: '%' },
+    { key: 'fdi',              label: 'FDI net inflows (% of GDP)',            higherIsBetter: true, source: 'World Bank', display: 'rate',    unit: '% GDP' },
   ],
   10: [
-    { key: 'gini',                        label: 'Gini index (income inequality)',              higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '' },
-    { key: 'mortality_u5',                label: 'Under-5 mortality — inequality proxy',        higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
-    { key: 'gender_parity_education',     label: 'Gender parity in education (GPI)',            higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
-    { key: 'women_in_parliament',         label: 'Women in parliament (% of seats)',            higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'gini',                    label: 'Gini index (income inequality)',           higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: '' },
+    { key: 'mortality_u5',            label: 'Under-5 mortality — inequality proxy',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'per 1k' },
+    { key: 'gender_parity_education', label: 'Gender parity in education (GPI)',        higherIsBetter: true,  source: 'World Bank', display: 'rate',    unit: 'GPI' },
+    { key: 'women_in_parliament',     label: 'Women in parliament (% of seats)',        higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+  ],
+  11: [
+    { key: 'urban_population', label: 'Urban population (% of total)',        higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'slum_population',  label: 'Population in slums (% of urban)',     higherIsBetter: false, source: 'World Bank', display: 'percent', unit: '% urban' },
+  ],
+  12: [
+    { key: 'energy_use_per_capita', label: 'Energy use per capita (kg oil eq.)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'kg' },
+    { key: 'renewable_electricity', label: 'Renewable electricity output (%)',      higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'co2_per_capita',        label: 'CO₂ emissions per capita (tonnes)',     higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 't/cap' },
   ],
   13: [
     { key: 'co2_per_capita', label: 'CO₂ emissions per capita (tonnes)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 't/cap' },
   ],
+  14: [
+    { key: 'marine_protected_areas', label: 'Marine protected areas (% of territorial waters)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+  ],
+  15: [
+    { key: 'forest_area',    label: 'Forest area (% of land area)',               higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+    { key: 'protected_areas', label: 'Protected areas (% of total territory)',    higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
+  ],
   16: [
-    { key: 'score_stability',    label: 'Governance & peace score (0–100)',   higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
-    { key: 'political_stability', label: 'Political stability index (0–100)', higherIsBetter: true, source: 'World Bank WGI',     display: 'percent', unit: '/100' },
+    { key: 'score_stability',     label: 'Governance & peace score (0–100)',    higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
+    { key: 'political_stability', label: 'Political stability index (0–100)',   higherIsBetter: true, source: 'World Bank WGI',     display: 'percent', unit: '/100' },
+    { key: 'conflict_deaths',     label: 'Conflict-related deaths (per 100k)', higherIsBetter: false, source: 'UN SDG',            display: 'rate',    unit: 'per 100k' },
   ],
   17: [
     { key: 'fdi', label: 'FDI net inflows (% of GDP) — investment proxy', higherIsBetter: true, source: 'World Bank', display: 'rate', unit: '% GDP' },
@@ -299,7 +327,6 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
 export function SDGExplorer({ countries, metrics }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
   const goalMetrics = selected ? SDG_METRICS[selected] : undefined
-  const hasData = (n: number) => !!SDG_METRICS[n]
   const selectedGoal = selected ? GOALS[selected - 1] : undefined
 
   return (
@@ -307,7 +334,6 @@ export function SDGExplorer({ countries, metrics }: Props) {
       {/* Goal tiles — all 17 are clickable */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8">
         {GOALS.map(({ n, label, color }) => {
-          const active = hasData(n)
           const isSelected = selected === n
           return (
             <button
@@ -327,10 +353,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 {n}
               </div>
               <p className="text-xs font-medium text-slate-700 leading-snug">{label}</p>
-              {active
-                ? <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 w-fit border border-emerald-100">Live data</span>
-                : <span className="text-[10px] font-medium text-slate-400 bg-slate-50 rounded-full px-2 py-0.5 w-fit border border-slate-100">Learn more</span>
-              }
+              <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 w-fit border border-emerald-100">Live data</span>
             </button>
           )
         })}
@@ -349,9 +372,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
             <div>
               <h2 className="font-semibold text-slate-900 text-lg">SDG {selected} — {selectedGoal.label}</h2>
               <p className="text-xs text-slate-400 mt-0.5">
-                {goalMetrics
-                  ? [...new Set(goalMetrics.map(m => m.source))].join(' · ')
-                  : 'Additional data coming in Phase 3'}
+                {[...new Set(goalMetrics!.map(m => m.source))].join(' · ')}
               </p>
             </div>
             <button onClick={() => setSelected(null)} className="ml-auto text-slate-300 hover:text-slate-500 text-2xl leading-none">×</button>
@@ -361,20 +382,6 @@ export function SDGExplorer({ countries, metrics }: Props) {
           <div className="mb-6">
             <EducationPanel goal={selectedGoal} />
           </div>
-
-          {!goalMetrics && (
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-2">
-              <p className="text-sm font-semibold text-blue-800">Live data coming soon</p>
-              <p className="text-sm text-blue-700">
-                {selected === 11 && 'SDG 11 (Sustainable Cities): urban slum population data from UN-Habitat and World Bank urban indicators are planned for the next phase.'}
-                {selected === 12 && 'SDG 12 (Responsible Consumption): food loss statistics (FAO) and material footprint data are planned for the next phase.'}
-                {selected === 14 && 'SDG 14 (Life Below Water): marine protected area coverage and fisheries health data from FAO FishStat are planned.'}
-                {selected === 15 && 'SDG 15 (Life on Land): forest area change (World Bank FO.FRST) and terrestrial protected areas are planned for the next phase.'}
-                {selected === 2 && 'SDG 2 (Zero Hunger): FAOSTAT food security prevalence and stunting data from UNICEF/WHO are planned for the next phase.'}
-                {![2,11,12,14,15].includes(selected ?? 0) && 'Specialist data sources (UNICEF, FAO, UN SDG API) are planned for the next phase.'}
-              </p>
-            </div>
-          )}
 
           {goalMetrics && (
           <div className="space-y-8">

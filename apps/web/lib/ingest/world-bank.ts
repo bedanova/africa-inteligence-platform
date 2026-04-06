@@ -54,6 +54,25 @@ export const INDICATORS = {
   women_in_parliament:         'SG.GEN.PARL.ZS',  // Women in parliament (% of seats)
   female_labor_participation:  'SL.TLF.TOTL.FE.ZS', // Female labour force participation (%)
   gender_parity_education:     'SE.ENR.PRSC.FM.ZS', // Gender parity index — primary+secondary GPI
+  // SDG 2 — Hunger
+  undernourishment:            'SN.ITK.DEFC.ZS',    // Prevalence of undernourishment (%)
+  stunting_u5:                 'SH.STA.STNT.ZS',    // Stunting, children under 5 (%)
+  // SDG 3 — Health
+  health_expenditure:          'SH.XPD.CHEX.GD.ZS', // Current health expenditure (% of GDP)
+  hospital_beds:               'SH.MED.BEDS.ZS',     // Hospital beds (per 1,000 people)
+  // SDG 4 — Education (spending proxy)
+  education_expenditure:       'SE.XPD.TOTL.GD.ZS', // Gov expenditure on education (% of GDP)
+  // SDG 7/12 — Energy
+  renewable_electricity:       'EG.ELC.RNEW.ZS',    // Renewable electricity output (% of total)
+  energy_use_per_capita:       'EG.USE.PCAP.KG.OE', // Energy use (kg of oil equivalent per capita)
+  // SDG 11 — Sustainable Cities
+  urban_population:            'SP.URB.TOTL.IN.ZS',  // Urban population (% of total)
+  slum_population:             'EN.POP.SLUM.UR.ZS',  // Population in slums (% of urban population)
+  // SDG 14 — Oceans
+  marine_protected_areas:      'ER.MRN.PTMR.ZS',    // Marine protected areas (% of territorial waters)
+  // SDG 15 — Land
+  forest_area:                 'AG.LND.FRST.ZS',     // Forest area (% of land area)
+  protected_areas:             'ER.PTD.TOTL.ZS',     // Terrestrial + marine protected areas (% of total)
 } as const
 
 export type IndicatorKey = keyof typeof INDICATORS
@@ -128,6 +147,18 @@ export async function fetchAllIndicators(): Promise<WBDataPoint[]> {
     fetchIndicator('women_in_parliament'),
     fetchIndicator('female_labor_participation'),
     fetchIndicator('gender_parity_education'),
+    fetchIndicator('undernourishment'),
+    fetchIndicator('stunting_u5'),
+    fetchIndicator('health_expenditure'),
+    fetchIndicator('hospital_beds'),
+    fetchIndicator('education_expenditure'),
+    fetchIndicator('renewable_electricity'),
+    fetchIndicator('energy_use_per_capita'),
+    fetchIndicator('urban_population'),
+    fetchIndicator('slum_population'),
+    fetchIndicator('marine_protected_areas'),
+    fetchIndicator('forest_area'),
+    fetchIndicator('protected_areas'),
   ])
 
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))

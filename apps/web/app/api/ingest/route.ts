@@ -1,8 +1,8 @@
 /**
  * Data ingest endpoint — fetches live data from three public sources:
- *   1. World Bank Open Data (CC BY 4.0) — 19 indicators: GDP growth, internet, mortality, poverty, gender, education, governance
- *   2. WHO Global Health Observatory (CC BY-NC-SA 3.0 IGO) — life expectancy, maternal mortality
- *   3. UN SDG API (UN Open Data) — electricity access
+ *   1. World Bank Open Data (CC BY 4.0) — 19+ World Bank, 5 WHO, 4 UN SDG indicators across all 17 SDGs
+ *   2. WHO Global Health Observatory (CC BY-NC-SA 3.0 IGO) — life expectancy, maternal mortality, NCD mortality, obesity, physicians
+ *   3. UN SDG API (UN Open Data) — electricity access, food insecurity, conflict deaths, mobile coverage
  *
  * Called by Vercel Cron Job daily at 06:00 UTC, or manually via GET/POST.
  * No authentication required on the endpoint (data is public; writes go to our own DB).
@@ -43,11 +43,38 @@ const METRIC_META: Record<string, { label: string; unit: string | null; source: 
   women_in_parliament:          { label: 'Women in Parliament',                 unit: '%',       source: 'World Bank' },
   female_labor_participation:   { label: 'Female Labour Force Participation',   unit: '%',       source: 'World Bank' },
   gender_parity_education:      { label: 'Gender Parity Index — Education',     unit: 'GPI',     source: 'World Bank' },
+  // SDG 2 — Hunger (World Bank)
+  undernourishment:          { label: 'Undernourishment Prevalence',         unit: '%',        source: 'World Bank' },
+  stunting_u5:               { label: 'Stunting, Children Under 5',          unit: '%',        source: 'World Bank' },
+  // SDG 3 — Health (World Bank)
+  health_expenditure:        { label: 'Current Health Expenditure',          unit: '% GDP',    source: 'World Bank' },
+  hospital_beds:             { label: 'Hospital Beds',                       unit: 'per 1k',   source: 'World Bank' },
+  // SDG 4 — Education spending (World Bank)
+  education_expenditure:     { label: 'Government Education Expenditure',    unit: '% GDP',    source: 'World Bank' },
+  // SDG 7/12 — Energy (World Bank)
+  renewable_electricity:     { label: 'Renewable Electricity Output',        unit: '%',        source: 'World Bank' },
+  energy_use_per_capita:     { label: 'Energy Use per Capita',               unit: 'kg oil eq',source: 'World Bank' },
+  // SDG 11 — Cities (World Bank)
+  urban_population:          { label: 'Urban Population Share',              unit: '%',        source: 'World Bank' },
+  slum_population:           { label: 'Population in Slums',                 unit: '% urban',  source: 'World Bank' },
+  // SDG 14 — Ocean (World Bank)
+  marine_protected_areas:    { label: 'Marine Protected Areas',              unit: '% waters', source: 'World Bank' },
+  // SDG 15 — Land (World Bank)
+  forest_area:               { label: 'Forest Area',                         unit: '% land',   source: 'World Bank' },
+  protected_areas:           { label: 'Protected Areas',                     unit: '% total',  source: 'World Bank' },
   // WHO GHO
   life_expectancy:      { label: 'Life Expectancy',                  unit: 'years',    source: 'WHO GHO' },
   maternal_mortality:   { label: 'Maternal Mortality',               unit: 'per 100k', source: 'WHO GHO' },
+  // WHO GHO new
+  ncd_mortality:             { label: 'NCD Premature Mortality (30–70)',      unit: '%',        source: 'WHO GHO' },
+  obesity_rate:              { label: 'Obesity Prevalence',                  unit: '%',        source: 'WHO GHO' },
+  physicians_per_10k:        { label: 'Medical Doctors',                     unit: 'per 10k',  source: 'WHO GHO' },
   // UN SDG
   electricity_access:   { label: 'Electricity Access',               unit: '%',        source: 'UN SDG' },
+  // UN SDG new
+  food_insecurity:           { label: 'Moderate/Severe Food Insecurity',     unit: '%',        source: 'UN SDG' },
+  conflict_deaths:           { label: 'Conflict-Related Deaths',             unit: 'per 100k', source: 'UN SDG' },
+  mobile_coverage:           { label: '4G Mobile Network Coverage',          unit: '%',        source: 'UN SDG' },
 }
 
 async function runIngest() {
