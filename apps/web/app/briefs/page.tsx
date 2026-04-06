@@ -4,6 +4,7 @@ import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { getBriefs } from "@/lib/supabase-server";
 import { MOCK_BRIEFS } from "@/lib/mock-data";
 
+export const dynamic = 'force-dynamic'
 export const metadata = { title: "AI Briefs" };
 
 async function getAllBriefs() {

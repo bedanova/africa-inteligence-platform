@@ -8,6 +8,8 @@ import { getCountries, getBriefs } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
 import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";
 
+export const dynamic = 'force-dynamic'
+
 function buildLeaderboard(countries: CountrySummary[], key: "need" | "opportunity" | "stability", desc = true, limit = 4): LeaderboardEntry[] {
   return [...countries]
     .sort((a, b) => desc ? b.scores[key] - a.scores[key] : a.scores[key] - b.scores[key])
