@@ -21,7 +21,7 @@ const COUNTRY_CODES: Record<string, number> = {
 
 // SDG indicator codes — total/all-areas series only
 export const SDG_INDICATORS = {
-  electricity_access: { indicator: '7.1.1', series: 'EG_ELC_ACCS' }, // % pop with electricity
+  electricity_access: { indicator: '7.1.1', series: 'EG_ACS_ELEC' }, // % pop with electricity
 } as const
 
 export type SDGIndicatorKey = keyof typeof SDG_INDICATORS
@@ -61,6 +61,11 @@ async function fetchSDGIndicator(key: SDGIndicatorKey): Promise<SDGDataPoint[]> 
   for (const r of (json.data ?? [])) {
     const iso3 = iso3ByCode[r.geoAreaCode]
     if (!iso3) continue
+
+    // Filter for national total only (skip urban/rural breakdowns)
+    const location = r.dimensions?.Location ?? r.dimensions?.location
+    if (location && location !== 'All areas' && location !== 'ALLAREA') continue
+
     const value = parseFloat(r.value)
     if (isNaN(value)) continue
     const year = Math.round(r.timePeriodStart)
