@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import { FreshnessBadge } from "./freshness-badge";
 import type { AIBrief } from "@/types";
 
@@ -80,9 +81,10 @@ export function AIBriefCard({ brief, compact = false, className, loading }: AIBr
           {brief.risk_flags.map((flag, i) => (
             <span
               key={i}
-              className="text-xs text-red-700 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full"
+              className="inline-flex items-center gap-1 text-xs text-red-700 bg-red-50 border border-red-100 px-2 py-0.5 rounded-full"
             >
-              ⚠ {flag}
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+              {flag}
             </span>
           ))}
         </div>
@@ -99,7 +101,7 @@ export function AIBriefCard({ brief, compact = false, className, loading }: AIBr
           </svg>
           {officialCount} official source{officialCount !== 1 ? "s" : ""}
           {newsCount > 0 && `, ${newsCount} news item${newsCount !== 1 ? "s" : ""}`}
-          <span className="ml-0.5 text-slate-400">{showCitations ? "▲" : "▼"}</span>
+          {showCitations ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
         </button>
 
         {showCitations && (

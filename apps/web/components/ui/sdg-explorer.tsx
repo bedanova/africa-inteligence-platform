@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { Minus, Plus, X, ChevronRight } from 'lucide-react'
+import { CountryFlag } from '@/components/ui/country-flag'
 import type { CountrySummary, CountryMetric } from '@/types'
 
 interface GoalDef {
@@ -302,7 +304,7 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
         className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
       >
         <span className="text-xs font-semibold text-slate-600 uppercase tracking-widest">About this goal</span>
-        <span className="text-slate-400 text-lg leading-none">{open ? '−' : '+'}</span>
+        {open ? <Minus className="w-4 h-4 text-slate-400" /> : <Plus className="w-4 h-4 text-slate-400" />}
       </button>
       {open && (
         <div className="px-4 py-4 bg-white space-y-4">
@@ -375,7 +377,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 {[...new Set(goalMetrics!.map(m => m.source))].join(' · ')}
               </p>
             </div>
-            <button onClick={() => setSelected(null)} className="ml-auto text-slate-300 hover:text-slate-500 text-2xl leading-none">×</button>
+            <button onClick={() => setSelected(null)} className="ml-auto text-slate-300 hover:text-slate-500"><X className="w-5 h-5" /></button>
           </div>
 
           {/* Education panel — always shown, collapsed by default */}
@@ -443,7 +445,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                         return (
                           <div key={country.iso3} className="flex items-center gap-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">{rank + 1}</span>
-                            <span className="text-base leading-none flex-shrink-0">{country.flag_emoji}</span>
+                            <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-xs text-slate-600 w-24 flex-shrink-0 truncate">{country.name}</span>
                             <div className="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
                               <div className="h-2.5 rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: dot }} />
@@ -471,7 +473,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
                         return (
                           <div key={country.iso3} className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 flex-shrink-0">{rank + 1}</span>
-                            <span className="text-xl leading-none flex-shrink-0">{country.flag_emoji}</span>
+                            <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-sm text-slate-700 flex-1 truncate">{country.name}</span>
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />

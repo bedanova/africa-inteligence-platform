@@ -1,6 +1,7 @@
 'use client'
 
 import dynamic from 'next/dynamic'
+import { CountryFlag } from '@/components/ui/country-flag'
 import type { Organization, ActionCard } from '@/types'
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false })
@@ -33,10 +34,6 @@ export function ImpactCharts({ orgs, actions }: Props) {
     .sort((a, b) => b[1] - a[1])
     .map(([iso3, count]) => ({ iso3, count }))
 
-  const FLAGS: Record<string, string> = {
-    KEN: '🇰🇪', NGA: '🇳🇬', ETH: '🇪🇹', GHA: '🇬🇭',
-    ZAF: '🇿🇦', TZA: '🇹🇿', RWA: '🇷🇼', SEN: '🇸🇳',
-  }
   const NAMES: Record<string, string> = {
     KEN: 'Kenya', NGA: 'Nigeria', ETH: 'Ethiopia', GHA: 'Ghana',
     ZAF: 'South Africa', TZA: 'Tanzania', RWA: 'Rwanda', SEN: 'Senegal',
@@ -105,7 +102,7 @@ export function ImpactCharts({ orgs, actions }: Props) {
         <div className="space-y-2">
           {byCountry.map(({ iso3, count }) => (
             <div key={iso3} className="flex items-center gap-3">
-              <span className="text-base leading-none flex-shrink-0">{FLAGS[iso3] ?? ''}</span>
+              <CountryFlag iso3={iso3} size="sm" />
               <span className="text-sm text-slate-600 w-28 flex-shrink-0">{NAMES[iso3] ?? iso3}</span>
               <div className="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
                 <div

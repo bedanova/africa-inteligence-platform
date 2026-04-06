@@ -4,6 +4,7 @@ import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { CountryCard } from "@/components/ui/country-card";
 import { ScoreChip } from "@/components/ui/score-chip";
 import { CountryComparisonChart, AfricaMap } from "@/components/ui/charts-client";
+import { CountryFlag } from "@/components/ui/country-flag";
 import { getCountries, getBriefs } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
 import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";
@@ -228,7 +229,7 @@ function LeaderboardBlock({
             <span className="text-xs font-bold text-slate-300 w-4 text-right flex-shrink-0">
               {i + 1}
             </span>
-            <span className="text-base leading-none flex-shrink-0">{entry.flag_emoji}</span>
+            <CountryFlag iso3={entry.iso3} countryName={entry.name} size="sm" />
             <a
               href={`/countries/${entry.iso3.toLowerCase()}`}
               className="text-sm font-medium text-slate-700 hover:text-blue-600 transition-colors truncate min-w-0"

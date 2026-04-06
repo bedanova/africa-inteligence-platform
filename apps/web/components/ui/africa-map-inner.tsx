@@ -94,7 +94,7 @@ export function AfricaMapInner({ countries }: Props) {
         offset: 22,
       }).setHTML(`
         <div style="font-family:system-ui,sans-serif;padding:6px 10px;min-width:120px">
-          <div style="font-size:14px">${country.flag_emoji} <strong>${country.name}</strong></div>
+          <div style="font-size:14px"><strong>${country.name}</strong></div>
           <div style="font-size:11px;color:#64748b;margin-top:2px">
             Need <b>${country.scores.need}</b> · Opp <b>${country.scores.opportunity}</b> · Stab <b>${country.scores.stability}</b>
           </div>

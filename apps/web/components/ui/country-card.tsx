@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ScoreChip } from "./score-chip";
 import { FreshnessBadge } from "./freshness-badge";
+import { CountryFlag } from '@/components/ui/country-flag'
 import type { CountrySummary } from "@/types";
 
 interface CountryCardProps {
@@ -35,9 +36,7 @@ export function CountryCard({ country, className, loading }: CountryCardProps) {
       )}
     >
       <div className="flex items-start gap-3 mb-3">
-        <span className="text-3xl leading-none" role="img" aria-label={`${country.name} flag`}>
-          {country.flag_emoji}
-        </span>
+        <CountryFlag iso3={country.iso3} countryName={country.name} size="lg" />
         <div className="min-w-0">
           <h3 className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors truncate">
             {country.name}

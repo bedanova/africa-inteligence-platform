@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Heart, Users, TrendingUp, BookOpen, AlertTriangle } from 'lucide-react'
 import type { ActionCard as ActionCardType, VerificationTier } from "@/types";
 
 interface ActionCardProps {
@@ -7,10 +8,10 @@ interface ActionCardProps {
 }
 
 const typeConfig = {
-  donate: { label: "Donate", color: "text-green-700 bg-green-50 border-green-200", icon: "💚" },
-  volunteer: { label: "Volunteer", color: "text-blue-700 bg-blue-50 border-blue-200", icon: "🤝" },
-  learn: { label: "Learn", color: "text-purple-700 bg-purple-50 border-purple-200", icon: "📚" },
-  invest: { label: "Invest", color: "text-amber-700 bg-amber-50 border-amber-200", icon: "📈" },
+  donate: { label: "Donate", color: "text-green-700 bg-green-50 border-green-200", icon: <Heart className="w-4 h-4" /> },
+  volunteer: { label: "Volunteer", color: "text-blue-700 bg-blue-50 border-blue-200", icon: <Users className="w-4 h-4" /> },
+  learn: { label: "Learn", color: "text-purple-700 bg-purple-50 border-purple-200", icon: <BookOpen className="w-4 h-4" /> },
+  invest: { label: "Invest", color: "text-amber-700 bg-amber-50 border-amber-200", icon: <TrendingUp className="w-4 h-4" /> },
 };
 
 const tierConfig: Record<VerificationTier, { label: string; color: string }> = {
@@ -51,8 +52,9 @@ export function ActionCard({ action, className }: ActionCardProps) {
       )}
 
       {action.warning && (
-        <div className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
-          ⚠ {action.warning}
+        <div className="flex items-start gap-1.5 text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
+          <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+          {action.warning}
         </div>
       )}
 

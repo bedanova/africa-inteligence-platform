@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Minus, Plus, ChevronRight } from 'lucide-react'
 import type { CountryEducation } from '@/lib/country-education'
 
 const TABS = [
@@ -35,7 +36,7 @@ export function CountryEducationPanel({ education, countryName }: Props) {
           </div>
           <span className="text-sm font-semibold text-slate-700">Country Overview — {countryName}</span>
         </div>
-        <span className="text-slate-400 text-xl leading-none">{open ? '−' : '+'}</span>
+        {open ? <Minus className="w-4 h-4 text-slate-400" /> : <Plus className="w-4 h-4 text-slate-400" />}
       </button>
 
       {open && (
@@ -75,7 +76,7 @@ export function CountryEducationPanel({ education, countryName }: Props) {
                   <ul className="space-y-1.5">
                     {education.resources.map((r, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-emerald-400 mt-0.5 flex-shrink-0">›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" />
                         {r}
                       </li>
                     ))}
@@ -91,7 +92,7 @@ export function CountryEducationPanel({ education, countryName }: Props) {
                   <ul className="space-y-1.5">
                     {education.knownFor.map((f, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-blue-400 mt-0.5 flex-shrink-0">›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
                         {f}
                       </li>
                     ))}
@@ -102,7 +103,7 @@ export function CountryEducationPanel({ education, countryName }: Props) {
                   <ul className="space-y-1.5">
                     {education.challenges.map((c, i) => (
                       <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                        <span className="text-amber-400 mt-0.5 flex-shrink-0">›</span>
+                        <ChevronRight className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
                         {c}
                       </li>
                     ))}

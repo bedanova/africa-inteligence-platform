@@ -3,6 +3,31 @@ import { FreshnessBadge } from "./freshness-badge";
 import { SourceBadge } from "./source-badge";
 import type { CountryMetric } from "@/types";
 
+const METRIC_CONTEXT: Record<string, string> = {
+  mortality_u5:               'Deaths per 1,000 live births before age 5. Sub-Saharan Africa average: ~65.',
+  maternal_mortality:         'Deaths per 100,000 live births. Global average: 223; sub-Saharan Africa: ~450.',
+  life_expectancy:            'Average years a newborn is expected to live. Sub-Saharan Africa average: ~62 years.',
+  gdp_growth:                 'Annual % change in national economic output. Global average: ~3%.',
+  internet_access:            'Share of population using the internet. Africa average: ~43%.',
+  poverty_215:                'Share of population living on less than $2.15/day. Global extreme poverty threshold.',
+  gini:                       'Income inequality index 0–100. Higher = more unequal. Africa average: ~43.',
+  water_access:               'Share using safely managed drinking water. Global average: ~74%.',
+  electricity_access:         'Share of population with access to electricity. Sub-Saharan Africa average: ~47%.',
+  women_in_parliament:        'Share of parliamentary seats held by women. Global average: ~27%.',
+  female_labor_participation: 'Share of women ages 15+ who are employed or seeking work. Global average: ~47%.',
+  school_enrollment_primary:  'Net % of primary school-age children attending school.',
+  literacy_rate:              'Share of adults (15+) who can read and write. Africa average: ~70%.',
+  co2_per_capita:             'Metric tonnes of CO₂ per person per year. Global average: ~4.7t.',
+  political_stability:        'World Governance Indicators score 0–100. Higher = more stable. Normalized from -2.5/+2.5 scale.',
+  undernourishment:           'Share of population with insufficient food intake. Africa average: ~20%.',
+  forest_area:                '% of land covered by forest. Africa average: ~22%.',
+  urban_population:           'Share of population living in urban areas. Africa average: ~44%.',
+  renewable_electricity:      '% of electricity from renewable sources (hydro, solar, wind, geothermal).',
+  health_expenditure:         'Government + private health spending as % of GDP. Global average: ~10%.',
+  physicians_per_10k:         'Medical doctors per 10,000 people. Sub-Saharan Africa average: ~2.2.',
+  hospital_beds:              'Hospital beds per 1,000 people. Sub-Saharan Africa average: ~1.3.',
+}
+
 interface MetricCardProps {
   metric: CountryMetric;
   className?: string;
@@ -61,6 +86,10 @@ export function MetricCard({ metric, className, loading }: MetricCardProps) {
           <span className="text-sm text-slate-400 font-medium">{metric.unit}</span>
         )}
       </div>
+
+      {METRIC_CONTEXT[metric.key] && (
+        <p className="text-xs text-slate-400 mt-1.5 leading-relaxed italic">{METRIC_CONTEXT[metric.key]}</p>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap">
         <SourceBadge source={metric.source} year={metric.source_year} />

@@ -15,7 +15,13 @@ export function CountryComparisonChart({ countries }: Props) {
 
   // Sort by need score descending
   const sorted = [...countries].sort((a, b) => b.scores.need - a.scores.need)
-  const names = sorted.map((c) => `${c.flag_emoji} ${c.name}`)
+  const names = sorted.map((c) => c.name)
+
+  const CONTEXT: Record<string, string> = {
+    'Need (urgency)': 'higher = more urgent need for support',
+    'Opportunity (potential)': 'higher = stronger growth potential',
+    'Stability (governance)': 'higher = more stable environment',
+  }
 
   const option = {
     tooltip: {
@@ -23,7 +29,7 @@ export function CountryComparisonChart({ countries }: Props) {
       axisPointer: { type: 'shadow' },
       textStyle: { fontFamily: 'inherit', fontSize: 12 },
       formatter: (params: { seriesName: string; value: number; marker: string }[]) =>
-        params.map((p) => `${p.marker} ${p.seriesName}: <b>${p.value}</b>`).join('<br/>'),
+        params.map((p) => `${p.marker} ${p.seriesName}: <b>${p.value}</b> — ${CONTEXT[p.seriesName] ?? ''}`).join('<br/>'),
     },
     legend: {
       bottom: 0,
@@ -31,13 +37,13 @@ export function CountryComparisonChart({ countries }: Props) {
       itemHeight: 10,
       itemGap: 20,
       textStyle: { color: '#64748b', fontSize: 11, fontFamily: 'inherit' },
-      data: ['Need', 'Opportunity', 'Stability'],
+      data: ['Need (urgency)', 'Opportunity (potential)', 'Stability (governance)'],
     },
-    grid: { left: 8, right: 8, bottom: 40, top: 16, containLabel: true },
+    grid: { left: 8, right: 8, bottom: 60, top: 16, containLabel: true },
     xAxis: {
       type: 'category',
       data: names,
-      axisLabel: { color: '#334155', fontSize: 11, fontFamily: 'inherit', interval: 0 },
+      axisLabel: { color: '#334155', fontSize: 11, fontFamily: 'inherit', interval: 0, rotate: -30 },
       axisTick: { show: false },
       axisLine: { show: false },
     },
@@ -53,7 +59,7 @@ export function CountryComparisonChart({ countries }: Props) {
     },
     series: [
       {
-        name: 'Need',
+        name: 'Need (urgency)',
         type: 'bar',
         barMaxWidth: 18,
         barCategoryGap: '30%',
@@ -63,7 +69,7 @@ export function CountryComparisonChart({ countries }: Props) {
         data: sorted.map((c) => c.scores.need),
       },
       {
-        name: 'Opportunity',
+        name: 'Opportunity (potential)',
         type: 'bar',
         barMaxWidth: 18,
         barGap: '6%',
@@ -72,7 +78,7 @@ export function CountryComparisonChart({ countries }: Props) {
         data: sorted.map((c) => c.scores.opportunity),
       },
       {
-        name: 'Stability',
+        name: 'Stability (governance)',
         type: 'bar',
         barMaxWidth: 18,
         barGap: '6%',
