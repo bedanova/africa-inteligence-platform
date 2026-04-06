@@ -63,8 +63,16 @@ async function fetchSDGIndicator(key: SDGIndicatorKey): Promise<SDGDataPoint[]> 
     if (!iso3) continue
 
     // Filter for national total only (skip urban/rural breakdowns)
-    const location = r.dimensions?.Location ?? r.dimensions?.location
-    if (location && location !== 'All areas' && location !== 'ALLAREA') continue
+    // dimensions can be an object or array depending on API version
+    let location: string | undefined
+    if (Array.isArray(r.dimensions)) {
+      location = r.dimensions.find((d: { id: string; value: string }) =>
+        d.id === 'Location' || d.id === 'location'
+      )?.value
+    } else if (r.dimensions && typeof r.dimensions === 'object') {
+      location = r.dimensions.Location ?? r.dimensions.location
+    }
+    if (location && location !== 'All areas' && location !== 'ALLAREA' && location !== '_T') continue
 
     const value = parseFloat(r.value)
     if (isNaN(value)) continue
