@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 
 interface Props {
@@ -59,11 +60,22 @@ function gaugeOption(label: string, value: number, color: string) {
 }
 
 export function ScoreGaugeChart({ need, opportunity, stability }: Props) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+
   const charts = [
     { label: 'Need', value: need, color: '#ef4444' },
     { label: 'Opportunity', value: opportunity, color: '#3b82f6' },
     { label: 'Stability', value: stability, color: '#10b981' },
   ]
+
+  if (!mounted) return (
+    <div className="grid grid-cols-3 gap-2">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="bg-slate-50 rounded-xl p-2 animate-pulse" style={{ height: 140 }} />
+      ))}
+    </div>
+  )
 
   return (
     <div className="grid grid-cols-3 gap-2">

@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { CountrySummary } from '@/types'
 
@@ -8,6 +9,9 @@ interface Props {
 }
 
 export function CountryComparisonChart({ countries }: Props) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
+  if (!mounted) return <div style={{ height: 300 }} className="bg-slate-50 rounded-xl animate-pulse" />
   const sorted = [...countries].sort((a, b) => b.scores.opportunity - a.scores.opportunity)
 
   const names = sorted.map((c) => `${c.flag_emoji} ${c.name}`)
