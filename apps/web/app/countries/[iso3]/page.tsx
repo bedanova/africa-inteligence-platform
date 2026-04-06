@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { ScoreChip } from "@/components/ui/score-chip";
@@ -47,6 +48,13 @@ export default async function CountryPage({
     <>
       <Navbar />
       <PageShell>
+        <Link href="/countries" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-blue-600 transition-colors mb-4">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+          </svg>
+          All countries
+        </Link>
+
         {/* Hero */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
           <div className="flex items-start gap-4 mb-4">
