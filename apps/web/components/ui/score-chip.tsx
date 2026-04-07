@@ -13,21 +13,21 @@ interface ScoreChipProps {
 const config: Record<ScoreType, { label: string; bg: string; text: string; border: string }> = {
   need: {
     label: "Need",
-    bg: "bg-red-50",
-    text: "text-red-700",
-    border: "border-red-200",
+    bg: "bg-rose-50",
+    text: "text-rose-800",
+    border: "border-rose-200",
   },
   opportunity: {
     label: "Opportunity",
-    bg: "bg-green-50",
-    text: "text-green-700",
-    border: "border-green-200",
+    bg: "bg-emerald-50",
+    text: "text-emerald-800",
+    border: "border-emerald-200",
   },
   stability: {
     label: "Stability",
-    bg: "bg-yellow-50",
-    text: "text-yellow-700",
-    border: "border-yellow-200",
+    bg: "bg-blue-50",
+    text: "text-blue-800",
+    border: "border-blue-200",
   },
 };
 

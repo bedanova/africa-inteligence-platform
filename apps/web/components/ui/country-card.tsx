@@ -31,14 +31,14 @@ interface ScoreRowProps {
 function ScoreRow({ label, value, type, tooltip }: ScoreRowProps) {
   const rounded = Math.round(value)
   const bar = {
-    need: 'bg-red-400',
+    need: 'bg-rose-500',
     opportunity: 'bg-emerald-500',
-    stability: 'bg-blue-400',
+    stability: 'bg-blue-500',
   }[type]
   const labelColor = {
-    need: 'text-red-600',
-    opportunity: 'text-emerald-600',
-    stability: 'text-blue-600',
+    need: 'text-rose-700',
+    opportunity: 'text-emerald-700',
+    stability: 'text-blue-700',
   }[type]
 
   return (

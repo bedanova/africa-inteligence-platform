@@ -27,17 +27,17 @@
   --color-accent-100: #dbeafe;
 
   /* Status colors */
-  --color-need-600:  #dc2626;
-  --color-need-500:  #ef4444;
-  --color-need-100:  #fee2e2;
+  --color-need-600:  #be123c;
+  --color-need-500:  #e11d48;
+  --color-need-100:  #fff1f2;
 
-  --color-opportunity-600: #16a34a;
-  --color-opportunity-500: #22c55e;
-  --color-opportunity-100: #dcfce7;
+  --color-opportunity-600: #047857;
+  --color-opportunity-500: #059669;
+  --color-opportunity-100: #ecfdf5;
 
-  --color-stability-600: #ca8a04;
-  --color-stability-500: #eab308;
-  --color-stability-100: #fef9c3;
+  --color-stability-600: #1d4ed8;
+  --color-stability-500: #2563eb;
+  --color-stability-100: #eff6ff;
 
   /* Neutral */
   --color-surface:   #ffffff;

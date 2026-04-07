@@ -9,18 +9,18 @@ interface FreshnessBadgeProps {
 
 const config: Record<Freshness, { dot: string; text: string; label: string }> = {
   fresh: {
-    dot: "bg-green-500",
-    text: "text-green-700",
+    dot: "bg-emerald-500",
+    text: "text-emerald-700",
     label: "Updated today",
   },
   aging: {
-    dot: "bg-yellow-500",
-    text: "text-yellow-700",
+    dot: "bg-amber-400",
+    text: "text-amber-700",
     label: "Data aging",
   },
   stale: {
-    dot: "bg-red-400",
-    text: "text-red-600",
+    dot: "bg-rose-400",
+    text: "text-rose-700",
     label: "Stale data",
   },
 };

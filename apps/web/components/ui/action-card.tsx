@@ -8,10 +8,10 @@ interface ActionCardProps {
 }
 
 const typeConfig = {
-  donate: { label: "Donate", color: "text-green-700 bg-green-50 border-green-200", icon: <Heart className="w-4 h-4" /> },
-  volunteer: { label: "Volunteer", color: "text-blue-700 bg-blue-50 border-blue-200", icon: <Users className="w-4 h-4" /> },
-  learn: { label: "Learn", color: "text-purple-700 bg-purple-50 border-purple-200", icon: <BookOpen className="w-4 h-4" /> },
-  invest: { label: "Invest", color: "text-amber-700 bg-amber-50 border-amber-200", icon: <TrendingUp className="w-4 h-4" /> },
+  donate: { label: "Donate", color: "text-emerald-800 bg-emerald-50 border-emerald-200", icon: <Heart className="w-4 h-4" /> },
+  volunteer: { label: "Volunteer", color: "text-blue-800 bg-blue-50 border-blue-200", icon: <Users className="w-4 h-4" /> },
+  learn: { label: "Learn", color: "text-violet-800 bg-violet-50 border-violet-200", icon: <BookOpen className="w-4 h-4" /> },
+  invest: { label: "Invest", color: "text-amber-800 bg-amber-50 border-amber-200", icon: <TrendingUp className="w-4 h-4" /> },
 };
 
 const tierConfig: Record<VerificationTier, { label: string; color: string }> = {
