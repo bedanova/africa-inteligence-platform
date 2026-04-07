@@ -44,6 +44,8 @@ interface MetricCardProps {
   metric: CountryMetric;
   className?: string;
   loading?: boolean;
+  onClick?: () => void;
+  selected?: boolean;
 }
 
 const trendIcon = {
@@ -64,7 +66,7 @@ const trendIcon = {
   ),
 };
 
-export function MetricCard({ metric, className, loading }: MetricCardProps) {
+export function MetricCard({ metric, className, loading, onClick, selected }: MetricCardProps) {
   if (loading) {
     return (
       <div className={cn("bg-white rounded-xl border border-slate-100 p-4 shadow-sm", className)}>
@@ -78,10 +80,16 @@ export function MetricCard({ metric, className, loading }: MetricCardProps) {
   return (
     <div
       className={cn(
-        "bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:shadow-md transition-shadow",
+        "bg-white rounded-xl border border-slate-100 p-4 shadow-sm transition-all",
+        onClick && "cursor-pointer hover:shadow-md hover:border-blue-200",
+        selected && "border-blue-400 ring-2 ring-blue-100 shadow-md",
         metric.freshness === "stale" && "opacity-70 border-red-100",
         className
       )}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick() } : undefined}
     >
       <div className="flex items-start justify-between gap-2 mb-1">
         <span className="text-xs font-medium text-slate-500 uppercase tracking-wide">

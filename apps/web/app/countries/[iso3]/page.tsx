@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { ScoreChip } from "@/components/ui/score-chip";
-import { MetricCard } from "@/components/ui/metric-card";
+import { MetricsSection } from "@/components/ui/metrics-section";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
@@ -128,11 +128,11 @@ export default async function CountryPage({
             {country.metrics.length > 0 && (
               <div>
                 <SectionHeader title="Key Indicators" />
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {country.metrics.map((m) => (
-                    <MetricCard key={m.key} metric={m} />
-                  ))}
-                </div>
+                <MetricsSection
+                  metrics={country.metrics}
+                  iso3={country.iso3}
+                  countryName={country.name}
+                />
               </div>
             )}
           </div>
