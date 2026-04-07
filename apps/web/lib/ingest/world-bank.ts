@@ -73,6 +73,16 @@ export const INDICATORS = {
   // SDG 15 — Land
   forest_area:                 'AG.LND.FRST.ZS',     // Forest area (% of land area)
   protected_areas:             'ER.PTD.TOTL.ZS',     // Terrestrial + marine protected areas (% of total)
+  // Economy — additional
+  gdp_per_capita:              'NY.GDP.PCAP.CD',     // GDP per capita (current USD)
+  // SDG 6 — Water & Sanitation
+  sanitation_access:           'SH.STA.SMSS.ZS',    // People using safely managed sanitation (%)
+  // Connectivity
+  mobile_subscriptions:        'IT.CEL.SETS.P2',    // Mobile cellular subscriptions (per 100 people)
+  // Financial inclusion
+  access_to_finance:           'FX.OWN.TOTL.ZS',   // Account ownership at a financial institution (%, age 15+)
+  // Land use
+  agricultural_land:           'AG.LND.AGRI.ZS',   // Agricultural land (% of land area)
 } as const
 
 export type IndicatorKey = keyof typeof INDICATORS
@@ -159,6 +169,11 @@ export async function fetchAllIndicators(): Promise<WBDataPoint[]> {
     fetchIndicator('marine_protected_areas'),
     fetchIndicator('forest_area'),
     fetchIndicator('protected_areas'),
+    fetchIndicator('gdp_per_capita'),
+    fetchIndicator('sanitation_access'),
+    fetchIndicator('mobile_subscriptions'),
+    fetchIndicator('access_to_finance'),
+    fetchIndicator('agricultural_land'),
   ])
 
   return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))

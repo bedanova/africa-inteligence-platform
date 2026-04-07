@@ -1,8 +1,11 @@
 /**
- * Data ingest endpoint — fetches live data from three public sources:
- *   1. World Bank Open Data (CC BY 4.0) — 19+ World Bank, 5 WHO, 4 UN SDG indicators across all 17 SDGs
+ * Data ingest endpoint — fetches live data from six public sources:
+ *   1. World Bank Open Data (CC BY 4.0) — 36 indicators across economy, health, education, environment, SDGs
  *   2. WHO Global Health Observatory (CC BY-NC-SA 3.0 IGO) — life expectancy, maternal mortality, NCD mortality, obesity, physicians
  *   3. UN SDG API (UN Open Data) — electricity access, food insecurity, conflict deaths, mobile coverage
+ *   4. IMF DataMapper (CC BY 4.0) — government gross debt, current account balance
+ *   5. ACLED (free academic/research use) — conflict events and fatalities (requires ACLED_API_KEY + ACLED_EMAIL)
+ *   6. UNHCR Population Statistics (CC BY 4.0) — refugees by origin, internally displaced persons
  *
  * Called by Vercel Cron Job daily at 06:00 UTC, or manually via GET/POST.
  * No authentication required on the endpoint (data is public; writes go to our own DB).
@@ -13,6 +16,9 @@ import { createClient } from '@supabase/supabase-js'
 import { fetchAllIndicators, calculateScores, type AllDataPoint } from '@/lib/ingest/world-bank'
 import { fetchAllWHOIndicators } from '@/lib/ingest/who'
 import { fetchAllSDGIndicators } from '@/lib/ingest/un-sdg'
+import { fetchAllIMFIndicators } from '@/lib/ingest/imf'
+import { fetchAllACLEDIndicators } from '@/lib/ingest/acled'
+import { fetchAllUNHCRIndicators } from '@/lib/ingest/unhcr'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -62,6 +68,25 @@ const METRIC_META: Record<string, { label: string; unit: string | null; source: 
   // SDG 15 — Land (World Bank)
   forest_area:               { label: 'Forest Area',                         unit: '% land',   source: 'World Bank' },
   protected_areas:           { label: 'Protected Areas',                     unit: '% total',  source: 'World Bank' },
+  // Economy — additional (World Bank)
+  gdp_per_capita:            { label: 'GDP per Capita',                      unit: 'USD',       source: 'World Bank' },
+  // SDG 6 — Sanitation (World Bank)
+  sanitation_access:         { label: 'Safe Sanitation Access',              unit: '%',         source: 'World Bank' },
+  // Connectivity (World Bank)
+  mobile_subscriptions:      { label: 'Mobile Subscriptions',                unit: 'per 100',   source: 'World Bank' },
+  // Financial inclusion (World Bank)
+  access_to_finance:         { label: 'Bank Account Ownership',              unit: '%',         source: 'World Bank' },
+  // Land use (World Bank)
+  agricultural_land:         { label: 'Agricultural Land',                   unit: '% land',    source: 'World Bank' },
+  // IMF DataMapper
+  govt_debt:                 { label: 'Government Gross Debt',               unit: '% GDP',     source: 'IMF DataMapper' },
+  current_account:           { label: 'Current Account Balance',             unit: '% GDP',     source: 'IMF DataMapper' },
+  // ACLED
+  conflict_events:           { label: 'Conflict Events (Annual)',            unit: 'events',    source: 'ACLED' },
+  conflict_fatalities:       { label: 'Conflict Fatalities (Annual)',        unit: 'deaths',    source: 'ACLED' },
+  // UNHCR
+  refugees_origin:           { label: 'Refugees & Asylum Seekers',          unit: 'people',    source: 'UNHCR' },
+  idps:                      { label: 'Internally Displaced Persons',        unit: 'people',    source: 'UNHCR' },
   // WHO GHO
   life_expectancy:      { label: 'Life Expectancy',                  unit: 'years',    source: 'WHO GHO' },
   maternal_mortality:   { label: 'Maternal Mortality',               unit: 'per 100k', source: 'WHO GHO' },
@@ -84,10 +109,13 @@ async function runIngest() {
 
   try {
     // 1. Fetch all sources in parallel
-    const [wbData, whoData, sdgData] = await Promise.all([
+    const [wbData, whoData, sdgData, imfData, acledData, unhcrData] = await Promise.all([
       fetchAllIndicators(),
       fetchAllWHOIndicators(),
       fetchAllSDGIndicators(),
+      fetchAllIMFIndicators(),
+      fetchAllACLEDIndicators(),
+      fetchAllUNHCRIndicators(),
     ])
 
     // 2. Merge into unified format for score calculation
@@ -95,6 +123,9 @@ async function runIngest() {
       ...wbData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
       ...whoData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
       ...sdgData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
+      ...imfData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
+      ...acledData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
+      ...unhcrData.map((d) => ({ iso3: d.iso3, indicator: d.indicator, value: d.value, source: d.source })),
     ]
 
     // 3. Get current stability scores (no live source yet — preserve)
@@ -127,6 +158,9 @@ async function runIngest() {
             ? (wbData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
               ?? whoData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
               ?? sdgData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
+              ?? imfData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
+              ?? acledData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
+              ?? unhcrData.find((d) => d.iso3 === iso3 && d.indicator === point.indicator)?.year
               ?? new Date().getFullYear())
             : new Date().getFullYear(),
           freshness: 'fresh',
@@ -159,6 +193,9 @@ async function runIngest() {
         'World Bank Open Data (CC BY 4.0)',
         'WHO Global Health Observatory (CC BY-NC-SA 3.0 IGO)',
         'UN SDG API (UN Open Data)',
+        'IMF DataMapper (CC BY 4.0)',
+        'ACLED (Armed Conflict Location & Event Data — free academic/research use)',
+        'UNHCR Population Statistics (CC BY 4.0)',
       ],
     })
   } catch (err) {

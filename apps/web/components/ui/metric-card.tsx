@@ -26,6 +26,17 @@ const METRIC_CONTEXT: Record<string, string> = {
   health_expenditure:         'Government + private health spending as % of GDP. Global average: ~10%.',
   physicians_per_10k:         'Medical doctors per 10,000 people. Sub-Saharan Africa average: ~2.2.',
   hospital_beds:              'Hospital beds per 1,000 people. Sub-Saharan Africa average: ~1.3.',
+  gdp_per_capita:             'GDP per person in current USD. Sub-Saharan Africa average: ~$1,700.',
+  sanitation_access:          'Share using safely managed sanitation. Global average: ~57%.',
+  mobile_subscriptions:       'SIM cards per 100 people (can exceed 100 due to multiple SIMs). Africa average: ~85.',
+  access_to_finance:          '% of adults with a bank or mobile money account. Africa average: ~55%.',
+  agricultural_land:          '% of land used for crops or livestock. Africa average: ~43%.',
+  govt_debt:                  'Government gross debt as % of GDP. Emerging market average: ~65%.',
+  current_account:            'Exports minus imports as % of GDP. Negative = more imports than exports.',
+  conflict_events:            'Total recorded armed conflict events in the last full year. Source: ACLED.',
+  conflict_fatalities:        'Reported deaths from armed conflict in the last full year. Source: ACLED.',
+  refugees_origin:            'Number of refugees and asylum seekers who fled this country. Source: UNHCR.',
+  idps:                       'People displaced within their own country. Africa hosts the most IDPs globally. Source: UNHCR.',
 }
 
 interface MetricCardProps {
