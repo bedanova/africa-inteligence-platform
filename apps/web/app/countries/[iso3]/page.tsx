@@ -9,7 +9,7 @@ import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
 import { ScoreGaugeChart } from "@/components/ui/charts-client";
 import { CountryEducationPanel } from "@/components/ui/country-education-panel";
-import { getCountry, getMetrics, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
+import { getCountry, getMetrics, getMetricsWithHistory, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
 import { COUNTRY_EDUCATION } from "@/lib/country-education";
 import type { CountryProfile } from "@/types";
@@ -19,7 +19,7 @@ async function getCountryProfile(iso3: string): Promise<CountryProfile | null> {
   try {
     const [summary, metrics, sectors, actions, brief] = await Promise.all([
       getCountry(iso3),
-      getMetrics(iso3),
+      getMetricsWithHistory(iso3),
       getSectors(iso3),
       getActions(iso3),
       getCountryBriefFromDb(iso3),

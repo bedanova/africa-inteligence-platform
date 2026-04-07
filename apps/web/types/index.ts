@@ -40,6 +40,7 @@ export interface CountryMetric {
   source: string;
   source_year: number;
   freshness: Freshness;
+  history?: { year: number; value: number }[];
 }
 
 export interface CountryProfile extends CountrySummary {

@@ -86,6 +86,64 @@ async function fetchIMFIndicator(indicator: IMFIndicatorKey): Promise<IMFDataPoi
   return parseResponse(json, indicator)
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function parseHistoricalResponse(json: any, indicator: IMFIndicatorKey): IMFDataPoint[] {
+  const indicatorCode = INDICATORS[indicator]
+  const countryData = json?.values?.[indicatorCode]
+  if (!countryData || typeof countryData !== 'object') return []
+
+  const results: IMFDataPoint[] = []
+  const currentYear = new Date().getFullYear()
+  const cutoffYear = currentYear - 10
+
+  for (const iso3 of COUNTRIES) {
+    const yearMap = countryData[iso3 as IMFCountry]
+    if (!yearMap || typeof yearMap !== 'object') continue
+
+    for (const yearStr of Object.keys(yearMap)) {
+      const year = Number(yearStr)
+      if (isNaN(year) || year < cutoffYear) continue
+      const value = yearMap[yearStr]
+      if (value === null || value === undefined || typeof value !== 'number') continue
+      results.push({
+        iso3,
+        indicator,
+        value,
+        year,
+        source: 'IMF DataMapper',
+      })
+    }
+  }
+
+  return results
+}
+
+async function fetchIMFIndicatorHistory(indicator: IMFIndicatorKey): Promise<IMFDataPoint[]> {
+  const url = `${IMF_BASE}/${INDICATORS[indicator]}/${COUNTRY_LIST}`
+
+  const res = await fetch(url, {
+    next: { revalidate: 0 },
+    headers: { Accept: 'application/json' },
+  })
+
+  if (!res.ok) {
+    throw new Error(`IMF DataMapper API error: ${res.status} for indicator ${indicator}`)
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const json: any = await res.json()
+  return parseHistoricalResponse(json, indicator)
+}
+
+export async function fetchAllIMFHistoricalData(): Promise<IMFDataPoint[]> {
+  const results = await Promise.allSettled([
+    fetchIMFIndicatorHistory('govt_debt'),
+    fetchIMFIndicatorHistory('current_account'),
+  ])
+
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+}
+
 export async function fetchAllIMFIndicators(): Promise<IMFDataPoint[]> {
   const results = await Promise.allSettled([
     fetchIMFIndicator('govt_debt'),

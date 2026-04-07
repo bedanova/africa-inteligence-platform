@@ -13,10 +13,10 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { fetchAllIndicators, calculateScores, type AllDataPoint } from '@/lib/ingest/world-bank'
+import { fetchAllIndicators, fetchAllHistoricalIndicators, calculateScores, type AllDataPoint } from '@/lib/ingest/world-bank'
 import { fetchAllWHOIndicators } from '@/lib/ingest/who'
 import { fetchAllSDGIndicators } from '@/lib/ingest/un-sdg'
-import { fetchAllIMFIndicators } from '@/lib/ingest/imf'
+import { fetchAllIMFIndicators, fetchAllIMFHistoricalData } from '@/lib/ingest/imf'
 import { fetchAllACLEDIndicators } from '@/lib/ingest/acled'
 import { fetchAllUNHCRIndicators } from '@/lib/ingest/unhcr'
 
@@ -108,7 +108,7 @@ async function runIngest() {
   const errors: string[] = []
 
   try {
-    // 1. Fetch all sources in parallel
+    // 1. Fetch all sources in parallel (current + historical)
     const [wbData, whoData, sdgData, imfData, acledData, unhcrData] = await Promise.all([
       fetchAllIndicators(),
       fetchAllWHOIndicators(),
@@ -117,6 +117,16 @@ async function runIngest() {
       fetchAllACLEDIndicators(),
       fetchAllUNHCRIndicators(),
     ])
+
+    // Fetch historical data for sparklines (runs in parallel with main fetch)
+    const [histWBData, histIMFData] = await Promise.allSettled([
+      fetchAllHistoricalIndicators(),
+      fetchAllIMFHistoricalData(),
+    ])
+    const allHistorical = [
+      ...(histWBData.status === 'fulfilled' ? histWBData.value : []),
+      ...(histIMFData.status === 'fulfilled' ? histIMFData.value : []),
+    ]
 
     // 2. Merge into unified format for score calculation
     const allData: AllDataPoint[] = [
@@ -183,10 +193,26 @@ async function runIngest() {
       results.push({ iso3, updated })
     }
 
+    // Upsert historical data into metrics_history for sparklines
+    const historyUpserts = allHistorical.map((point) => {
+      const meta = METRIC_META[point.indicator]
+      if (!meta) return Promise.resolve()
+      return supabase.from('metrics_history').upsert({
+        country_iso3: point.iso3,
+        key: point.indicator,
+        value_num: point.value,
+        year: point.year,
+      }, { onConflict: 'country_iso3,key,year' }).then(({ error }) => {
+        if (error) errors.push(`metrics_history ${point.iso3}/${point.indicator}/${point.year}: ${error.message}`)
+      })
+    })
+    await Promise.allSettled(historyUpserts)
+
     return NextResponse.json({
       ok: true,
       ingested_at: new Date().toISOString(),
       countries_updated: results.length,
+      metrics_history: allHistorical.length,
       results,
       errors: errors.length > 0 ? errors : undefined,
       sources: [

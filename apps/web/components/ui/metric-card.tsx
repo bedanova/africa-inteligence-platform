@@ -1,6 +1,7 @@
 import { cn, formatNum } from "@/lib/utils";
 import { FreshnessBadge } from "./freshness-badge";
 import { SourceBadge } from "./source-badge";
+import { SparkLine } from "./spark-line";
 import type { CountryMetric } from "@/types";
 
 const METRIC_CONTEXT: Record<string, string> = {
@@ -89,12 +90,20 @@ export function MetricCard({ metric, className, loading }: MetricCardProps) {
         {metric.trend && trendIcon[metric.trend]}
       </div>
 
-      <div className="flex items-baseline gap-1 mb-2">
-        <span className="text-2xl font-bold text-slate-900 tabular-nums">
-          {typeof metric.value === 'number' ? formatNum(metric.value) : metric.value}
-        </span>
-        {metric.unit && (
-          <span className="text-sm text-slate-400 font-medium">{metric.unit}</span>
+      <div className="flex items-baseline justify-between gap-2 mb-2">
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold text-slate-900 tabular-nums">
+            {typeof metric.value === 'number' ? formatNum(metric.value) : metric.value}
+          </span>
+          {metric.unit && (
+            <span className="text-sm text-slate-400 font-medium">{metric.unit}</span>
+          )}
+        </div>
+        {metric.history && metric.history.length >= 2 && (
+          <SparkLine
+            data={metric.history}
+            className="text-slate-300 flex-shrink-0"
+          />
         )}
       </div>
 

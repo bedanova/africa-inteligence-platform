@@ -135,6 +135,70 @@ async function fetchIndicator(indicator: IndicatorKey): Promise<WBDataPoint[]> {
   return Object.values(best)
 }
 
+async function fetchIndicatorHistory(indicator: IndicatorKey): Promise<WBDataPoint[]> {
+  const url =
+    `${WB_BASE}/country/${COUNTRY_LIST}/indicator/${INDICATORS[indicator]}` +
+    `?format=json&mrv=10&per_page=300`
+
+  const res = await fetch(url, {
+    next: { revalidate: 0 },
+    headers: { Accept: 'application/json' },
+  })
+
+  if (!res.ok) {
+    throw new Error(`World Bank API error: ${res.status} for indicator ${indicator}`)
+  }
+
+  const json = await res.json()
+  const rows = Array.isArray(json) && json.length > 1 ? json[1] : []
+
+  // Return ALL data points (all countries, all years)
+  return parseResponse(rows, indicator)
+}
+
+export async function fetchAllHistoricalIndicators(): Promise<WBDataPoint[]> {
+  const results = await Promise.allSettled([
+    fetchIndicatorHistory('gdp_growth'),
+    fetchIndicatorHistory('inflation'),
+    fetchIndicatorHistory('fdi'),
+    fetchIndicatorHistory('internet_access'),
+    fetchIndicatorHistory('mortality_u5'),
+    fetchIndicatorHistory('poverty_215'),
+    fetchIndicatorHistory('gini'),
+    fetchIndicatorHistory('unemployment'),
+    fetchIndicatorHistory('water_access'),
+    fetchIndicatorHistory('co2_per_capita'),
+    fetchIndicatorHistory('political_stability'),
+    fetchIndicatorHistory('population'),
+    fetchIndicatorHistory('school_enrollment_primary'),
+    fetchIndicatorHistory('school_enrollment_secondary'),
+    fetchIndicatorHistory('literacy_rate'),
+    fetchIndicatorHistory('primary_completion'),
+    fetchIndicatorHistory('women_in_parliament'),
+    fetchIndicatorHistory('female_labor_participation'),
+    fetchIndicatorHistory('gender_parity_education'),
+    fetchIndicatorHistory('undernourishment'),
+    fetchIndicatorHistory('stunting_u5'),
+    fetchIndicatorHistory('health_expenditure'),
+    fetchIndicatorHistory('hospital_beds'),
+    fetchIndicatorHistory('education_expenditure'),
+    fetchIndicatorHistory('renewable_electricity'),
+    fetchIndicatorHistory('energy_use_per_capita'),
+    fetchIndicatorHistory('urban_population'),
+    fetchIndicatorHistory('slum_population'),
+    fetchIndicatorHistory('marine_protected_areas'),
+    fetchIndicatorHistory('forest_area'),
+    fetchIndicatorHistory('protected_areas'),
+    fetchIndicatorHistory('gdp_per_capita'),
+    fetchIndicatorHistory('sanitation_access'),
+    fetchIndicatorHistory('mobile_subscriptions'),
+    fetchIndicatorHistory('access_to_finance'),
+    fetchIndicatorHistory('agricultural_land'),
+  ])
+
+  return results.flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
+}
+
 export async function fetchAllIndicators(): Promise<WBDataPoint[]> {
   // Fetch all indicators in parallel — WB API is resilient, errors per indicator are caught
   const results = await Promise.allSettled([
