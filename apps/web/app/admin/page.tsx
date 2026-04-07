@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { runSeed, runIngest, runHistory, runBriefs } from './actions'
+import { triggerSeed, triggerIngest, triggerHistory, triggerBriefs } from './actions'
 import { Database, RefreshCw, TrendingUp, FileText } from 'lucide-react'
 
 type Status = 'idle' | 'running' | 'ok' | 'error'
@@ -44,7 +44,7 @@ export default function AdminPage() {
       icon: <Database className="w-5 h-5" />,
       color: 'blue',
       state: seed,
-      action: () => run(setSeed, runSeed),
+      action: () => run(setSeed, triggerSeed),
     },
     {
       id: 'ingest',
@@ -53,7 +53,7 @@ export default function AdminPage() {
       icon: <RefreshCw className="w-5 h-5" />,
       color: 'green',
       state: ingest,
-      action: () => run(setIngest, runIngest),
+      action: () => run(setIngest, triggerIngest),
     },
     {
       id: 'history',
@@ -62,7 +62,7 @@ export default function AdminPage() {
       icon: <TrendingUp className="w-5 h-5" />,
       color: 'violet',
       state: history,
-      action: () => run(setHistory, runHistory),
+      action: () => run(setHistory, triggerHistory),
     },
     {
       id: 'briefs',
@@ -71,7 +71,7 @@ export default function AdminPage() {
       icon: <FileText className="w-5 h-5" />,
       color: 'amber',
       state: briefs,
-      action: () => run(setBriefs, runBriefs),
+      action: () => run(setBriefs, triggerBriefs),
     },
   ]
 

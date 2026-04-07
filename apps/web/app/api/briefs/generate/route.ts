@@ -16,7 +16,7 @@ function getSupabase() {
   return createClient(url, key)
 }
 
-async function runGenerate() {
+export async function runGenerate() {
   if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({ ok: false, error: 'GROQ_API_KEY not set' }, { status: 500 })
   }

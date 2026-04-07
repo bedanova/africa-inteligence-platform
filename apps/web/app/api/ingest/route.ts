@@ -102,7 +102,7 @@ const METRIC_META: Record<string, { label: string; unit: string | null; source: 
   mobile_coverage:           { label: '4G Mobile Network Coverage',          unit: '%',        source: 'UN SDG' },
 }
 
-async function runIngest() {
+export async function runIngest() {
   const supabase = getSupabase()
   const results: { iso3: string; updated: string[] }[] = []
   const errors: string[] = []

@@ -212,6 +212,25 @@ const ACTIONS = [
   { id: 'act-ashoka-1', type: 'learn', title: 'Social entrepreneur case studies — African innovators', description: "Free access to Ashoka's library of 200+ African social entrepreneur profiles, with impact metrics and replication guides.", org_name: 'Ashoka Africa', org_id: 'org-ashoka', org_verification_tier: 'A', country_iso3: null, url: 'https://www.ashoka.org/africa/social-entrepreneurs' },
 ]
 
+export async function runSeed(): Promise<NextResponse> {
+  const supabase = getSupabase()
+
+  const [orgsResult, actionsResult] = await Promise.all([
+    supabase.from('organizations').upsert(ORGS, { onConflict: 'id' }),
+    supabase.from('actions').upsert(ACTIONS, { onConflict: 'id' }),
+  ])
+
+  const errors: Record<string, string> = {}
+  if (orgsResult.error) errors.organizations = orgsResult.error.message
+  if (actionsResult.error) errors.actions = actionsResult.error.message
+  const hasErrors = Object.keys(errors).length > 0
+
+  return NextResponse.json(
+    { success: !hasErrors, seeded: { organizations: ORGS.length, actions: ACTIONS.length }, errors: hasErrors ? errors : undefined },
+    { status: hasErrors ? 500 : 200 }
+  )
+}
+
 async function seed(req: NextRequest): Promise<NextResponse> {
   if (!isAuthorized(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

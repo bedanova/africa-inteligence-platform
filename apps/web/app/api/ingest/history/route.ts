@@ -17,7 +17,7 @@ function getSupabase() {
   return createClient(url, key)
 }
 
-async function runHistoryIngest() {
+export async function runHistoryIngest() {
   const supabase = getSupabase()
   const errors: string[] = []
 
