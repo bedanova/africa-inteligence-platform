@@ -7,6 +7,7 @@ import { MetricsSection } from "@/components/ui/metrics-section";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
 import { ActionCard } from "@/components/ui/action-card";
 import { FreshnessBadge } from "@/components/ui/freshness-badge";
+import { CountryFlag } from "@/components/ui/country-flag";
 import { ScoreGaugeChart } from "@/components/ui/charts-client";
 import { CountryEducationPanel } from "@/components/ui/country-education-panel";
 import { getCountry, getMetrics, getMetricsWithHistory, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
@@ -74,9 +75,7 @@ export default async function CountryPage({
         {/* Hero */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
           <div className="flex items-start gap-4 mb-4">
-            <span className="text-5xl leading-none" role="img" aria-label={`${country.name} flag`}>
-              {country.flag_emoji}
-            </span>
+            <CountryFlag iso3={country.iso3} countryName={country.name} size="xl" />
             <div>
               <h1 className="text-2xl font-bold text-slate-900">{country.name}</h1>
               <p className="text-sm text-slate-400">{country.region}</p>
