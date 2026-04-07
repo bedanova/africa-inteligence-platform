@@ -4,7 +4,8 @@
   "installCommand": "pnpm install",
   "outputDirectory": ".next",
   "crons": [
-    { "path": "/api/ingest",          "schedule": "0 6 * * *" },
-    { "path": "/api/briefs/generate", "schedule": "0 7 * * *" }
+    { "path": "/api/ingest",         "schedule": "0 6 * * *" },
+    { "path": "/api/ingest/history", "schedule": "30 6 * * *" },
+    { "path": "/api/briefs/generate","schedule": "0 7 * * *" }
   ]
 }
