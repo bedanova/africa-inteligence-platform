@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { CountryFlag } from '@/components/ui/country-flag'
+import { cn } from '@/lib/utils'
 import type { Organization, ActionCard } from '@/types'
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false })
@@ -128,6 +129,120 @@ export function ImpactCharts({ orgs, actions }: Props) {
           ))}
         </div>
       </div>
+
+      {/* Coverage Gaps */}
+      {(() => {
+        const NEED_SCORES: Record<string, { name: string; need: number }> = {
+          KEN: { name: 'Kenya', need: 62 }, ETH: { name: 'Ethiopia', need: 78 },
+          TZA: { name: 'Tanzania', need: 65 }, RWA: { name: 'Rwanda', need: 52 },
+          UGA: { name: 'Uganda', need: 68 }, MOZ: { name: 'Mozambique', need: 74 },
+          NGA: { name: 'Nigeria', need: 71 }, GHA: { name: 'Ghana', need: 48 },
+          SEN: { name: 'Senegal', need: 55 }, CIV: { name: "Côte d'Ivoire", need: 58 },
+          CMR: { name: 'Cameroon', need: 60 }, ZAF: { name: 'South Africa', need: 44 },
+          ZMB: { name: 'Zambia', need: 66 }, AGO: { name: 'Angola', need: 70 },
+          EGY: { name: 'Egypt', need: 50 }, MAR: { name: 'Morocco', need: 42 },
+          DZA: { name: 'Algeria', need: 38 }, TUN: { name: 'Tunisia', need: 36 },
+          COD: { name: 'DR Congo', need: 82 }, MDG: { name: 'Madagascar', need: 72 },
+        }
+
+        const gapData = Object.entries(NEED_SCORES)
+          .map(([iso3, { name, need }]) => ({
+            iso3, name, need,
+            actionCount: actions.filter((a) => a.country_iso3 === iso3).length,
+          }))
+          .filter(({ need }) => need >= 55)
+          .sort((a, b) => (b.need - b.actionCount * 8) - (a.need - a.actionCount * 8))
+          .slice(0, 8)
+
+        return (
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-1">Coverage Gaps</h3>
+            <p className="text-xs text-slate-400 mb-4">High-need countries with the fewest verified actions — where your support is most impactful.</p>
+            <div className="space-y-3">
+              {gapData.map(({ iso3, name, need, actionCount }) => (
+                <div key={iso3} className="flex items-center gap-3">
+                  <CountryFlag iso3={iso3} size="sm" />
+                  <a href={`/countries/${iso3.toLowerCase()}`} className="text-sm text-slate-700 hover:text-blue-600 w-28 flex-shrink-0 truncate font-medium">
+                    {name}
+                  </a>
+                  <div className="flex-1 relative bg-slate-100 rounded-full h-5 overflow-hidden">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-full"
+                      style={{ width: `${need}%`, backgroundColor: need >= 70 ? '#ef4444' : need >= 55 ? '#f97316' : '#eab308', opacity: 0.7 }}
+                    />
+                    <span className="absolute inset-0 flex items-center px-2 text-[10px] font-semibold text-slate-700">
+                      Need {need}
+                    </span>
+                  </div>
+                  <span className={cn(
+                    'text-xs font-semibold px-2 py-0.5 rounded-full flex-shrink-0',
+                    actionCount === 0 ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'
+                  )}>
+                    {actionCount === 0 ? 'No actions' : `${actionCount} action${actionCount !== 1 ? 's' : ''}`}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-slate-400 mt-4">
+              <a href="/action" className="text-blue-500 hover:underline">Browse all actions →</a>
+              {' '}or{' '}
+              <a href="/partners" className="text-blue-500 hover:underline">view all partners →</a>
+            </p>
+          </div>
+        )
+      })()}
+
+      {/* SDG Coverage */}
+      {(() => {
+        const SDG_LABELS: Record<number, string> = {
+          1: 'No Poverty', 2: 'Zero Hunger', 3: 'Good Health', 4: 'Quality Education',
+          5: 'Gender Equality', 6: 'Clean Water', 7: 'Affordable Energy', 8: 'Decent Work',
+          9: 'Innovation', 10: 'Reduced Inequalities', 11: 'Sustainable Cities',
+          12: 'Responsible Consumption', 13: 'Climate Action', 14: 'Life Below Water',
+          15: 'Life on Land', 16: 'Peace & Justice', 17: 'Partnerships',
+        }
+
+        const SDG_COLORS: Record<number, string> = {
+          1: '#e5243b', 2: '#dda63a', 3: '#4c9f38', 4: '#c5192d', 5: '#ff3a21',
+          6: '#26bde2', 7: '#fcc30b', 8: '#a21942', 9: '#fd6925', 10: '#dd1367',
+          11: '#fd9d24', 12: '#bf8b2e', 13: '#3f7e44', 14: '#0a97d9', 15: '#56c02b',
+          16: '#00689d', 17: '#19486a',
+        }
+
+        const sdgCoverage: Record<number, number> = {}
+        orgs.forEach((o) => (o.sdg_tags ?? []).forEach((n) => { sdgCoverage[n] = (sdgCoverage[n] ?? 0) + 1 }))
+
+        return (
+          <div className="bg-white rounded-xl border border-slate-100 shadow-sm p-5">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">SDG Coverage by Partner Ecosystem</h3>
+            <div className="grid grid-cols-6 sm:grid-cols-9 gap-2">
+              {Array.from({ length: 17 }, (_, i) => i + 1).map((n) => {
+                const count = sdgCoverage[n] ?? 0
+                const covered = count > 0
+                return (
+                  <div
+                    key={n}
+                    title={`SDG ${n}: ${SDG_LABELS[n]} — ${count} partner${count !== 1 ? 's' : ''}`}
+                    className="flex flex-col items-center gap-1 rounded-lg p-2 cursor-default transition-opacity"
+                    style={{ backgroundColor: covered ? SDG_COLORS[n] + '18' : '#f8fafc', opacity: covered ? 1 : 0.4 }}
+                  >
+                    <div
+                      className="w-7 h-7 rounded-md flex items-center justify-center text-white text-xs font-bold"
+                      style={{ backgroundColor: covered ? SDG_COLORS[n] : '#cbd5e1' }}
+                    >
+                      {n}
+                    </div>
+                    {covered && <span className="text-[10px] font-semibold text-slate-600">{count}</span>}
+                  </div>
+                )
+              })}
+            </div>
+            <p className="text-xs text-slate-400 mt-3">
+              {Object.keys(sdgCoverage).length} of 17 SDGs covered · faded tiles = no active partners yet
+            </p>
+          </div>
+        )
+      })()}
 
       {/* Partner cards */}
       <div>
