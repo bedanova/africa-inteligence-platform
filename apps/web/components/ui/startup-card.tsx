@@ -47,11 +47,14 @@ export function StartupCard({ startup, className }: Props) {
   const sectorClass = SECTOR_COLORS[startup.sector] ?? SECTOR_COLORS.other
 
   return (
-    <div className={cn('bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:border-blue-100 transition-all', className)}>
+    <Link
+      href={`/startups/${startup.id}`}
+      className={cn('block bg-white rounded-xl border border-slate-100 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md hover:border-blue-100 transition-all group', className)}
+    >
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-slate-900 leading-tight truncate">{startup.name}</h3>
+          <h3 className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight truncate">{startup.name}</h3>
           <div className="flex items-center gap-1.5 mt-1">
             <CountryFlag iso3={startup.country_iso3} size="sm" />
             <span className="text-xs text-slate-400">{startup.country_iso3}</span>
@@ -103,18 +106,7 @@ export function StartupCard({ startup, className }: Props) {
         </div>
       )}
 
-      {/* Source link */}
-      {startup.source_url && (
-        <Link
-          href={startup.source_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] text-blue-500 hover:underline truncate"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {startup.source_name ?? 'Source'} →
-        </Link>
-      )}
-    </div>
+      <span className="text-[11px] text-blue-500 group-hover:underline mt-auto">View profile →</span>
+    </Link>
   )
 }

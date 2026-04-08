@@ -70,6 +70,13 @@ export async function rejectStartupPending(pendingId: number): Promise<void> {
   await sb.from('startups_pending').update({ status: 'rejected', reviewed_at: new Date().toISOString() }).eq('id', pendingId)
 }
 
+export async function getStartup(id: string): Promise<Startup | null> {
+  const sb = getSupabase()
+  const { data, error } = await sb.from('startups').select('*').eq('id', id).single()
+  if (error) return null
+  return data as Startup
+}
+
 export async function getLatestInvestmentBriefs(limit = 5): Promise<InvestmentBrief[]> {
   const sb = getSupabase()
   const { data, error } = await sb
