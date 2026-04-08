@@ -3,13 +3,14 @@
 import dynamic from 'next/dynamic'
 import { CountryFlag } from '@/components/ui/country-flag'
 import { cn } from '@/lib/utils'
-import type { Organization, ActionCard } from '@/types'
+import type { Organization, ActionCard, CountrySummary } from '@/types'
 
 const ReactECharts = dynamic(() => import('echarts-for-react'), { ssr: false })
 
 interface Props {
   orgs: Organization[]
   actions: ActionCard[]
+  countries?: CountrySummary[]
 }
 
 const ACTION_COLORS: Record<string, string> = {
@@ -19,7 +20,7 @@ const ACTION_COLORS: Record<string, string> = {
   learn:     '#f59e0b',
 }
 
-export function ImpactCharts({ orgs, actions }: Props) {
+export function ImpactCharts({ orgs, actions, countries = [] }: Props) {
   // Actions by type
   const byType = ['donate', 'volunteer', 'invest', 'learn'].map((t) => ({
     name: t.charAt(0).toUpperCase() + t.slice(1),
@@ -131,24 +132,11 @@ export function ImpactCharts({ orgs, actions }: Props) {
       </div>
 
       {/* Coverage Gaps */}
-      {(() => {
-        const NEED_SCORES: Record<string, { name: string; need: number }> = {
-          KEN: { name: 'Kenya', need: 62 }, ETH: { name: 'Ethiopia', need: 78 },
-          TZA: { name: 'Tanzania', need: 65 }, RWA: { name: 'Rwanda', need: 52 },
-          UGA: { name: 'Uganda', need: 68 }, MOZ: { name: 'Mozambique', need: 74 },
-          NGA: { name: 'Nigeria', need: 71 }, GHA: { name: 'Ghana', need: 48 },
-          SEN: { name: 'Senegal', need: 55 }, CIV: { name: "Côte d'Ivoire", need: 58 },
-          CMR: { name: 'Cameroon', need: 60 }, ZAF: { name: 'South Africa', need: 44 },
-          ZMB: { name: 'Zambia', need: 66 }, AGO: { name: 'Angola', need: 70 },
-          EGY: { name: 'Egypt', need: 50 }, MAR: { name: 'Morocco', need: 42 },
-          DZA: { name: 'Algeria', need: 38 }, TUN: { name: 'Tunisia', need: 36 },
-          COD: { name: 'DR Congo', need: 82 }, MDG: { name: 'Madagascar', need: 72 },
-        }
-
-        const gapData = Object.entries(NEED_SCORES)
-          .map(([iso3, { name, need }]) => ({
-            iso3, name, need,
-            actionCount: actions.filter((a) => a.country_iso3 === iso3).length,
+      {countries.length > 0 && (() => {
+        const gapData = countries
+          .map((c) => ({
+            iso3: c.iso3, name: c.name, need: Math.round(c.scores.need),
+            actionCount: actions.filter((a) => a.country_iso3 === c.iso3).length,
           }))
           .filter(({ need }) => need >= 55)
           .sort((a, b) => (b.need - b.actionCount * 8) - (a.need - a.actionCount * 8))

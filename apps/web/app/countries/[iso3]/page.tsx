@@ -160,16 +160,18 @@ export default async function CountryPage({
               </div>
             )}
 
-            {country.metrics.length > 0 && (
-              <div>
-                <SectionHeader title="Key Indicators" />
+            <div>
+              <SectionHeader title="Key Indicators" />
+              {country.metrics.length > 0 ? (
                 <MetricsSection
                   metrics={country.metrics}
                   iso3={country.iso3}
                   countryName={country.name}
                 />
-              </div>
-            )}
+              ) : (
+                <p className="text-sm text-slate-400 italic">No indicators loaded yet for this country.</p>
+              )}
+            </div>
 
             {/* Startup signals */}
             {startups.length > 0 && (
@@ -197,16 +199,18 @@ export default async function CountryPage({
             )}
           </div>
 
-          {country.trusted_actions.length > 0 && (
-            <div>
-              <SectionHeader title="Trusted Actions" />
+          <div>
+            <SectionHeader title="Trusted Actions" />
+            {country.trusted_actions.length > 0 ? (
               <div className="space-y-3">
                 {country.trusted_actions.map((a) => (
                   <ActionCard key={a.id} action={a} />
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-sm text-slate-400 italic">No verified actions for this country yet.</p>
+            )}
+          </div>
         </div>
       </PageShell>
     </>

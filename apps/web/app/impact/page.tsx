@@ -1,7 +1,8 @@
 import { Navbar } from "@/components/layout/navbar"
 import { PageShell, PageHeader } from "@/components/layout/page-shell"
 import { ImpactCharts } from "@/components/ui/impact-charts"
-import { getOrganizations, getAllActions } from "@/lib/supabase-server"
+import { getOrganizations, getAllActions, getCountries } from "@/lib/supabase-server"
+import { MOCK_COUNTRIES } from "@/lib/mock-data"
 import type { Metadata } from "next"
 
 export const dynamic = 'force-dynamic'
@@ -9,15 +10,15 @@ export const metadata: Metadata = { title: "Impact", description: "Sector covera
 
 async function getImpactData() {
   try {
-    const [orgs, actions] = await Promise.all([getOrganizations(), getAllActions()])
-    return { orgs, actions }
+    const [orgs, actions, countries] = await Promise.all([getOrganizations(), getAllActions(), getCountries()])
+    return { orgs, actions, countries }
   } catch {
-    return { orgs: [], actions: [] }
+    return { orgs: [], actions: [], countries: MOCK_COUNTRIES }
   }
 }
 
 export default async function ImpactPage() {
-  const { orgs, actions } = await getImpactData()
+  const { orgs, actions, countries } = await getImpactData()
 
   // Compute summary stats
   const countriesCovered = new Set(orgs.flatMap((o) => o.countries)).size
@@ -51,7 +52,7 @@ export default async function ImpactPage() {
         </div>
 
         {orgs.length > 0
-          ? <ImpactCharts orgs={orgs} actions={actions} />
+          ? <ImpactCharts orgs={orgs} actions={actions} countries={countries} />
           : (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 max-w-lg">
               <p className="text-sm font-semibold text-amber-800 mb-1">No partner data</p>
