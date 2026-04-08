@@ -138,3 +138,60 @@ export interface ImpactAction {
   period_end?: string;
   volume_usd?: number;
 }
+
+// --- Startups ---
+export type StartupSector = 'fintech' | 'agritech' | 'healthtech' | 'edtech' | 'cleantech' | 'logistics' | 'other'
+export type StartupStage = 'pre-seed' | 'seed' | 'series-a' | 'series-b+'
+
+export interface Startup {
+  id: string
+  name: string
+  country_iso3: string
+  sector: StartupSector
+  stage: StartupStage
+  description: string | null
+  problem: string | null
+  solution: string | null
+  founder_name: string | null
+  website: string | null
+  funding_amount_usd: number | null
+  funding_source: string | null
+  sdg_tags: number[]
+  viability_score: number | null
+  verification_tier: VerificationTier
+  source_url: string | null
+  source_name: string | null
+  ai_brief: string | null
+  impact_tags: string[]
+  created_at: string
+  updated_at: string
+}
+
+export interface StartupPending {
+  id: number
+  name: string
+  country_iso3: string | null
+  sector: string | null
+  stage: string | null
+  description: string | null
+  source_url: string
+  source_name: string | null
+  article_excerpt: string | null
+  extracted_at: string
+  status: 'pending' | 'approved' | 'rejected'
+  reviewed_at: string | null
+  raw_json: Record<string, unknown> | null
+}
+
+export interface InvestmentBrief {
+  id: string
+  title: string
+  summary: string
+  bullets: string[]
+  sector_focus: string | null
+  country_iso3: string | null
+  week_of: string
+  generated_at: string
+  model_name: string | null
+  sources: string[]
+}
