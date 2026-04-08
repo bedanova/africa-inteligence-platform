@@ -9,9 +9,11 @@ import { FreshnessBadge } from "@/components/ui/freshness-badge";
 import { CountryFlag } from "@/components/ui/country-flag";
 import { CountryEducationPanel } from "@/components/ui/country-education-panel";
 import { getCountry, getMetrics, getMetricsWithHistory, getSectors, getActions, getCountryBriefFromDb } from "@/lib/supabase-server";
+import { getStartups } from "@/lib/supabase-startups";
 import { MOCK_COUNTRIES, MOCK_METRICS, MOCK_SECTORS, MOCK_ACTIONS, getCountryBrief } from "@/lib/mock-data";
 import { COUNTRY_EDUCATION } from "@/lib/country-education";
-import type { CountryProfile } from "@/types";
+import { StartupCard } from "@/components/ui/startup-card";
+import type { CountryProfile, Startup } from "@/types";
 import type { Metadata } from "next";
 
 async function getCountryProfile(iso3: string): Promise<CountryProfile | null> {
@@ -63,7 +65,10 @@ export default async function CountryPage({
   params: Promise<{ iso3: string }>;
 }) {
   const { iso3 } = await params;
-  const country = await getCountryProfile(iso3.toUpperCase());
+  const [country, startups] = await Promise.all([
+    getCountryProfile(iso3.toUpperCase()),
+    getStartups({ country_iso3: iso3.toUpperCase() }).catch((): Startup[] => []),
+  ]);
 
   if (!country) notFound();
 
@@ -163,6 +168,31 @@ export default async function CountryPage({
                   iso3={country.iso3}
                   countryName={country.name}
                 />
+              </div>
+            )}
+
+            {/* Startup signals */}
+            {startups.length > 0 && (
+              <div>
+                <SectionHeader
+                  title="Startup Signals"
+                  action={
+                    <Link href="/startups" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+                      All startups →
+                    </Link>
+                  }
+                />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {startups.slice(0, 4).map((s) => (
+                    <StartupCard key={s.id} startup={s} />
+                  ))}
+                </div>
+                {startups.length > 4 && (
+                  <p className="text-xs text-slate-400 mt-3">
+                    +{startups.length - 4} more startups in {country.name} —{' '}
+                    <Link href="/startups" className="text-blue-500 hover:underline">browse all</Link>
+                  </p>
+                )}
               </div>
             )}
           </div>
