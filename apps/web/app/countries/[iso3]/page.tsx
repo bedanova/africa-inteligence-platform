@@ -80,45 +80,54 @@ export default async function CountryPage({
 
         {/* Hero */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-6">
-          {/* Top band */}
-          <div className="p-6 pb-4">
-            <div className="flex items-start gap-4">
-              <CountryFlag iso3={country.iso3} countryName={country.name} size="xl" />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between gap-2 flex-wrap">
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-900 leading-tight">{country.name}</h1>
-                    <p className="text-sm text-slate-400 mt-0.5">{country.region}</p>
-                  </div>
-                  <FreshnessBadge freshness={country.freshness} updatedAt={country.scores.updated_at} />
-                </div>
-                {country.ai_brief?.summary && (
-                  <p className="text-sm text-slate-500 italic mt-3 leading-relaxed line-clamp-2">
-                    &ldquo;{country.ai_brief.summary}&rdquo;
-                  </p>
-                )}
-              </div>
+
+          {/* Header row: flag + name + badge — all on one axis */}
+          <div className="flex items-center gap-3 px-6 py-5">
+            <CountryFlag iso3={country.iso3} countryName={country.name} size="lg" />
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-slate-900 leading-tight truncate">{country.name}</h1>
+              <p className="text-sm text-slate-400">{country.region}</p>
+            </div>
+            <div className="flex-shrink-0">
+              <FreshnessBadge freshness={country.freshness} updatedAt={country.scores.updated_at} />
             </div>
           </div>
 
-          {/* Score strip */}
-          <div className="grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100">
-            {[
-              { type: 'need' as const,        value: country.scores.need,        label: 'Need',        desc: 'Humanitarian pressure', color: 'text-rose-700',    bg: 'hover:bg-rose-50/50' },
-              { type: 'opportunity' as const, value: country.scores.opportunity, label: 'Opportunity', desc: 'Growth potential',       color: 'text-emerald-700', bg: 'hover:bg-emerald-50/50' },
-              { type: 'stability' as const,   value: country.scores.stability,   label: 'Stability',   desc: 'Governance score',      color: 'text-blue-700',    bg: 'hover:bg-blue-50/50' },
-            ].map(({ value, label, desc, color, bg }) => (
-              <div key={label} className={`px-5 py-4 transition-colors ${bg}`}>
-                <div className={`text-3xl font-bold tabular-nums ${color}`}>{Math.round(value)}<span className="text-base font-normal text-slate-400 ml-0.5">/100</span></div>
-                <div className="text-xs font-semibold text-slate-700 mt-0.5">{label}</div>
-                <div className="text-xs text-slate-400">{desc}</div>
+          {/* AI brief quote — full-width, same horizontal padding */}
+          {country.ai_brief?.summary && (
+            <p className="text-sm text-slate-400 italic px-6 pb-5 leading-relaxed line-clamp-2 border-b border-slate-100">
+              &ldquo;{country.ai_brief.summary}&rdquo;
+            </p>
+          )}
+
+          {/* Score strip — px-6 matches header so columns align with content above */}
+          <div className="grid grid-cols-3 border-t border-slate-100">
+            <div className="px-6 py-5 border-r border-slate-100 transition-colors hover:bg-rose-50/60">
+              <div className="text-3xl font-bold tabular-nums leading-none text-rose-700">
+                {Math.round(country.scores.need)}<span className="text-sm font-normal text-slate-300 ml-0.5">/100</span>
               </div>
-            ))}
+              <div className="text-xs font-semibold text-slate-700 mt-1.5">Need</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Humanitarian pressure</div>
+            </div>
+            <div className="px-6 py-5 border-r border-slate-100 transition-colors hover:bg-emerald-50/60">
+              <div className="text-3xl font-bold tabular-nums leading-none text-emerald-700">
+                {Math.round(country.scores.opportunity)}<span className="text-sm font-normal text-slate-300 ml-0.5">/100</span>
+              </div>
+              <div className="text-xs font-semibold text-slate-700 mt-1.5">Opportunity</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Growth potential</div>
+            </div>
+            <div className="px-6 py-5 transition-colors hover:bg-blue-50/60">
+              <div className="text-3xl font-bold tabular-nums leading-none text-blue-700">
+                {Math.round(country.scores.stability)}<span className="text-sm font-normal text-slate-300 ml-0.5">/100</span>
+              </div>
+              <div className="text-xs font-semibold text-slate-700 mt-1.5">Stability</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">Governance score</div>
+            </div>
           </div>
 
-          {/* Sectors */}
+          {/* Sectors — same px-6 */}
           {country.priority_sectors.length > 0 && (
-            <div className="flex gap-2 flex-wrap px-6 py-3 border-t border-slate-100 bg-slate-50/50">
+            <div className="flex gap-2 flex-wrap px-6 py-3 border-t border-slate-100 bg-slate-50/40">
               {country.priority_sectors.map((s) => (
                 <span key={s} className="text-xs bg-white text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
                   {s}

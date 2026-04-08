@@ -25,13 +25,23 @@ export function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2.5 flex-shrink-0 group"
         >
-          <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-[10px] font-black leading-none tracking-tight">
-            AIL
+          {/* Gradient square with A lettermark */}
+          <span
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-white font-black text-base flex-shrink-0 shadow-sm transition-transform group-hover:scale-105"
+            style={{ background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 100%)' }}
+          >
+            A
           </span>
-          <span className="hidden sm:inline text-sm font-bold text-slate-900 leading-none">
-            Africa<span className="text-blue-600">Impact</span><span className="text-slate-400 font-semibold">Lab</span>
+          {/* Two-line wordmark */}
+          <span className="hidden sm:flex flex-col leading-none gap-[3px]">
+            <span className="text-[13px] font-bold text-slate-800 tracking-tight">
+              Africa<span className="text-blue-600">Impact</span>
+            </span>
+            <span className="text-[9px] font-semibold text-slate-400 tracking-[0.18em] uppercase">
+              Lab
+            </span>
           </span>
         </Link>
 
