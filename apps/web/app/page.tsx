@@ -108,7 +108,7 @@ export default async function HomePage() {
 
         {/* Leaderboards */}
         {data && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-10">
             <LeaderboardBlock
               title="Highest Need"
               entries={data.leaderboards.highest_need}

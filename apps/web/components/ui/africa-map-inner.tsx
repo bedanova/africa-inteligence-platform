@@ -83,26 +83,33 @@ export function AfricaMapInner({ countries }: Props) {
 
       el.addEventListener('mouseenter', () => { el.style.transform = 'scale(1.2)' })
       el.addEventListener('mouseleave', () => { el.style.transform = 'scale(1)' })
-      el.addEventListener('click', () => {
-        window.location.href = `/countries/${country.iso3.toLowerCase()}`
-      })
 
-      // Popup on hover
+      // Popup shown on hover (desktop) and briefly on click/tap before navigating (mobile)
       const popup = new maplibregl.Popup({
         closeButton: false,
         closeOnClick: false,
         offset: 22,
       }).setHTML(`
-        <div style="font-family:system-ui,sans-serif;padding:6px 10px;min-width:120px">
-          <div style="font-size:14px"><strong>${country.name}</strong></div>
-          <div style="font-size:11px;color:#64748b;margin-top:2px">
-            Need <b>${country.scores.need}</b> · Opp <b>${country.scores.opportunity}</b> · Stab <b>${country.scores.stability}</b>
+        <div style="font-family:system-ui,sans-serif;padding:6px 10px;min-width:140px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:4px">${country.name} →</div>
+          <div style="font-size:11px;color:#64748b;line-height:1.6">
+            Need <b style="color:#e11d48">${country.scores.need}</b>&nbsp;·&nbsp;Opp <b style="color:#059669">${country.scores.opportunity}</b>&nbsp;·&nbsp;Stab <b style="color:#2563eb">${country.scores.stability}</b>
           </div>
         </div>
       `)
 
       el.addEventListener('mouseenter', () => popup.addTo(m))
-      el.addEventListener('mouseleave', () => popup.remove())
+      el.addEventListener('mouseleave', () => { if (!el.dataset.clicked) popup.remove() })
+
+      el.addEventListener('click', () => {
+        // Show popup briefly so the user sees what they tapped, then navigate
+        el.dataset.clicked = '1'
+        el.style.transform = 'scale(1.15)'
+        popup.addTo(m)
+        setTimeout(() => {
+          window.location.href = `/countries/${country.iso3.toLowerCase()}`
+        }, 700)
+      })
 
       const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
         .setLngLat(coords)
@@ -124,6 +131,8 @@ export function AfricaMapInner({ countries }: Props) {
       minZoom: 1.5,
       maxZoom: 8,
       attributionControl: false,
+      // Require two fingers to pan on touch devices so page scroll works normally
+      cooperativeGestures: true,
     })
 
     map.current.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
@@ -155,15 +164,15 @@ export function AfricaMapInner({ countries }: Props) {
   return (
     <div>
       {/* Score type toggle */}
-      <div className="flex gap-2 mb-3">
+      <div className="flex flex-wrap items-center gap-2 mb-2">
         {(['need', 'opportunity', 'stability'] as ScoreType[]).map((t) => (
           <button
             key={t}
             onClick={() => setScoreType(t)}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
               scoreType === t
-                ? t === 'need' ? 'bg-red-500 text-white'
-                  : t === 'opportunity' ? 'bg-green-500 text-white'
+                ? t === 'need' ? 'bg-rose-500 text-white'
+                  : t === 'opportunity' ? 'bg-emerald-600 text-white'
                   : 'bg-blue-500 text-white'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
@@ -171,11 +180,16 @@ export function AfricaMapInner({ countries }: Props) {
             {SCORE_LABELS[t]}
           </button>
         ))}
-        <span className="ml-auto text-xs text-slate-400 self-center">Click a country to open its profile</span>
       </div>
+      <p className="text-xs text-slate-400 mb-3">
+        Tap or click a country marker to open its profile · Two fingers to pan on mobile
+      </p>
 
-      {/* Map */}
-      <div ref={mapContainer} style={{ height: 440, borderRadius: 12, overflow: 'hidden' }} />
+      {/* Map — height responsive: 300px mobile, up to 440px desktop */}
+      <div
+        ref={mapContainer}
+        style={{ height: 'clamp(300px, 65vw, 440px)', borderRadius: 12, overflow: 'hidden' }}
+      />
     </div>
   )
 }
