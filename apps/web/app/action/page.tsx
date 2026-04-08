@@ -5,7 +5,7 @@ import { getAllActions } from "@/lib/supabase-server"
 import { MOCK_ACTIONS } from "@/lib/mock-data"
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: "Take Action" }
+export const metadata = { title: "Take Action", description: "21 verified actions — donate, volunteer, invest or learn — to support people across Africa through trusted organisations.", openGraph: { title: "Take Action | AfricaImpactLab", description: "Find ways to donate, volunteer, invest or learn with verified African impact organisations." } }
 
 async function getActions() {
   try {

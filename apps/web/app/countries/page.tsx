@@ -5,7 +5,14 @@ import { getCountries } from "@/lib/supabase-server"
 import { MOCK_COUNTRIES } from "@/lib/mock-data"
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: "Countries" }
+export const metadata = {
+  title: "Countries",
+  description: "Need, Opportunity, and Stability scores for all tracked African countries — updated daily from UN, World Bank, WHO and ACLED data.",
+  openGraph: {
+    title: "African Countries | AfricaImpactLab",
+    description: "Explore live data scores and AI briefs for 20 African countries.",
+  },
+}
 
 async function getAllCountries() {
   try {

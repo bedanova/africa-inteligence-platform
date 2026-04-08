@@ -86,7 +86,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-2xl mx-auto">
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Admin Panel</h1>
-        <p className="text-sm text-slate-500 mb-8">Africa Intelligence Platform — manual triggers</p>
+        <p className="text-sm text-slate-500 mb-8">AfricaImpactLab — manual triggers</p>
 
         <div className="space-y-4">
           {jobs.map((job) => (

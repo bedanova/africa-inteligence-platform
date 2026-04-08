@@ -177,16 +177,27 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
         aria-hidden="true"
       />
 
-      {/* Panel */}
+      {/* Panel: bottom sheet on mobile, side drawer on sm+ */}
       <div
         ref={panelRef}
-        className="fixed top-0 right-0 h-full w-full sm:w-[520px] bg-white shadow-2xl z-50 flex flex-col overflow-hidden"
+        className={[
+          'fixed z-50 bg-white shadow-2xl flex flex-col overflow-hidden',
+          // Mobile: slide up from bottom
+          'inset-x-0 bottom-0 max-h-[88vh] rounded-t-2xl',
+          // sm+: right-side drawer
+          'sm:inset-x-auto sm:top-0 sm:right-0 sm:bottom-auto sm:max-h-none sm:h-full sm:w-[520px] sm:rounded-none',
+        ].join(' ')}
         role="dialog"
         aria-modal="true"
         aria-label={`Detail: ${metric.label}`}
       >
+        {/* Drag handle — mobile only */}
+        <div className="flex justify-center pt-3 pb-0 sm:hidden flex-shrink-0">
+          <div className="w-10 h-1 rounded-full bg-slate-200" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 px-6 py-5 border-b border-slate-100">
+        <div className="flex items-start justify-between gap-3 px-6 py-4 sm:py-5 border-b border-slate-100 flex-shrink-0">
           <div>
             <p className="text-xs font-medium text-slate-400 uppercase tracking-wide mb-0.5">
               {iso3} · {metric.source}
@@ -199,9 +210,10 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
               </p>
             )}
           </div>
+          {/* Large tap target on mobile */}
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0 mt-0.5"
+            className="flex items-center justify-center w-11 h-11 sm:w-8 sm:h-8 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors flex-shrink-0"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -209,7 +221,7 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
         </div>
 
         {/* Current value + trend */}
-        <div className="flex items-center gap-6 px-6 py-4 bg-slate-50 border-b border-slate-100">
+        <div className="flex items-center gap-6 px-6 py-4 bg-slate-50 border-b border-slate-100 flex-shrink-0">
           <div>
             <p className="text-3xl font-bold text-slate-900 tabular-nums">
               {data?.latestValue != null ? formatNum(data.latestValue) : '—'}
@@ -233,15 +245,15 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
         </div>
 
         {/* Controls: time range + comparison */}
-        <div className="flex items-center justify-between gap-4 px-6 py-3 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-3 border-b border-slate-100 flex-shrink-0">
           {/* Time range */}
-          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
+          <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5 self-start">
             {(['5Y', '10Y', 'All'] as TimeRange[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setTimeRange(r)}
                 className={cn(
-                  'px-3 py-1 text-xs font-semibold rounded-md transition-colors',
+                  'px-4 py-2 sm:px-3 sm:py-1 text-xs font-semibold rounded-md transition-colors min-w-[44px] sm:min-w-0',
                   timeRange === r
                     ? 'bg-white text-slate-900 shadow-sm'
                     : 'text-slate-500 hover:text-slate-700'
@@ -259,7 +271,7 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
               <button
                 onClick={() => setShowUK((v) => !v)}
                 className={cn(
-                  'px-2.5 py-1 text-xs font-semibold rounded-full border transition-colors',
+                  'px-4 py-2 sm:px-2.5 sm:py-1 text-xs font-semibold rounded-full border transition-colors',
                   showUK
                     ? 'bg-orange-50 border-orange-300 text-orange-700'
                     : 'border-slate-200 text-slate-500 hover:border-slate-300'
@@ -270,7 +282,7 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
               <button
                 onClick={() => setShowEU((v) => !v)}
                 className={cn(
-                  'px-2.5 py-1 text-xs font-semibold rounded-full border transition-colors',
+                  'px-4 py-2 sm:px-2.5 sm:py-1 text-xs font-semibold rounded-full border transition-colors',
                   showEU
                     ? 'bg-green-50 border-green-300 text-green-700'
                     : 'border-slate-200 text-slate-500 hover:border-slate-300'
@@ -283,7 +295,7 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
         </div>
 
         {/* Chart */}
-        <div className="flex-1 px-2 py-4 overflow-hidden">
+        <div className="flex-1 min-h-0 px-2 py-4 overflow-hidden">
           {loading && (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent" />

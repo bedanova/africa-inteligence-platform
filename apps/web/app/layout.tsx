@@ -11,26 +11,26 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Africa Intelligence Platform",
-    template: "%s | Africa Intelligence Platform",
+    default: "AfricaImpactLab",
+    template: "%s | AfricaImpactLab",
   },
   description:
-    "AI-powered platform tracking governance, economy, health, and humanitarian signals across Africa. Daily briefs, verified partners, and actionable insights.",
-  keywords: ["Africa", "intelligence", "SDG", "humanitarian", "data", "AI briefs"],
-  authors: [{ name: "Africa Intelligence Platform" }],
+    "Daily AI briefs, verified partners, and actionable data insights on Africa — grounded in UN, World Bank, WHO, ACLED, IMF and UNHCR data.",
+  keywords: ["Africa", "impact", "SDG", "humanitarian", "data", "AI briefs", "AfricaImpactLab"],
+  authors: [{ name: "AfricaImpactLab" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Africa Intel",
+    title: "AfricaImpactLab",
   },
   openGraph: {
     type: "website",
     locale: "en_US",
-    siteName: "Africa Intelligence Platform",
-    title: "Africa Intelligence Platform",
+    siteName: "AfricaImpactLab",
+    title: "AfricaImpactLab — Africa Data & Impact Intelligence",
     description:
-      "Daily AI briefs, verified partners, and actionable insights for Africa.",
+      "Daily AI briefs, verified partners, and actionable insights — grounded in live data from UN, World Bank, WHO, ACLED and more.",
   },
 };
 

@@ -8,6 +8,18 @@ import { CountryFlag } from "@/components/ui/country-flag";
 import { getCountries, getBriefs } from "@/lib/supabase-server";
 import { MOCK_COUNTRIES, MOCK_BRIEFS } from "@/lib/mock-data";
 import type { HomeOverview, CountrySummary, LeaderboardEntry } from "@/types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: { absolute: "AfricaImpactLab — Africa Data & Impact Intelligence" },
+  description:
+    "Daily AI briefs, verified impact partners, and actionable data insights on Africa — grounded in live UN, World Bank, WHO, ACLED and IMF data.",
+  openGraph: {
+    title: "AfricaImpactLab — Africa Data & Impact Intelligence",
+    description:
+      "Daily AI briefs, verified impact partners, and actionable data insights on Africa — grounded in live UN, World Bank, WHO, ACLED and IMF data.",
+  },
+};
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +63,7 @@ export default async function HomePage() {
         {/* Hero */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-slate-900">Africa Intelligence</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Africa<span className="text-blue-600">Impact</span><span className="text-slate-400 font-semibold">Lab</span></h1>
             {data && (
               <span
                 className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full ${

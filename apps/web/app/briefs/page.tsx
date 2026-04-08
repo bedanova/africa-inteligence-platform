@@ -5,7 +5,7 @@ import { getBriefs } from "@/lib/supabase-server";
 import { MOCK_BRIEFS } from "@/lib/mock-data";
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: "AI Briefs" };
+export const metadata = { title: "AI Briefs", description: "Daily AI-generated country briefings grounded in live UN, World Bank, WHO and ACLED data — covering 20 African countries.", openGraph: { title: "AI Briefs | AfricaImpactLab", description: "Daily AI briefs on African countries — data-grounded, cited, updated every morning." } }
 
 async function getAllBriefs() {
   try {

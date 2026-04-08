@@ -25,14 +25,13 @@ export function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold text-slate-900 flex-shrink-0 hover:text-blue-600 transition-colors"
+          className="flex items-center gap-2 flex-shrink-0 hover:opacity-80 transition-opacity"
         >
-          <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-xs font-black">
-            AI
+          <span className="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center text-white text-[10px] font-black leading-none tracking-tight">
+            AIL
           </span>
-          <span className="hidden sm:inline text-sm leading-tight">
-            Africa<br />
-            <span className="text-slate-500 font-normal text-xs">Intelligence</span>
+          <span className="hidden sm:inline text-sm font-bold text-slate-900 leading-none">
+            Africa<span className="text-blue-600">Impact</span><span className="text-slate-400 font-semibold">Lab</span>
           </span>
         </Link>
 

@@ -5,7 +5,7 @@ import { getOrganizations, getAllActions } from "@/lib/supabase-server"
 import type { Metadata } from "next"
 
 export const dynamic = 'force-dynamic'
-export const metadata: Metadata = { title: "Impact Dashboards" }
+export const metadata: Metadata = { title: "Impact", description: "Sector coverage, SDG alignment, and coverage gaps — visualising where verified impact organisations are active across Africa.", openGraph: { title: "Impact Dashboard | AfricaImpactLab", description: "See where impact partners are active across Africa and where the biggest gaps are." } }
 
 async function getImpactData() {
   try {

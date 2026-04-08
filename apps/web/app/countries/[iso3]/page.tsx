@@ -46,7 +46,15 @@ export async function generateMetadata({
   const { iso3 } = await params;
   const country = await getCountryProfile(iso3.toUpperCase());
   if (!country) return { title: "Country not found" };
-  return { title: country.name, description: country.ai_brief?.summary };
+  const desc = country.ai_brief?.summary ?? `Live data, AI briefs, and verified impact actions for ${country.name}.`
+  return {
+    title: country.name,
+    description: desc,
+    openGraph: {
+      title: `${country.name} | AfricaImpactLab`,
+      description: desc,
+    },
+  };
 }
 
 export default async function CountryPage({

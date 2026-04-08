@@ -5,7 +5,7 @@ import { getOrganizations } from "@/lib/supabase-server"
 import type { Organization } from "@/types"
 
 export const dynamic = 'force-dynamic'
-export const metadata = { title: "Verified Partners" }
+export const metadata = { title: "Verified Partners", description: "12 editorially verified impact organisations working across Africa — donate, volunteer, invest or learn.", openGraph: { title: "Verified Partners | AfricaImpactLab", description: "Explore vetted NGOs and impact orgs active across Africa." } }
 
 const MOCK_ORGS: Organization[] = [
   { id: 'org-wateraid', name: 'WaterAid Africa', website: 'https://www.wateraid.org/africa', mission: 'Universal access to clean water, decent toilets and good hygiene across Africa — reaching the furthest behind first.', countries: ['KEN','ETH','TZA','GHA','SEN','MOZ','NGA','ZMB','MDG'], sectors: ['WASH','Health','Climate Adaptation'], sdg_tags: [3,6], verification_tier: 'A', last_reviewed_at: '2026-03-01', action_types: ['donate','volunteer'] },
