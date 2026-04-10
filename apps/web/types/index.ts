@@ -100,6 +100,12 @@ export interface ActionCard {
   url: string;
   description?: string;
   warning?: string;
+  // Volunteer-specific (optional on all types)
+  skills_needed?: string[];
+  remote?: boolean;
+  duration?: string;
+  sdg_tags?: number[];
+  sector?: string;
 }
 
 // --- Home Overview ---
