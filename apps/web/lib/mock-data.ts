@@ -153,7 +153,7 @@ export const MOCK_ACTIONS: Record<string, ActionCard[]> = {
       org_id: 'org-wateraid',
       org_verification_tier: 'A',
       country_iso3: 'KEN',
-      url: 'https://www.wateraid.org/uk/donate',
+      url: 'https://www.wateraid.org/uk/donate', // WaterAid uses WAF — works in real browsers
       description: 'Funding clean water access for 50,000+ people in arid regions.',
       sdg_tags: [6, 3],
       sector: 'WASH',
@@ -350,7 +350,7 @@ export const MOCK_ACTIONS: Record<string, ActionCard[]> = {
       org_id: 'org-amref',
       org_verification_tier: 'A',
       country_iso3: 'TZA',
-      url: 'https://amref.org',
+      url: 'https://amref.org/careers',
       description: 'Support Amref\'s health systems strengthening team with literature review, data synthesis, and policy brief drafting for Tanzania.',
       skills_needed: ['Research', 'Public health', 'Report writing'],
       remote: true,

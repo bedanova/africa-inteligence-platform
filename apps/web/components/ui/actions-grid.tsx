@@ -42,15 +42,18 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
     return isos.sort((a, b) => (COUNTRY_NAMES[a] ?? a).localeCompare(COUNTRY_NAMES[b] ?? b))
   }, [actions])
 
+  // Reset remote filter when switching away from volunteer
+  const effectiveRemote = typeFilter === "volunteer" ? remoteFilter : "all"
+
   const filtered = useMemo(() => {
     return actions.filter((a) => {
       if (typeFilter !== "all" && a.type !== typeFilter) return false
       if (countryFilter !== "all" && a.country_iso3 !== countryFilter) return false
-      if (remoteFilter === "remote" && a.remote !== true) return false
-      if (remoteFilter === "onsite" && a.remote !== false) return false
+      if (effectiveRemote === "remote" && a.remote !== true) return false
+      if (effectiveRemote === "onsite" && a.remote !== false) return false
       return true
     })
-  }, [actions, typeFilter, countryFilter, remoteFilter])
+  }, [actions, typeFilter, countryFilter, effectiveRemote])
 
   const volunteerCount = actions.filter((a) => a.type === "volunteer").length
   const hasActiveFilter = typeFilter !== "all" || countryFilter !== "all" || remoteFilter !== "all"
@@ -115,7 +118,7 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
           </select>
 
           {/* Remote toggle — only visible when Volunteer filter active */}
-          {(typeFilter === "volunteer" || typeFilter === "all") && (
+          {typeFilter === "volunteer" && (
             <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-0.5">
               {(["all", "remote", "onsite"] as const).map((v) => (
                 <button

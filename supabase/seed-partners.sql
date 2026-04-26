@@ -89,48 +89,59 @@ on conflict (id) do nothing;
 
 -- ─── ACTIONS ──────────────────────────────────────────────────────────────────
 
-insert into actions (id, country_iso3, type, title, description, org_name, org_id, org_verification_tier, url) values
+insert into actions (id, country_iso3, type, title, description, org_name, org_id, org_verification_tier, url, remote, duration, skills_needed, sector, sdg_tags) values
 
 -- Kenya
-('a-ken-1','KEN','donate',   'Support WASH programs in Turkana County',         'Fund clean water access for 50,000+ people in arid regions.',                 'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/donate'),
-('a-ken-2','KEN','volunteer','Remote data analyst — health indicators',          '3-month remote engagement mapping health facility data across Kenya.',         'Humanitarian OpenStreetMap Team',                       'org-afrimapper', 'B', 'https://www.hotosm.org/get-involved'),
-('a-ken-3','KEN','invest',   'Agri-fintech seed opportunities — East Africa',    'Screened early-stage opportunities in climate-smart agriculture and fintech.', 'Launch Africa Ventures',                     'org-enza',       'A', 'https://launchafrica.vc'),
-('a-ken-4','KEN','donate',   'Community health worker training — Nairobi',       'Train frontline health workers in urban informal settlements.',                 'Amref Health Africa',              'org-amref',      'A', 'https://amref.org'),
+('a-ken-1','KEN','donate',   'Support WASH programs in Turkana County',         'Fund clean water access for 50,000+ people in arid regions.',                 'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/uk/donate', null, null, null, 'WASH', ARRAY[6,3]),
+('a-ken-2','KEN','volunteer','Remote data analyst — health indicators',          '3-month remote engagement mapping health facility data across Kenya.',         'Humanitarian OpenStreetMap Team',   'org-afrimapper', 'B', 'https://www.hotosm.org/get-involved', true, '3 months, ~5 hrs/week', ARRAY['Data analysis','Python or R','Excel'], 'Health', ARRAY[3,17]),
+('a-ken-3','KEN','invest',   'Agri-fintech seed opportunities — East Africa',    'Screened early-stage opportunities in climate-smart agriculture and fintech.', 'Launch Africa Ventures',            'org-enza',       'A', 'https://launchafrica.vc', null, null, null, 'Agri-tech', ARRAY[1,2,13]),
+('a-ken-4','KEN','donate',   'Community health worker training — Nairobi',       'Train frontline health workers in urban informal settlements.',                 'Amref Health Africa',              'org-amref',      'A', 'https://amref.org/donate', null, null, null, 'Health', ARRAY[3]),
 
 -- Nigeria
-('a-nga-1','NGA','donate',   'Girls'' secondary education in Kano State',        'Scholarship and mentorship for 500 girls at risk of dropout.',                 'Malala Fund',            'org-egn',        'A', 'https://malala.org/donate'),
-('a-nga-2','NGA','learn',    'Nigeria energy transition — policy brief series',  'Monthly research briefs on Nigeria''s path to clean energy.',                  'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa'),
-('a-nga-3','NGA','invest',   'Lagos tech ecosystem — impact fund opportunity',   'Early-stage African founders solving infrastructure challenges.',               'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com'),
-('a-nga-4','NGA','donate',   'Solar home systems — rural Niger Delta',           'Provide solar energy to 1,000 households without grid access.',                'Solar Sister',                     'org-solarsister','A', 'https://solarsister.org/donate'),
+('a-nga-1','NGA','donate',   'Girls'' secondary education in Kano State',        'Scholarship and mentorship for 500 girls at risk of dropout.',                 'Malala Fund',            'org-egn',        'A', 'https://malala.org/donate', null, null, null, 'Education', ARRAY[4,5]),
+('a-nga-2','NGA','learn',    'Nigeria energy transition — policy brief series',  'Monthly research briefs on Nigeria''s path to clean energy.',                  'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa', null, null, null, 'Energy', ARRAY[7,13]),
+('a-nga-3','NGA','invest',   'Lagos tech ecosystem — impact fund opportunity',   'Early-stage African founders solving infrastructure challenges.',               'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com', null, null, null, 'Digital Economy', ARRAY[8,9]),
+('a-nga-4','NGA','donate',   'Solar home systems — rural Niger Delta',           'Provide solar energy to 1,000 households without grid access.',                'Solar Sister',                     'org-solarsister','A', 'https://solarsister.org/get-involved', null, null, null, 'Renewable Energy', ARRAY[5,7,13]),
 
 -- Ethiopia
-('a-eth-1','ETH','donate',   'Emergency WASH — Tigray & Afar regions',          'Clean water and sanitation for conflict-displaced communities.',                'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/donate'),
-('a-eth-2','ETH','volunteer','Health facility mapping — Oromia region',          'Remote GIS volunteer role, 5–10 hrs/week, 2-month commitment.',                'Humanitarian OpenStreetMap Team',                       'org-afrimapper', 'B', 'https://www.hotosm.org/get-involved'),
-('a-eth-3','ETH','donate',   'Mobile health clinics — rural Ethiopia',           'Fund outreach clinics reaching communities 50km+ from the nearest hospital.',  'Amref Health Africa',              'org-amref',      'A', 'https://amref.org'),
+('a-eth-1','ETH','donate',   'Emergency WASH — Tigray & Afar regions',          'Clean water and sanitation for conflict-displaced communities.',                'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/uk/donate', null, null, null, 'WASH', ARRAY[6,3]),
+('a-eth-2','ETH','volunteer','Health facility mapping — Oromia region',          'Remote GIS volunteer role, 5–10 hrs/week, 2-month commitment.',                'Humanitarian OpenStreetMap Team',   'org-afrimapper', 'B', 'https://www.hotosm.org/get-involved', true, '2 months, ~6 hrs/week', ARRAY['GIS / QGIS','Geospatial data','Python (optional)'], 'Open Data', ARRAY[16,11,17]),
+('a-eth-3','ETH','donate',   'Mobile health clinics — rural Ethiopia',           'Fund outreach clinics reaching communities 50km+ from the nearest hospital.',  'Amref Health Africa',              'org-amref',      'A', 'https://amref.org/donate', null, null, null, 'Health', ARRAY[3]),
 
 -- Ghana
-('a-gha-1','GHA','learn',    'Ghana renewable energy policy — briefing series',  'Quarterly analysis of Ghana''s energy transition and policy landscape.',        'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa'),
-('a-gha-2','GHA','invest',   'Accra fintech seed pipeline',                      'Curated pipeline of early-stage Ghanaian fintech and agri-tech startups.',     'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com'),
-('a-gha-3','GHA','donate',   'Clean water access — Northern Ghana',              'Borehole drilling and maintenance in water-scarce northern communities.',       'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/donate'),
+('a-gha-1','GHA','learn',    'Ghana renewable energy policy — briefing series',  'Quarterly analysis of Ghana''s energy transition and policy landscape.',        'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa', null, null, null, 'Energy', ARRAY[7,13]),
+('a-gha-2','GHA','invest',   'Accra fintech seed pipeline',                      'Curated pipeline of early-stage Ghanaian fintech and agri-tech startups.',     'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com', null, null, null, 'Digital Economy', ARRAY[8,9]),
+('a-gha-3','GHA','donate',   'Clean water access — Northern Ghana',              'Borehole drilling and maintenance in water-scarce northern communities.',       'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/uk/donate', null, null, null, 'WASH', ARRAY[6,3]),
 
 -- South Africa
-('a-zaf-1','ZAF','learn',    'South Africa just energy transition — analysis',   'Research on coal phase-out, renewables scale-up, and job creation.',           'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa'),
-('a-zaf-2','ZAF','donate',   'Township health equity programme — Cape Town',     'Primary healthcare and mental health support in underserved townships.',        'Amref Health Africa',              'org-amref',      'A', 'https://amref.org'),
-('a-zaf-3','ZAF','invest',   'South African impact tech fund',                   'Backing founders solving healthcare access and financial inclusion.',           'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com'),
+('a-zaf-1','ZAF','learn',    'South Africa just energy transition — analysis',   'Research on coal phase-out, renewables scale-up, and job creation.',           'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa', null, null, null, 'Energy', ARRAY[7,13]),
+('a-zaf-2','ZAF','donate',   'Township health equity programme — Cape Town',     'Primary healthcare and mental health support in underserved townships.',        'Amref Health Africa',              'org-amref',      'A', 'https://amref.org/donate', null, null, null, 'Health', ARRAY[3]),
+('a-zaf-3','ZAF','invest',   'South African impact tech fund',                   'Backing founders solving healthcare access and financial inclusion.',           'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com', null, null, null, 'Digital Economy', ARRAY[8,9]),
 
 -- Tanzania
-('a-tza-1','TZA','donate',   'Clean water — rural Tanzania',                     'Safe water access for 30,000 people in Dodoma and Singida regions.',           'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/donate'),
-('a-tza-2','TZA','invest',   'East Africa agri-tech co-investment',              'Series A co-investment opportunities in Tanzanian agri-tech ventures.',        'Launch Africa Ventures',                     'org-enza',       'A', 'https://launchafrica.vc'),
-('a-tza-3','TZA','donate',   'Solar for schools — Mwanza region',               'Solar panels and batteries for 20 rural schools off the national grid.',       'Solar Sister',                     'org-solarsister','A', 'https://solarsister.org/donate'),
+('a-tza-1','TZA','donate',   'Clean water — rural Tanzania',                     'Safe water access for 30,000 people in Dodoma and Singida regions.',           'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/uk/donate', null, null, null, 'WASH', ARRAY[6,3]),
+('a-tza-2','TZA','invest',   'East Africa agri-tech co-investment',              'Series A co-investment opportunities in Tanzanian agri-tech ventures.',        'Launch Africa Ventures',            'org-enza',       'A', 'https://launchafrica.vc', null, null, null, 'Agri-tech', ARRAY[1,2,13]),
+('a-tza-3','TZA','donate',   'Solar for schools — Mwanza region',               'Solar panels and batteries for 20 rural schools off the national grid.',       'Solar Sister',                     'org-solarsister','A', 'https://solarsister.org/get-involved', null, null, null, 'Renewable Energy', ARRAY[5,7,13]),
 
 -- Rwanda
-('a-rwa-1','RWA','invest',   'Rwanda digital health startups — seed round',      'Backing founders in Rwanda''s fast-growing digital health sector.',             'Launch Africa Ventures',                     'org-enza',       'A', 'https://launchafrica.vc'),
-('a-rwa-2','RWA','learn',    'Rwanda governance model — case study series',      'In-depth research on Rwanda''s institutional reforms and outcomes.',            'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com'),
-('a-rwa-3','RWA','volunteer','Community health data — Kigali district',          'Part-time remote role supporting health outcomes data collection.',             'Amref Health Africa',              'org-amref',      'A', 'https://amref.org'),
+('a-rwa-1','RWA','invest',   'Rwanda digital health startups — seed round',      'Backing founders in Rwanda''s fast-growing digital health sector.',             'Launch Africa Ventures',            'org-enza',       'A', 'https://launchafrica.vc', null, null, null, 'Health', ARRAY[3,9]),
+('a-rwa-2','RWA','learn',    'Rwanda governance model — case study series',      'In-depth research on Rwanda''s institutional reforms and outcomes.',            'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com', null, null, null, 'Governance', ARRAY[16]),
+('a-rwa-3','RWA','volunteer','Community health data — Kigali district',          'Part-time remote role supporting health outcomes data collection.',             'Amref Health Africa',              'org-amref',      'A', 'https://amref.org/careers', true, '3 months, ~4 hrs/week', ARRAY['Public health','Data entry','Excel'], 'Health', ARRAY[3,17]),
 
 -- Senegal
-('a-sen-1','SEN','donate',   'WASH access — Casamance region',                  'Clean water and sanitation in Senegal''s most water-stressed region.',          'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/donate'),
-('a-sen-2','SEN','learn',    'Senegal energy access — off-grid solutions brief', 'Research on decentralised solar and mini-grid deployment in rural Senegal.',   'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa'),
-('a-sen-3','SEN','invest',   'Dakar startup ecosystem — impact opportunities',   'Early-stage investment pipeline from Senegal''s growing tech ecosystem.',       'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com')
+('a-sen-1','SEN','donate',   'WASH access — Casamance region',                  'Clean water and sanitation in Senegal''s most water-stressed region.',          'WaterAid Africa',                  'org-wateraid',   'A', 'https://www.wateraid.org/uk/donate', null, null, null, 'WASH', ARRAY[6,3]),
+('a-sen-2','SEN','learn',    'Senegal energy access — off-grid solutions brief', 'Research on decentralised solar and mini-grid deployment in rural Senegal.',   'IEA Africa',    'org-epra',       'B', 'https://www.iea.org/regions/africa', null, null, null, 'Energy', ARRAY[7,13]),
+('a-sen-3','SEN','invest',   'Dakar startup ecosystem — impact opportunities',   'Early-stage investment pipeline from Senegal''s growing tech ecosystem.',       'AfriLabs', 'org-gsbi',       'B', 'https://afrilabs.com', null, null, null, 'Digital Economy', ARRAY[8,9])
 
-on conflict (id) do nothing;
+on conflict (id) do update set
+  type = excluded.type,
+  title = excluded.title,
+  description = excluded.description,
+  org_name = excluded.org_name,
+  org_verification_tier = excluded.org_verification_tier,
+  url = excluded.url,
+  remote = excluded.remote,
+  duration = excluded.duration,
+  skills_needed = excluded.skills_needed,
+  sector = excluded.sector,
+  sdg_tags = excluded.sdg_tags;
