@@ -31,7 +31,13 @@ export async function triggerDiscover() {
     return { ok: false, data: { error: err instanceof Error ? err.message : String(err) } }
   }
 }
-export async function triggerInvestBriefs()   { return extract(await runInvestmentBriefs()) }
+export async function triggerInvestBriefs() {
+  try {
+    return extract(await runInvestmentBriefs())
+  } catch (err) {
+    return { ok: false, data: { error: err instanceof Error ? err.message : String(err) } }
+  }
+}
 
 export async function approveStartup(id: number): Promise<{ ok: boolean; error?: string }> {
   try {

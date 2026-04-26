@@ -24,6 +24,7 @@ export async function runGenerate() {
   const supabase = getSupabase()
   const results: string[] = []
   const errors: string[] = []
+  const dateStr = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
 
   try {
     const countries = await getCountries()
@@ -32,11 +33,21 @@ export async function runGenerate() {
     for (const country of countries) {
       try {
         const metrics = await getMetrics(country.iso3)
-        const brief = await generateCountryBrief(country, metrics)
+
+        // Fetch previous brief to avoid repetition
+        const { data: prevBrief } = await supabase
+          .from('briefs')
+          .select('summary')
+          .eq('country_iso3', country.iso3)
+          .order('generated_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+
+        const brief = await generateCountryBrief(country, metrics, prevBrief?.summary)
 
         const { error } = await supabase.from('briefs').upsert(
           {
-            id: `country-${country.iso3.toLowerCase()}`,
+            id: `country-${country.iso3.toLowerCase()}-${dateStr}`,
             title: brief.title,
             summary: brief.summary,
             bullets: brief.bullets,
@@ -48,6 +59,7 @@ export async function runGenerate() {
             generated_at: brief.generated_at,
             model_name: brief.model_name,
             confidence: brief.confidence,
+            did_you_know: brief.did_you_know ?? null,
           },
           { onConflict: 'id' }
         )
@@ -61,10 +73,18 @@ export async function runGenerate() {
 
     // Generate continent overview brief
     try {
-      const continentBrief = await generateContinentBrief(countries)
+      const { data: prevContinent } = await supabase
+        .from('briefs')
+        .select('summary')
+        .eq('scope', 'continent')
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const continentBrief = await generateContinentBrief(countries, prevContinent?.summary)
       const { error } = await supabase.from('briefs').upsert(
         {
-          id: 'continent-overview',
+          id: `continent-overview-${dateStr}`,
           title: continentBrief.title,
           summary: continentBrief.summary,
           bullets: continentBrief.bullets,
@@ -76,6 +96,7 @@ export async function runGenerate() {
           generated_at: continentBrief.generated_at,
           model_name: continentBrief.model_name,
           confidence: continentBrief.confidence,
+          did_you_know: continentBrief.did_you_know ?? null,
         },
         { onConflict: 'id' }
       )

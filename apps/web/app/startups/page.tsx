@@ -6,6 +6,81 @@ import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
 
+const FUNDING_SOURCES = [
+  {
+    name: 'Enza Capital',
+    url: 'https://enzacapital.com',
+    stage: 'Seed',
+    description: 'East Africa-focused seed VC investing in climate-smart agri-tech and fintech. Based in Nairobi.',
+    geography: 'Kenya, Tanzania, Rwanda, Uganda',
+    sectors: 'Agri-tech, Fintech, Climate',
+  },
+  {
+    name: 'TLcom Capital',
+    url: 'https://tlcomcapital.com',
+    stage: 'Seed — Series A',
+    description: 'Pan-African VC backing technology companies across sub-Saharan Africa. $150M+ deployed.',
+    geography: 'Pan-African (Kenya, Nigeria, Egypt)',
+    sectors: 'Tech-enabled businesses',
+  },
+  {
+    name: 'Founders Factory Africa',
+    url: 'https://foundersfactory.africa',
+    stage: 'Pre-seed',
+    description: 'Accelerator and venture builder co-creating startups with corporates. Pre-seed investment + operational support.',
+    geography: 'South Africa, Kenya, Nigeria',
+    sectors: 'Multi-sector',
+  },
+  {
+    name: 'Flat6Labs',
+    url: 'https://flat6labs.com',
+    stage: 'Pre-seed — Seed',
+    description: 'Leading seed and early-stage VC in MENA & Africa. 400+ portfolio companies. $130M+ invested.',
+    geography: 'Egypt, Tunisia, Morocco',
+    sectors: 'Multi-sector, Fintech, Health',
+  },
+  {
+    name: 'Novastar Ventures',
+    url: 'https://novastarventures.com',
+    stage: 'Seed — Series A',
+    description: 'Impact-driven VC investing in businesses serving the mass market in East and West Africa.',
+    geography: 'East & West Africa',
+    sectors: 'Financial inclusion, Agriculture, Energy',
+  },
+  {
+    name: 'Future Africa',
+    url: 'https://future.africa',
+    stage: 'Pre-seed — Seed',
+    description: 'Early-stage fund backing Africa-focused startups. Led by Iyin Aboyeji (co-founder of Andela and Flutterwave).',
+    geography: 'Pan-African',
+    sectors: 'Fintech, Health, Education',
+  },
+  {
+    name: 'MEST Africa',
+    url: 'https://meltwater.org',
+    stage: 'Pre-seed',
+    description: 'Pan-African incubator providing training, investment, and mentorship to tech entrepreneurs.',
+    geography: 'Ghana, Kenya, Nigeria, South Africa',
+    sectors: 'Software, SaaS, Mobile',
+  },
+  {
+    name: 'Savannah Fund',
+    url: 'https://savannah.vc',
+    stage: 'Seed',
+    description: 'Seed-stage VC focused on mobile-first and tech startups in sub-Saharan Africa.',
+    geography: 'Sub-Saharan Africa',
+    sectors: 'Mobile, E-commerce, SaaS',
+  },
+  {
+    name: 'Google for Startups Accelerator: Africa',
+    url: 'https://startup.google.com/accelerator/africa/',
+    stage: 'Pre-seed — Seed',
+    description: 'Equity-free accelerator providing mentorship, Google Cloud credits, and technical support to African startups.',
+    geography: 'Pan-African',
+    sectors: 'AI/ML, Fintech, Health',
+  },
+]
+
 export const metadata: Metadata = {
   title: 'Startups',
   description: 'Early-stage startup intelligence across Africa — fintech, agritech, and healthtech ventures in Kenya, Nigeria, Ghana, South Africa, and Rwanda.',
@@ -75,6 +150,48 @@ export default async function StartupsPage() {
           <p className="text-xs text-amber-800 leading-relaxed">
             <strong>Not investment advice.</strong> AfricaImpactLab is an intelligence and research platform, not a broker or financial advisor. All startup data is sourced from public information and verified news sources. Viability scores are informational signals only.
           </p>
+        </div>
+
+        {/* Verified Pre-Seed & Seed Funding Sources */}
+        <div className="mb-10">
+          <SectionHeader title="Verified Pre-Seed & Seed Funding Sources" />
+          <p className="text-sm text-slate-500 mb-4">
+            Active investors and accelerators with a track record of funding early-stage African startups. All links verified.
+          </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+            {FUNDING_SOURCES.map((src) => (
+              <a
+                key={src.name}
+                href={src.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 hover:shadow-md hover:border-blue-200 transition-all group"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-semibold text-sm text-slate-900 group-hover:text-blue-600 transition-colors">{src.name}</h4>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-slate-500 flex-shrink-0">
+                    {src.stage}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed mb-2">{src.description}</p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] text-slate-400">{src.geography}</span>
+                  {src.sectors && (
+                    <>
+                      <span className="text-slate-300">·</span>
+                      <span className="text-[10px] text-slate-400">{src.sectors}</span>
+                    </>
+                  )}
+                </div>
+              </a>
+            ))}
+          </div>
+          <div className="bg-slate-50 border border-slate-100 rounded-xl p-3">
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              <strong>How we verify:</strong> Every funding source is checked against public records, Crunchbase profiles, portfolio pages, and media coverage.
+              We list only investors with at least one confirmed African portfolio company. Last reviewed: April 2026.
+            </p>
+          </div>
         </div>
 
         {/* Explorer */}

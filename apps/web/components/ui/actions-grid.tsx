@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { ActionCard } from "@/components/ui/action-card"
+import { ActionDetailDialog } from "@/components/ui/action-detail-dialog"
 import { CountryFlag } from "@/components/ui/country-flag"
 import type { ActionCard as ActionCardType, ActionType } from "@/types"
 
@@ -33,6 +34,7 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
   const [typeFilter, setTypeFilter]     = useState<ActionType | "all">("all")
   const [countryFilter, setCountryFilter] = useState<string>("all")
   const [remoteFilter, setRemoteFilter]  = useState<"all" | "remote" | "onsite">("all")
+  const [selectedAction, setSelectedAction] = useState<ActionCardType | null>(null)
 
   // Derive available countries from actions
   const countries = useMemo(() => {
@@ -149,7 +151,7 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map((action) => (
             <div key={action.id} className="relative">
-              <ActionCard action={action} />
+              <ActionCard action={action} onClick={() => setSelectedAction(action)} />
               {action.country_iso3 && (
                 <div className="absolute top-4 right-4">
                   <CountryChip iso3={action.country_iso3} />
@@ -165,6 +167,15 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
             Clear filters
           </button>
         </div>
+      )}
+
+      {/* Detail dialog */}
+      {selectedAction && (
+        <ActionDetailDialog
+          action={selectedAction}
+          open={!!selectedAction}
+          onOpenChange={(open) => { if (!open) setSelectedAction(null) }}
+        />
       )}
     </div>
   )

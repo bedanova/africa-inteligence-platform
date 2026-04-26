@@ -71,6 +71,7 @@ export interface AIBrief {
   generated_at: string;
   model_name: string;
   confidence: number; // 0–1
+  did_you_know?: string; // Daily fact derived from platform data
 }
 
 // --- Organizations ---

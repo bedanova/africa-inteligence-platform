@@ -53,6 +53,12 @@ function rowToAction(row: any): ActionCard {
     org_verification_tier: row.org_verification_tier,
     country_iso3: row.country_iso3 ?? undefined,
     url: row.url,
+    skills_needed: row.skills_needed ?? undefined,
+    remote: row.remote ?? undefined,
+    duration: row.duration ?? undefined,
+    sdg_tags: row.sdg_tags ?? undefined,
+    sector: row.sector ?? undefined,
+    warning: row.warning ?? undefined,
   }
 }
 
@@ -71,6 +77,7 @@ function rowToBrief(row: any): AIBrief {
     generated_at: row.generated_at,
     model_name: row.model_name,
     confidence: Number(row.confidence),
+    did_you_know: row.did_you_know ?? undefined,
   }
 }
 

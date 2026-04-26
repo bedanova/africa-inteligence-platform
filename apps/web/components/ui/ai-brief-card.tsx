@@ -75,6 +75,17 @@ export function AIBriefCard({ brief, compact = false, className, loading }: AIBr
         </ul>
       )}
 
+      {/* Did you know? */}
+      {!compact && brief.did_you_know && (
+        <div className="flex items-start gap-2 bg-indigo-50 border border-indigo-100 rounded-lg p-3 mb-3">
+          <span className="text-base flex-shrink-0 mt-0.5">💡</span>
+          <div>
+            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Did you know?</span>
+            <p className="text-sm text-indigo-900 leading-relaxed mt-0.5">{brief.did_you_know}</p>
+          </div>
+        </div>
+      )}
+
       {/* Risk flags */}
       {!compact && brief.risk_flags.length > 0 && (
         <div className="flex gap-1.5 flex-wrap mb-3">

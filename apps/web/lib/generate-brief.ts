@@ -45,6 +45,7 @@ interface BriefJSON {
   bullets: string[]
   risk_flags: string[]
   confidence: number
+  did_you_know: string
 }
 
 async function callGroq(prompt: string): Promise<BriefJSON> {
@@ -76,8 +77,13 @@ Never invent statistics. Respond ONLY with valid JSON — no markdown, no code f
 export async function generateCountryBrief(
   country: CountrySummary,
   metrics: CountryMetric[],
+  previousBriefSummary?: string,
 ): Promise<Omit<AIBrief, 'id'>> {
   const { need, opportunity, stability } = country.scores
+
+  const dedupClause = previousBriefSummary
+    ? `\nPREVIOUS BRIEF (do NOT repeat these points, find new angles):\n"${previousBriefSummary}"\n`
+    : ''
 
   const prompt = `Generate an intelligence brief for ${country.name} (${country.region}).
 
@@ -88,17 +94,18 @@ SCORES (0–100):
 
 VERIFIED DATA INDICATORS:
 ${metricsToText(metrics) || 'No indicators available yet.'}
-
+${dedupClause}
 Return this exact JSON:
 {
   "title": "one compelling sentence, max 12 words",
   "summary": "2-3 sentences synthesis of the country current situation",
   "bullets": ["insight 1", "insight 2", "insight 3"],
   "risk_flags": [],
-  "confidence": 0.8
+  "confidence": 0.8,
+  "did_you_know": "one surprising, verifiable fact about ${country.name} derived from the data above or well-known public facts (e.g. demographics, governance, geography, economy). Make it genuinely interesting and educational."
 }
 
-Rules: bullets must be grounded in the data above. risk_flags: 1-2 items only if data shows genuine concern, otherwise empty array.`
+Rules: bullets must be grounded in the data above. risk_flags: 1-2 items only if data shows genuine concern, otherwise empty array. did_you_know must be a single sentence fact that is surprising and true.`
 
   const result = await callGroq(prompt)
 
@@ -114,11 +121,13 @@ Rules: bullets must be grounded in the data above. risk_flags: 1-2 items only if
     generated_at: new Date().toISOString(),
     model_name: MODEL,
     confidence: result.confidence,
+    did_you_know: result.did_you_know || undefined,
   }
 }
 
 export async function generateContinentBrief(
   countries: CountrySummary[],
+  previousBriefSummary?: string,
 ): Promise<Omit<AIBrief, 'id'>> {
   const avgNeed = Math.round(countries.reduce((s, c) => s + c.scores.need, 0) / countries.length)
   const avgOpp  = Math.round(countries.reduce((s, c) => s + c.scores.opportunity, 0) / countries.length)
@@ -126,20 +135,25 @@ export async function generateContinentBrief(
   const topNeed = [...countries].sort((a, b) => b.scores.need - a.scores.need)[0]
   const topOpp  = [...countries].sort((a, b) => b.scores.opportunity - a.scores.opportunity)[0]
 
+  const dedupClause = previousBriefSummary
+    ? `\nPREVIOUS BRIEF (do NOT repeat these points, find new angles):\n"${previousBriefSummary}"\n`
+    : ''
+
   const prompt = `Generate an Africa-wide intelligence overview brief.
 
 COUNTRIES: ${countries.map((c) => c.name).join(', ')}
 AVERAGE SCORES: Need ${avgNeed}, Opportunity ${avgOpp}, Stability ${avgStab}
 HIGHLIGHTS: Highest need: ${topNeed.name} (${topNeed.scores.need}), Top opportunity: ${topOpp.name} (${topOpp.scores.opportunity})
 SOURCES: World Bank, WHO, UN SDG
-
+${dedupClause}
 Return this exact JSON:
 {
   "title": "one headline for Africa today, max 12 words",
   "summary": "2-3 sentences continental synthesis",
   "bullets": ["trend 1", "trend 2", "trend 3"],
   "risk_flags": [],
-  "confidence": 0.75
+  "confidence": 0.75,
+  "did_you_know": "one surprising, verifiable fact about Africa derived from the data above or well-known public facts. Make it genuinely interesting and educational."
 }`
 
   const result = await callGroq(prompt)
@@ -159,5 +173,6 @@ Return this exact JSON:
     generated_at: new Date().toISOString(),
     model_name: MODEL,
     confidence: result.confidence,
+    did_you_know: result.did_you_know || undefined,
   }
 }

@@ -5,6 +5,7 @@ import type { ActionCard as ActionCardType, VerificationTier } from "@/types";
 interface ActionCardProps {
   action: ActionCardType;
   className?: string;
+  onClick?: () => void;
 }
 
 const typeConfig = {
@@ -28,7 +29,7 @@ const SDG_LABELS: Record<number, string> = {
   13:'Climate Action', 16:'Peace & Justice', 17:'Partnerships',
 }
 
-export function ActionCard({ action, className }: ActionCardProps) {
+export function ActionCard({ action, className, onClick }: ActionCardProps) {
   const type = typeConfig[action.type];
   const tier = tierConfig[action.org_verification_tier];
   const isRestricted = action.org_verification_tier === "C" || action.org_verification_tier === "unverified";
@@ -39,8 +40,13 @@ export function ActionCard({ action, className }: ActionCardProps) {
       className={cn(
         "bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex flex-col gap-3",
         isRestricted && "opacity-60",
+        onClick && "cursor-pointer hover:shadow-md hover:border-blue-200 transition-all",
         className
       )}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
     >
       {/* Header badges */}
       <div className="flex items-center gap-2 flex-wrap">
@@ -116,21 +122,29 @@ export function ActionCard({ action, className }: ActionCardProps) {
       )}
 
       {/* CTA */}
-      <div className="mt-auto pt-1">
+      <div className="mt-auto pt-1 flex items-center gap-3">
         {isRestricted ? (
           <span className="text-xs text-slate-400 italic">Full verification required before CTA</span>
         ) : (
-          <a
-            href={action.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            {action.type === 'volunteer' ? 'Apply now' : action.type === 'donate' ? 'Donate now' : action.type === 'invest' ? 'Learn more' : 'Read more'}
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
-            </svg>
-          </a>
+          <>
+            {onClick && (
+              <span className="text-xs font-semibold text-slate-500 hover:text-blue-600 transition-colors">
+                View details
+              </span>
+            )}
+            <a
+              href={action.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors ml-auto"
+            >
+              {action.type === 'volunteer' ? 'Apply now' : action.type === 'donate' ? 'Donate now' : action.type === 'invest' ? 'Learn more' : 'Read more'}
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25" />
+              </svg>
+            </a>
+          </>
         )}
       </div>
     </div>
