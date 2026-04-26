@@ -46,8 +46,8 @@ const ORGS = [
   },
   {
     id: 'org-enza',
-    name: 'Enza Capital',
-    website: 'https://enzacapital.com',
+    name: 'Launch Africa Ventures',
+    website: 'https://launchafrica.vc',
     mission: 'Seed-stage venture capital investing in climate-smart agri-tech and fintech across East Africa.',
     countries: ['KEN', 'TZA', 'RWA', 'UGA'],
     sectors: ['Agri-tech', 'Fintech', 'Climate Tech'],
@@ -72,8 +72,8 @@ const ORGS = [
   },
   {
     id: 'org-egn',
-    name: 'Educate Girls Nigeria',
-    website: 'https://educategirlsnigeria.org',
+    name: 'Malala Fund',
+    website: 'https://malala.org',
     mission: 'Keeping girls in secondary school across Northern Nigeria through scholarships, mentorship, and community engagement.',
     countries: ['NGA'],
     sectors: ['Education', 'Gender Equality'],
@@ -124,8 +124,8 @@ const ORGS = [
   },
   {
     id: 'org-gsbi',
-    name: 'Global Startup Bridge Initiative',
-    website: 'https://gsbi.africa',
+    name: 'AfriLabs',
+    website: 'https://afrilabs.com',
     mission: 'Connecting African founders with global investors and mentors to scale impact-first startups.',
     countries: ['KEN', 'NGA', 'GHA', 'RWA', 'SEN'],
     sectors: ['Fintech', 'Digital Economy', 'Impact Investing'],
@@ -163,8 +163,8 @@ const ORGS = [
   },
   {
     id: 'org-afrimapper',
-    name: 'AfriMapper',
-    website: 'https://afrimapper.org',
+    name: 'Humanitarian OpenStreetMap Team',
+    website: 'https://www.hotosm.org',
     mission: 'Building open geospatial data infrastructure for African development — mapping infrastructure, resources and vulnerability.',
     countries: ['KEN', 'NGA', 'GHA', 'TZA', 'ETH', 'RWA'],
     sectors: ['Open Data', 'Digital Infrastructure', 'Urban Planning'],
@@ -184,13 +184,13 @@ const ACTIONS = [
   // Amref
   { id: 'act-amref-1', type: 'donate', title: 'Train community health workers in Ethiopia', description: "Amref's health extension worker programme has trained 38,000+ community health workers. Donate to expand to Afar and Somali regions.", org_name: 'Amref Health Africa', org_id: 'org-amref', org_verification_tier: 'A', country_iso3: 'ETH', url: 'https://amref.org/donate' },
   { id: 'act-amref-2', type: 'volunteer', title: 'Medical professional — remote consultation programme', description: 'Virtual specialist consultations supporting district hospitals in Tanzania and Uganda. Minimum 2 sessions/month.', org_name: 'Amref Health Africa', org_id: 'org-amref', org_verification_tier: 'A', country_iso3: 'TZA', url: 'https://amref.org/get-involved/volunteer' },
-  // Enza Capital
-  { id: 'act-enza-1', type: 'invest', title: 'Agri-fintech seed fund — East Africa 2026', description: "Enza's Fund III focuses on climate-smart agriculture and financial inclusion for smallholders in Kenya, Tanzania and Rwanda. Min. ticket: $25k.", org_name: 'Enza Capital', org_id: 'org-enza', org_verification_tier: 'A', country_iso3: 'KEN', url: 'https://enzacapital.com' },
+  // Launch Africa Ventures
+  { id: 'act-enza-1', type: 'invest', title: 'Agri-fintech seed fund — East Africa 2026', description: "Enza's Fund III focuses on climate-smart agriculture and financial inclusion for smallholders in Kenya, Tanzania and Rwanda. Min. ticket: $25k.", org_name: 'Launch Africa Ventures', org_id: 'org-enza', org_verification_tier: 'A', country_iso3: 'KEN', url: 'https://launchafrica.vc' },
   // Solar Sister
   { id: 'act-solarsister-1', type: 'donate', title: 'Equip a Solar Sister entrepreneur in Nigeria', description: 'Each $200 donation helps a woman entrepreneur access clean energy products, training, and a business-in-a-bag starter kit.', org_name: 'Solar Sister', org_id: 'org-solarsister', org_verification_tier: 'A', country_iso3: 'NGA', url: 'https://solarsister.org/donate' },
   { id: 'act-solarsister-2', type: 'invest', title: 'Impact investment — off-grid solar distribution', description: "Blended-finance opportunities in Solar Sister's last-mile distribution network across East Africa. Returns linked to climate impact metrics.", org_name: 'Solar Sister', org_id: 'org-solarsister', org_verification_tier: 'A', country_iso3: 'TZA', url: 'https://solarsister.org/invest' },
-  // Educate Girls Nigeria
-  { id: 'act-egn-1', type: 'donate', title: "Sponsor a girl's secondary education in Kano State", description: "£180/year covers school fees, books and mentoring for one girl in Northern Nigeria. 94% of sponsored girls complete secondary school.", org_name: 'Educate Girls Nigeria', org_id: 'org-egn', org_verification_tier: 'A', country_iso3: 'NGA', url: 'https://educategirlsnigeria.org/donate' },
+  // Malala Fund
+  { id: 'act-egn-1', type: 'donate', title: "Sponsor a girl's secondary education in Kano State", description: "£180/year covers school fees, books and mentoring for one girl in Northern Nigeria. 94% of sponsored girls complete secondary school.", org_name: 'Malala Fund', org_id: 'org-egn', org_verification_tier: 'A', country_iso3: 'NGA', url: 'https://malala.org/donate' },
   // GiveDirectly
   { id: 'act-givedirectly-1', type: 'donate', title: 'Direct cash transfer to families in extreme poverty — Kenya', description: 'GiveDirectly sends cash directly to verified ultra-poor households. 89% of funds reach recipients. No restrictions on use.', org_name: 'GiveDirectly', org_id: 'org-givedirectly', org_verification_tier: 'A', country_iso3: 'KEN', url: 'https://www.givedirectly.org/give-now' },
   { id: 'act-givedirectly-2', type: 'donate', title: 'Emergency cash relief — Ethiopia drought response', description: 'Rapid unconditional cash transfers to households affected by the Horn of Africa drought. Disbursed within 48 hours of verification.', org_name: 'GiveDirectly', org_id: 'org-givedirectly', org_verification_tier: 'A', country_iso3: 'ETH', url: 'https://www.givedirectly.org/give-now' },
@@ -204,10 +204,10 @@ const ACTIONS = [
   { id: 'act-msf-1', type: 'donate', title: 'Emergency medical response — DR Congo', description: "MSF teams provide trauma surgery and cholera treatment in conflict-affected areas of eastern DRC. No strings attached — funding goes where it's most needed.", org_name: 'Médecins Sans Frontières — Africa', org_id: 'org-msfafrica', org_verification_tier: 'A', country_iso3: 'COD', url: 'https://www.msf.org/donate' },
   { id: 'act-msf-2', type: 'volunteer', title: 'Medical/logistical field positions — Africa placements', description: 'MSF recruits doctors, nurses, logisticians and finance staff for 6–12 month field missions across sub-Saharan Africa.', org_name: 'Médecins Sans Frontières — Africa', org_id: 'org-msfafrica', org_verification_tier: 'A', country_iso3: 'ETH', url: 'https://www.msf.org/work-us' },
   // GSBI
-  { id: 'act-gsbi-1', type: 'invest', title: 'Impact-first startup portfolio — West Africa', description: 'GSBI curates a co-investment vehicle for screened African startups across fintech, agri-tech and health-tech in Ghana, Nigeria and Senegal.', org_name: 'Global Startup Bridge Initiative', org_id: 'org-gsbi', org_verification_tier: 'B', country_iso3: 'GHA', url: 'https://gsbi.africa/invest' },
-  { id: 'act-gsbi-2', type: 'learn', title: 'Africa Startup Ecosystem Report 2026', description: 'Free annual report on funding trends, sector growth, and emerging opportunities across African startup ecosystems. PDF + webinar.', org_name: 'Global Startup Bridge Initiative', org_id: 'org-gsbi', org_verification_tier: 'B', country_iso3: null, url: 'https://gsbi.africa/report' },
-  // AfriMapper
-  { id: 'act-afrimapper-1', type: 'volunteer', title: 'OpenStreetMap contributor — infrastructure mapping', description: 'Help map roads, health facilities and water points in unmapped areas of sub-Saharan Africa. Remote, flexible. Training provided.', org_name: 'AfriMapper', org_id: 'org-afrimapper', org_verification_tier: 'B', country_iso3: null, url: 'https://afrimapper.org/volunteer' },
+  { id: 'act-gsbi-1', type: 'invest', title: 'Impact-first startup portfolio — West Africa', description: 'GSBI curates a co-investment vehicle for screened African startups across fintech, agri-tech and health-tech in Ghana, Nigeria and Senegal.', org_name: 'AfriLabs', org_id: 'org-gsbi', org_verification_tier: 'B', country_iso3: 'GHA', url: 'https://afrilabs.com' },
+  { id: 'act-gsbi-2', type: 'learn', title: 'Africa Startup Ecosystem Report 2026', description: 'Free annual report on funding trends, sector growth, and emerging opportunities across African startup ecosystems. PDF + webinar.', org_name: 'AfriLabs', org_id: 'org-gsbi', org_verification_tier: 'B', country_iso3: null, url: 'https://afrilabs.com/resources' },
+  // Humanitarian OpenStreetMap Team
+  { id: 'act-afrimapper-1', type: 'volunteer', title: 'OpenStreetMap contributor — infrastructure mapping', description: 'Help map roads, health facilities and water points in unmapped areas of sub-Saharan Africa. Remote, flexible. Training provided.', org_name: 'Humanitarian OpenStreetMap Team', org_id: 'org-afrimapper', org_verification_tier: 'B', country_iso3: null, url: 'https://www.hotosm.org/get-involved' },
   // Ashoka
   { id: 'act-ashoka-1', type: 'learn', title: 'Social entrepreneur case studies — African innovators', description: "Free access to Ashoka's library of 200+ African social entrepreneur profiles, with impact metrics and replication guides.", org_name: 'Ashoka Africa', org_id: 'org-ashoka', org_verification_tier: 'A', country_iso3: null, url: 'https://www.ashoka.org/africa/social-entrepreneurs' },
 ]

@@ -8,12 +8,12 @@ export const dynamic = 'force-dynamic'
 
 const FUNDING_SOURCES = [
   {
-    name: 'Enza Capital',
-    url: 'https://enzacapital.com',
+    name: 'Launch Africa Ventures',
+    url: 'https://launchafrica.vc',
     stage: 'Seed',
-    description: 'East Africa-focused seed VC investing in climate-smart agri-tech and fintech. Based in Nairobi.',
-    geography: 'Kenya, Tanzania, Rwanda, Uganda',
-    sectors: 'Agri-tech, Fintech, Climate',
+    description: 'Pan-African pre-seed and seed VC. 130+ portfolio companies across 20 African countries.',
+    geography: 'Pan-African (Kenya, Nigeria, Egypt, South Africa)',
+    sectors: 'Multi-sector, Fintech, Health',
   },
   {
     name: 'TLcom Capital',

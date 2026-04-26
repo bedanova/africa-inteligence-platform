@@ -145,10 +145,10 @@ on conflict (country_iso3, key) do nothing;
 
 insert into actions (id, country_iso3, type, title, description, org_name, org_id, org_verification_tier, url) values
   ('a-ken-1','KEN','donate',   'Support WASH programs in Turkana County','Funding clean water access for 50,000+ people in arid regions.','WaterAid Kenya','org-wateraid','A','#'),
-  ('a-ken-2','KEN','volunteer','Remote data analyst — health indicators','3-month remote engagement, flexible hours.','AfriMapper','org-afrimapper','B','#'),
-  ('a-ken-3','KEN','invest',   'Agri-fintech seed opportunities — East Africa','Screened early-stage opportunities in climate-smart agriculture.','Enza Capital','org-enza','A','#'),
-  ('a-nga-1','NGA','donate',   'Girls'' secondary education in Kano State',null,'Educate Girls Nigeria','org-egn','A','#'),
-  ('a-nga-2','NGA','learn',    'Nigeria energy transition — policy brief',null,'Energy Policy Research Africa','org-epra','B','#')
+  ('a-ken-2','KEN','volunteer','Remote data analyst — health indicators','3-month remote engagement, flexible hours.','Humanitarian OpenStreetMap Team','org-afrimapper','B','#'),
+  ('a-ken-3','KEN','invest',   'Agri-fintech seed opportunities — East Africa','Screened early-stage opportunities in climate-smart agriculture.','Launch Africa Ventures','org-enza','A','#'),
+  ('a-nga-1','NGA','donate',   'Girls'' secondary education in Kano State',null,'Malala Fund','org-egn','A','#'),
+  ('a-nga-2','NGA','learn',    'Nigeria energy transition — policy brief',null,'IEA Africa','org-epra','B','#')
 on conflict (id) do nothing;
 
 -- ─── SEED: SECTORS ────────────────────────────────────────────────────────────
