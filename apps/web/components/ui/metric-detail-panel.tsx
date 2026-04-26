@@ -34,6 +34,59 @@ interface MetricDetailPanelProps {
   onClose: () => void
 }
 
+/** Plain-language explanations for metric keys so non-experts understand what they're looking at. */
+const METRIC_DESCRIPTIONS: Record<string, string> = {
+  gdp_growth: 'Annual percentage change in a country\'s total economic output. A positive number means the economy is expanding.',
+  inflation: 'Rate at which consumer prices rise year-over-year. High inflation erodes purchasing power; moderate inflation (2-5%) is generally healthy.',
+  fdi: 'Foreign direct investment flowing into the country as a share of GDP. Higher values signal investor confidence.',
+  internet_access: 'Share of the population using the internet. A key indicator of digital inclusion and economic opportunity.',
+  connectivity: 'Share of the population with internet connectivity. Measures digital access and inclusion.',
+  mortality_u5: 'Number of children who die before age 5 per 1,000 live births. A core measure of healthcare quality and child welfare.',
+  health_burden: 'Under-5 child mortality rate — a key measure of healthcare access and quality.',
+  poverty_215: 'Share of the population living on less than $2.15 per day (international poverty line).',
+  gini: 'Measures income inequality on a 0-100 scale. 0 = perfect equality, 100 = all income goes to one person. Most countries fall between 25 and 65.',
+  unemployment: 'Share of the labour force that is without work but actively seeking employment.',
+  water_access: 'Percentage of the population using safely managed drinking water services.',
+  co2_per_capita: 'Tonnes of CO₂ emitted per person per year. Useful for comparing environmental impact across countries.',
+  political_stability: 'World Bank governance indicator measuring likelihood of political instability or violence. Ranges from -2.5 (very unstable) to +2.5 (very stable), rescaled here to 0-100.',
+  population: 'Total number of people living in the country.',
+  school_enrollment_primary: 'Percentage of primary-school-age children enrolled in school.',
+  school_enrollment_secondary: 'Percentage of secondary-school-age children enrolled in school.',
+  literacy_rate: 'Share of adults (15+) who can read and write.',
+  primary_completion: 'Percentage of children completing primary school.',
+  women_in_parliament: 'Share of parliamentary seats held by women. A proxy for political gender equality.',
+  female_labor_participation: 'Share of working-age women who are employed or actively looking for work.',
+  gender_parity_education: 'Ratio of girls to boys enrolled in primary and secondary school. 1.0 = parity.',
+  undernourishment: 'Share of the population whose food intake is insufficient to meet dietary energy requirements.',
+  stunting_u5: 'Percentage of children under 5 whose height is significantly below the median for their age, indicating chronic malnutrition.',
+  health_expenditure: 'Total health spending (public + private) as a share of GDP.',
+  hospital_beds: 'Number of hospital beds per 1,000 people. Indicates healthcare capacity.',
+  education_expenditure: 'Government spending on education as a share of GDP.',
+  renewable_electricity: 'Share of electricity generated from renewable sources (hydro, solar, wind, geothermal).',
+  energy_use_per_capita: 'Energy consumption per person, in kilograms of oil equivalent.',
+  urban_population: 'Share of the total population living in urban areas.',
+  slum_population: 'Share of urban residents living in slum conditions (overcrowding, poor sanitation, insecure tenure).',
+  marine_protected_areas: 'Share of territorial waters designated as marine protected areas.',
+  forest_area: 'Percentage of total land area covered by forest.',
+  protected_areas: 'Percentage of land and marine territory under environmental protection.',
+  gdp_per_capita: 'Total economic output divided by population — a rough measure of average living standards (in current US dollars).',
+  conflict_pressure: 'Level of armed conflict activity based on ACLED event data. Higher = more frequent conflict incidents.',
+  conflict_events: 'Total number of recorded armed conflict events in the most recent year (ACLED data).',
+  conflict_fatalities: 'Total fatalities from armed conflict events in the most recent year.',
+  life_expectancy: 'Average number of years a newborn is expected to live under current mortality conditions.',
+  maternal_mortality: 'Number of maternal deaths per 100,000 live births. Lower is better.',
+  ncd_mortality: 'Risk of dying from non-communicable diseases (cardiovascular, cancer, diabetes, respiratory) between ages 30-70.',
+  obesity: 'Share of adults with a body mass index (BMI) of 30 or above.',
+  physicians: 'Number of medical doctors per 10,000 people.',
+  electricity_access: 'Share of the population with access to electricity.',
+  food_insecurity: 'Share of the population experiencing moderate or severe food insecurity.',
+  mobile_4g: 'Share of the population covered by a 4G mobile network.',
+  refugees_origin: 'Number of refugees originating from this country (UNHCR data).',
+  idps: 'Number of internally displaced persons — people forced to leave their homes but remaining within the country.',
+  govt_debt: 'Government debt as a percentage of GDP.',
+  current_account: 'Current account balance as a percentage of GDP. Negative = the country imports more than it exports.',
+}
+
 type TimeRange = '5Y' | '10Y' | 'All'
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -42,6 +95,9 @@ function filterByRange(data: { year: number; value: number }[], range: TimeRange
   const cutoff = CURRENT_YEAR - (range === '5Y' ? 5 : 10)
   return data.filter((d) => d.year >= cutoff)
 }
+
+// Client-side cache so repeat clicks are instant
+const historyCache = new Map<string, MetricHistoryResponse>()
 
 export function MetricDetailPanel({ metric, iso3, countryName, onClose }: MetricDetailPanelProps) {
   const [data, setData] = useState<MetricHistoryResponse | null>(null)
@@ -52,10 +108,17 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
   const panelRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const cacheKey = `${iso3}:${metric.key}`
+    const cached = historyCache.get(cacheKey)
+    if (cached) {
+      setData(cached)
+      setLoading(false)
+      return
+    }
     setLoading(true)
     fetch(`/api/v1/metric-history?key=${metric.key}&iso3=${iso3}`)
       .then((r) => r.json())
-      .then((d) => { setData(d); setLoading(false) })
+      .then((d) => { historyCache.set(cacheKey, d); setData(d); setLoading(false) })
       .catch(() => setLoading(false))
   }, [metric.key, iso3])
 
@@ -203,8 +266,11 @@ export function MetricDetailPanel({ metric, iso3, countryName, onClose }: Metric
               {iso3} · {metric.source}
             </p>
             <h2 className="text-lg font-bold text-slate-900">{metric.label}</h2>
+            {METRIC_DESCRIPTIONS[metric.key] && (
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">{METRIC_DESCRIPTIONS[metric.key]}</p>
+            )}
             {yearRange && (
-              <p className="text-xs text-slate-400 flex items-center gap-1 mt-1">
+              <p className="text-xs text-slate-400 flex items-center gap-1 mt-1.5">
                 <Calendar className="w-3 h-3" />
                 {yearRange} · {countryFiltered.length} data points
               </p>

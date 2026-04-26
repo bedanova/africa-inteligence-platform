@@ -17,6 +17,7 @@ import type { CountryProfile, Startup } from "@/types";
 import type { Metadata } from "next";
 
 async function getCountryProfile(iso3: string): Promise<CountryProfile | null> {
+  // Try Supabase first
   try {
     const [summary, metrics, sectors, actions, brief] = await Promise.all([
       getCountry(iso3),
@@ -25,19 +26,24 @@ async function getCountryProfile(iso3: string): Promise<CountryProfile | null> {
       getActions(iso3),
       getCountryBriefFromDb(iso3),
     ]);
-    if (!summary) return null;
-    return { ...summary, ai_brief: brief, metrics, priority_sectors: sectors, trusted_actions: actions };
+    if (summary) {
+      return { ...summary, ai_brief: brief, metrics, priority_sectors: sectors, trusted_actions: actions };
+    }
+    // Country not in DB — fall through to mock data
   } catch {
-    const summary = MOCK_COUNTRIES.find((c) => c.iso3 === iso3);
-    if (!summary) return null;
-    return {
-      ...summary,
-      ai_brief: getCountryBrief(iso3),
-      metrics: MOCK_METRICS[iso3] ?? [],
-      priority_sectors: MOCK_SECTORS[iso3] ?? [],
-      trusted_actions: MOCK_ACTIONS[iso3] ?? [],
-    };
+    // DB error — fall through to mock data
   }
+
+  // Fallback: use mock data so the page always loads for known countries
+  const summary = MOCK_COUNTRIES.find((c) => c.iso3 === iso3);
+  if (!summary) return null;
+  return {
+    ...summary,
+    ai_brief: getCountryBrief(iso3),
+    metrics: MOCK_METRICS[iso3] ?? [],
+    priority_sectors: MOCK_SECTORS[iso3] ?? [],
+    trusted_actions: MOCK_ACTIONS[iso3] ?? [],
+  };
 }
 
 export async function generateMetadata({

@@ -23,14 +23,14 @@ ${startupList}
 
 Write a concise weekly investment brief. Return JSON:
 {
-  "title": "Week of ${weekOf} — Africa Startup Intelligence",
+  "title": "A descriptive headline summarising the key theme or trend this week (e.g. 'Fintech leads seed rounds as agritech pivots to climate' or 'Healthcare startups surge across East Africa') — keep it under 12 words, do NOT include the date in the title",
   "summary": "2-3 sentence overview of the startup landscape this week",
   "bullets": ["insight 1", "insight 2", "insight 3", "insight 4"],
   "sector_focus": "the most active sector this week",
   "sources": ["AfricaImpactLab Startup Database", "TechCabal", "Disrupt Africa"]
 }
 
-Rules: No investment advice. Focus on signals and patterns. Cite only verified information.`
+Rules: No investment advice. Focus on signals and patterns. Cite only verified information. The title must be specific and content-driven — never generic.`
 
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
