@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { Heart, Users, TrendingUp, BookOpen, AlertTriangle, Wifi, MapPin, Clock } from 'lucide-react'
 import type { ActionCard as ActionCardType, VerificationTier } from "@/types";
