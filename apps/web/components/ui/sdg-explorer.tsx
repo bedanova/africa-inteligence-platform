@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Minus, Plus, X, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
+import { Minus, Plus, X, TrendingUp, TrendingDown } from 'lucide-react'
 import { CountryFlag } from '@/components/ui/country-flag'
 import { formatNum } from '@/lib/utils'
 import type { CountrySummary, CountryMetric } from '@/types'
@@ -363,40 +363,6 @@ function computeContinentTrends(
   return results.sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
 }
 
-function MiniSparkline({ data, color, width = 80, height = 28 }: {
-  data: { year: number; value: number }[]
-  color: string
-  width?: number
-  height?: number
-}) {
-  if (data.length < 2) return null
-  const sorted = [...data].sort((a, b) => a.year - b.year)
-  const values = sorted.map(d => d.value)
-  const min = Math.min(...values)
-  const max = Math.max(...values)
-  const range = max - min || 1
-  const padding = 2
-
-  const points = sorted.map((d, i) => {
-    const x = padding + (i / (sorted.length - 1)) * (width - padding * 2)
-    const y = height - padding - ((d.value - min) / range) * (height - padding * 2)
-    return `${x},${y}`
-  }).join(' ')
-
-  return (
-    <svg width={width} height={height} className="flex-shrink-0">
-      <polyline
-        points={points}
-        fill="none"
-        stroke={color}
-        strokeWidth={1.5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 function getAggregateHistory(
   countries: CountrySummary[],
   metrics: Record<string, CountryMetric[]>,
@@ -460,14 +426,10 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
-function TrendCard({ t, type, countries, metrics }: {
+function TrendCard({ t, type }: {
   t: TrendResult
   type: 'improving' | 'worsening'
-  countries: CountrySummary[]
-  metrics: Record<string, CountryMetric[]>
 }) {
-  const aggHistory = getAggregateHistory(countries, metrics, t.key)
-  const color = type === 'improving' ? '#22c55e' : '#ef4444'
   const textClass = type === 'improving' ? 'text-emerald-600' : 'text-rose-600'
   const borderClass = type === 'improving' ? 'border-emerald-100/60' : 'border-rose-100/60'
   const hoverClass = type === 'improving' ? 'hover:bg-emerald-50/50' : 'hover:bg-rose-50/50'
@@ -481,9 +443,9 @@ function TrendCard({ t, type, countries, metrics }: {
         <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
         <p className="text-[10px] text-slate-400">{t.countriesWithData} countries · {t.yearFrom}&#8211;{t.yearTo}</p>
       </div>
-      <MiniSparkline data={aggHistory} color={color} />
       <span className={`text-xs font-bold flex-shrink-0 ${textClass}`}>
-        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
+        {type === 'improving' ? <TrendingUp className="w-4 h-4 inline" /> : <TrendingDown className="w-4 h-4 inline" />}
+        {' '}{t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
       </span>
     </div>
   )
@@ -508,11 +470,14 @@ export function SDGExplorer({ countries, metrics }: Props) {
   const improving = heroTrends.filter(t => t.direction === 'improving')
   const worsening = heroTrends.filter(t => t.direction === 'worsening')
 
-  // Equalize: both sides show the same count (max 6 for continent, max 4 for goal)
+  // Equalize: both sides show exactly the same number of slots
   const maxCards = selected ? 4 : 6
   const displayCount = Math.min(maxCards, Math.max(improving.length, worsening.length))
   const improvingDisplay = improving.slice(0, displayCount)
   const worseningDisplay = worsening.slice(0, displayCount)
+  // Pad shorter side with nulls so both columns have identical height
+  const improvingSlots: (TrendResult | null)[] = [...improvingDisplay, ...Array(displayCount - improvingDisplay.length).fill(null)]
+  const worseningSlots: (TrendResult | null)[] = [...worseningDisplay, ...Array(displayCount - worseningDisplay.length).fill(null)]
 
   const hasTrends = improvingDisplay.length > 0 || worseningDisplay.length > 0
 
@@ -553,13 +518,13 @@ export function SDGExplorer({ countries, metrics }: Props) {
               </div>
             </div>
             <div className="space-y-2.5">
-              {improvingDisplay.length > 0 ? improvingDisplay.map((t) => (
-                <TrendCard key={t.key} t={t} type="improving" countries={countries} metrics={metrics} />
-              )) : (
-                <div className="flex items-center justify-center py-6 text-xs text-emerald-400">
-                  No improving indicators {selected ? 'for this goal' : ''}
+              {improvingSlots.map((t, i) => t ? (
+                <TrendCard key={t.key} t={t} type="improving" />
+              ) : (
+                <div key={`empty-imp-${i}`} className="rounded-xl border border-transparent px-3 py-2.5 invisible">
+                  <div className="h-[34px]" />
                 </div>
-              )}
+              ))}
             </div>
           </div>
 
@@ -579,13 +544,13 @@ export function SDGExplorer({ countries, metrics }: Props) {
               </div>
             </div>
             <div className="space-y-2.5">
-              {worseningDisplay.length > 0 ? worseningDisplay.map((t) => (
-                <TrendCard key={t.key} t={t} type="worsening" countries={countries} metrics={metrics} />
-              )) : (
-                <div className="flex items-center justify-center py-6 text-xs text-rose-400">
-                  No worsening indicators {selected ? 'for this goal' : ''}
+              {worseningSlots.map((t, i) => t ? (
+                <TrendCard key={t.key} t={t} type="worsening" />
+              ) : (
+                <div key={`empty-wrs-${i}`} className="rounded-xl border border-transparent px-3 py-2.5 invisible">
+                  <div className="h-[34px]" />
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
@@ -723,18 +688,10 @@ export function SDGExplorer({ countries, metrics }: Props) {
                     <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
                     <div className="flex items-center gap-3">
                       {hasTrendData && trendDirection !== 'flat' && (
-                        <div className="flex items-center gap-1.5">
-                          <MiniSparkline
-                            data={aggHistory}
-                            color={isGoodTrend ? '#22c55e' : '#ef4444'}
-                            width={60}
-                            height={22}
-                          />
-                          <span className={`text-[11px] font-bold ${isGoodTrend ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {trendChangePct > 0 ? '+' : ''}{trendChangePct.toFixed(1)}%
-                          </span>
-                          <span className="text-[10px] text-slate-400">10yr avg</span>
-                        </div>
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-bold ${isGoodTrend ? 'text-emerald-600' : 'text-rose-600'}`}>
+                          {isGoodTrend ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                          {trendChangePct > 0 ? '+' : ''}{trendChangePct.toFixed(1)}% avg
+                        </span>
                       )}
                       <span className="text-[11px] text-slate-400">{source} · {higherIsBetter ? 'higher = better' : 'lower = better'}</span>
                     </div>
@@ -771,18 +728,11 @@ export function SDGExplorer({ countries, metrics }: Props) {
                             <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
                               {formatNum(val)}{unit ? ` ${unit}` : ''}
                             </span>
-                            <div className="flex-shrink-0 w-[72px] hidden sm:flex items-center gap-1 justify-end">
-                              {hasCountryTrend && (
-                                <>
-                                  <MiniSparkline data={sorted} color={dot} width={40} height={16} />
-                                  {countryTrendGood !== null && (
-                                    <span className={`text-[10px] font-bold ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                      {countryTrendGood ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
-                                    </span>
-                                  )}
-                                </>
-                              )}
-                            </div>
+                            {hasCountryTrend && countryTrendGood !== null && (
+                              <span className={`flex-shrink-0 ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                {countryTrendGood ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                              </span>
+                            )}
                           </div>
                         )
                       })}
@@ -817,15 +767,10 @@ export function SDGExplorer({ countries, metrics }: Props) {
                             <span className="text-[11px] font-bold text-slate-300 w-4 flex-shrink-0">{rank + 1}</span>
                             <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-sm text-slate-700 flex-1 truncate">{country.name}</span>
-                            {hasCountryTrend && (
-                              <div className="flex-shrink-0 hidden sm:flex items-center gap-1">
-                                <MiniSparkline data={sorted} color={dot} width={40} height={16} />
-                                {countryTrendGood !== null && (
-                                  <span className={`text-[10px] font-bold ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
-                                    {countryTrendGood ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
-                                  </span>
-                                )}
-                              </div>
+                            {hasCountryTrend && countryTrendGood !== null && (
+                              <span className={`flex-shrink-0 ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                {countryTrendGood ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                              </span>
                             )}
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
@@ -862,7 +807,7 @@ export function SDGExplorer({ countries, metrics }: Props) {
             {label}
           </div>
         ))}
-        <span className="text-xs text-slate-400">· Ranked best to worst within platform countries · Sparklines show 10-year trend</span>
+        <span className="text-xs text-slate-400">· Ranked best to worst · Arrows show 10-year trend direction</span>
       </div>
     </div>
   )
