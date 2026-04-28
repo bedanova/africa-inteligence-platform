@@ -299,6 +299,8 @@ interface TrendResult {
   changePct: number
   direction: 'improving' | 'worsening'
   countriesWithData: number
+  yearFrom: number
+  yearTo: number
 }
 
 function computeContinentTrends(
@@ -317,23 +319,26 @@ function computeContinentTrends(
       seen.add(def.key)
 
       const histories: { oldest: number; newest: number }[] = []
+      let minYear = Infinity
+      let maxYear = -Infinity
 
       for (const c of countries) {
         const cm = (metrics[c.iso3] ?? []).find(m => m.key === def.key)
         if (!cm?.history || cm.history.length < 2) continue
         const sorted = [...cm.history].sort((a, b) => a.year - b.year)
-        // Use first and last data points
         histories.push({ oldest: sorted[0].value, newest: sorted[sorted.length - 1].value })
+        if (sorted[0].year < minYear) minYear = sorted[0].year
+        if (sorted[sorted.length - 1].year > maxYear) maxYear = sorted[sorted.length - 1].year
       }
 
-      if (histories.length < 3) continue // need at least 3 countries for meaningful average
+      if (histories.length < 3) continue
 
       const avgOldest = histories.reduce((s, h) => s + h.oldest, 0) / histories.length
       const avgNewest = histories.reduce((s, h) => s + h.newest, 0) / histories.length
 
       if (avgOldest === 0) continue
       const changePct = ((avgNewest - avgOldest) / Math.abs(avgOldest)) * 100
-      if (Math.abs(changePct) < 0.5) continue // skip negligible changes
+      if (Math.abs(changePct) < 0.5) continue
 
       const isGoodChange = def.higherIsBetter ? changePct > 0 : changePct < 0
 
@@ -349,6 +354,8 @@ function computeContinentTrends(
         changePct,
         direction: isGoodChange ? 'improving' : 'worsening',
         countriesWithData: histories.length,
+        yearFrom: minYear,
+        yearTo: maxYear,
       })
     }
   }
@@ -453,6 +460,35 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
 
 // ── Main Component ───────────────────────────────────────────────────────────
 
+function TrendCard({ t, type, countries, metrics }: {
+  t: TrendResult
+  type: 'improving' | 'worsening'
+  countries: CountrySummary[]
+  metrics: Record<string, CountryMetric[]>
+}) {
+  const aggHistory = getAggregateHistory(countries, metrics, t.key)
+  const color = type === 'improving' ? '#22c55e' : '#ef4444'
+  const textClass = type === 'improving' ? 'text-emerald-600' : 'text-rose-600'
+  const borderClass = type === 'improving' ? 'border-emerald-100/60' : 'border-rose-100/60'
+  const hoverClass = type === 'improving' ? 'hover:bg-emerald-50/50' : 'hover:bg-rose-50/50'
+
+  return (
+    <div className={`flex items-center gap-3 bg-white/80 rounded-xl border ${borderClass} px-3 py-2.5 ${hoverClass} transition-colors text-left`}>
+      <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: t.sdgColor }}>
+        {t.sdgGoal}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
+        <p className="text-[10px] text-slate-400">{t.countriesWithData} countries · {t.yearFrom}&#8211;{t.yearTo}</p>
+      </div>
+      <MiniSparkline data={aggHistory} color={color} />
+      <span className={`text-xs font-bold flex-shrink-0 ${textClass}`}>
+        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
+      </span>
+    </div>
+  )
+}
+
 export function SDGExplorer({ countries, metrics }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
   const goalMetrics = selected ? SDG_METRICS[selected] : undefined
@@ -463,9 +499,30 @@ export function SDGExplorer({ countries, metrics }: Props) {
     [countries, metrics],
   )
 
-  const improving = trends.filter(t => t.direction === 'improving').slice(0, 6)
-  const worsening = trends.filter(t => t.direction === 'worsening').slice(0, 6)
-  const hasTrends = improving.length > 0 || worsening.length > 0
+  // When a goal is selected, show only its trends; otherwise show continent-wide
+  const heroTrends = useMemo(() => {
+    if (selected) return trends.filter(t => t.sdgGoal === selected)
+    return trends
+  }, [trends, selected])
+
+  const improving = heroTrends.filter(t => t.direction === 'improving')
+  const worsening = heroTrends.filter(t => t.direction === 'worsening')
+
+  // Equalize: both sides show the same count (max 6 for continent, max 4 for goal)
+  const maxCards = selected ? 4 : 6
+  const displayCount = Math.min(maxCards, Math.max(improving.length, worsening.length))
+  const improvingDisplay = improving.slice(0, displayCount)
+  const worseningDisplay = worsening.slice(0, displayCount)
+
+  const hasTrends = improvingDisplay.length > 0 || worseningDisplay.length > 0
+
+  // Compute overall year range for the subtitle
+  const yearRange = useMemo(() => {
+    if (heroTrends.length === 0) return null
+    const from = Math.min(...heroTrends.map(t => t.yearFrom))
+    const to = Math.max(...heroTrends.map(t => t.yearTo))
+    return { from, to }
+  }, [heroTrends])
 
   return (
     <div>
@@ -481,82 +538,56 @@ export function SDGExplorer({ countries, metrics }: Props) {
       {hasTrends && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
           {/* Improving */}
-          {improving.length > 0 && (
-            <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-emerald-900">Improving across Africa</h2>
-                  <p className="text-[11px] text-emerald-600">10-year continent-wide average trends</p>
-                </div>
+          <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                <TrendingUp className="w-4 h-4 text-emerald-600" />
               </div>
-              <div className="space-y-2.5">
-                {improving.map((t) => {
-                  const aggHistory = getAggregateHistory(countries, metrics, t.key)
-                  return (
-                    <button
-                      key={t.key}
-                      onClick={() => setSelected(t.sdgGoal)}
-                      className="w-full flex items-center gap-3 bg-white/80 rounded-xl border border-emerald-100/60 px-3 py-2.5 hover:bg-emerald-50/50 transition-colors text-left"
-                    >
-                      <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: t.sdgColor }}>
-                        {t.sdgGoal}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
-                        <p className="text-[10px] text-slate-400">{t.countriesWithData} countries</p>
-                      </div>
-                      <MiniSparkline data={aggHistory} color="#22c55e" />
-                      <span className="text-xs font-bold text-emerald-600 flex-shrink-0">
-                        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
-                      </span>
-                    </button>
-                  )
-                })}
+              <div>
+                <h2 className="text-sm font-semibold text-emerald-900">
+                  {selected ? `SDG ${selected}: Improving` : 'Improving across Africa'}
+                </h2>
+                <p className="text-[11px] text-emerald-600">
+                  {yearRange ? `${yearRange.from}\u2013${yearRange.to}` : '10-year'} continent-wide average
+                </p>
               </div>
             </div>
-          )}
+            <div className="space-y-2.5">
+              {improvingDisplay.length > 0 ? improvingDisplay.map((t) => (
+                <TrendCard key={t.key} t={t} type="improving" countries={countries} metrics={metrics} />
+              )) : (
+                <div className="flex items-center justify-center py-6 text-xs text-emerald-400">
+                  No improving indicators {selected ? 'for this goal' : ''}
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Worsening */}
-          {worsening.length > 0 && (
-            <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
-                  <TrendingDown className="w-4 h-4 text-rose-600" />
-                </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-rose-900">Needs attention</h2>
-                  <p className="text-[11px] text-rose-600">Indicators moving in the wrong direction</p>
-                </div>
+          <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl p-5">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                <TrendingDown className="w-4 h-4 text-rose-600" />
               </div>
-              <div className="space-y-2.5">
-                {worsening.map((t) => {
-                  const aggHistory = getAggregateHistory(countries, metrics, t.key)
-                  return (
-                    <button
-                      key={t.key}
-                      onClick={() => setSelected(t.sdgGoal)}
-                      className="w-full flex items-center gap-3 bg-white/80 rounded-xl border border-rose-100/60 px-3 py-2.5 hover:bg-rose-50/50 transition-colors text-left"
-                    >
-                      <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: t.sdgColor }}>
-                        {t.sdgGoal}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
-                        <p className="text-[10px] text-slate-400">{t.countriesWithData} countries</p>
-                      </div>
-                      <MiniSparkline data={aggHistory} color="#ef4444" />
-                      <span className="text-xs font-bold text-rose-600 flex-shrink-0">
-                        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
-                      </span>
-                    </button>
-                  )
-                })}
+              <div>
+                <h2 className="text-sm font-semibold text-rose-900">
+                  {selected ? `SDG ${selected}: Needs attention` : 'Needs attention'}
+                </h2>
+                <p className="text-[11px] text-rose-600">
+                  Indicators moving in the wrong direction
+                </p>
               </div>
             </div>
-          )}
+            <div className="space-y-2.5">
+              {worseningDisplay.length > 0 ? worseningDisplay.map((t) => (
+                <TrendCard key={t.key} t={t} type="worsening" countries={countries} metrics={metrics} />
+              )) : (
+                <div className="flex items-center justify-center py-6 text-xs text-rose-400">
+                  No worsening indicators {selected ? 'for this goal' : ''}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -718,9 +749,19 @@ export function SDGExplorer({ countries, metrics }: Props) {
                         const barWidth = Math.min(100, Math.max(2, Math.abs(val)))
                         const sorted = [...history].sort((a, b) => a.year - b.year)
                         const hasCountryTrend = sorted.length >= 2
+                        let countryTrendPct = 0
+                        let countryTrendGood: boolean | null = null
+                        if (hasCountryTrend) {
+                          const f = sorted[0].value, l = sorted[sorted.length - 1].value
+                          if (f !== 0) {
+                            countryTrendPct = ((l - f) / Math.abs(f)) * 100
+                            countryTrendGood = higherIsBetter ? countryTrendPct > 0.5 : countryTrendPct < -0.5
+                            if (Math.abs(countryTrendPct) < 0.5) countryTrendGood = null
+                          }
+                        }
 
                         return (
-                          <div key={country.iso3} className="flex items-center gap-3">
+                          <div key={country.iso3} className="flex items-center gap-2 sm:gap-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">{rank + 1}</span>
                             <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-xs text-slate-600 w-24 flex-shrink-0 truncate">{country.name}</span>
@@ -730,11 +771,18 @@ export function SDGExplorer({ countries, metrics }: Props) {
                             <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
                               {formatNum(val)}{unit ? ` ${unit}` : ''}
                             </span>
-                            {hasCountryTrend && (
-                              <div className="flex-shrink-0 hidden sm:block">
-                                <MiniSparkline data={sorted} color={dot} width={48} height={18} />
-                              </div>
-                            )}
+                            <div className="flex-shrink-0 w-[72px] hidden sm:flex items-center gap-1 justify-end">
+                              {hasCountryTrend && (
+                                <>
+                                  <MiniSparkline data={sorted} color={dot} width={40} height={16} />
+                                  {countryTrendGood !== null && (
+                                    <span className={`text-[10px] font-bold ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                      {countryTrendGood ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                                    </span>
+                                  )}
+                                </>
+                              )}
+                            </div>
                           </div>
                         )
                       })}
@@ -753,6 +801,16 @@ export function SDGExplorer({ countries, metrics }: Props) {
                         const { bg, text, dot } = perfColor(goodPct)
                         const sorted = [...history].sort((a, b) => a.year - b.year)
                         const hasCountryTrend = sorted.length >= 2
+                        let countryTrendPct = 0
+                        let countryTrendGood: boolean | null = null
+                        if (hasCountryTrend) {
+                          const f = sorted[0].value, l = sorted[sorted.length - 1].value
+                          if (f !== 0) {
+                            countryTrendPct = ((l - f) / Math.abs(f)) * 100
+                            countryTrendGood = higherIsBetter ? countryTrendPct > 0.5 : countryTrendPct < -0.5
+                            if (Math.abs(countryTrendPct) < 0.5) countryTrendGood = null
+                          }
+                        }
 
                         return (
                           <div key={country.iso3} className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3">
@@ -760,8 +818,13 @@ export function SDGExplorer({ countries, metrics }: Props) {
                             <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-sm text-slate-700 flex-1 truncate">{country.name}</span>
                             {hasCountryTrend && (
-                              <div className="flex-shrink-0 hidden sm:block">
-                                <MiniSparkline data={sorted} color={dot} width={48} height={18} />
+                              <div className="flex-shrink-0 hidden sm:flex items-center gap-1">
+                                <MiniSparkline data={sorted} color={dot} width={40} height={16} />
+                                {countryTrendGood !== null && (
+                                  <span className={`text-[10px] font-bold ${countryTrendGood ? 'text-emerald-500' : 'text-rose-500'}`}>
+                                    {countryTrendGood ? <TrendingUp className="w-3 h-3 inline" /> : <TrendingDown className="w-3 h-3 inline" />}
+                                  </span>
+                                )}
                               </div>
                             )}
                             <div className="flex items-center gap-1.5">

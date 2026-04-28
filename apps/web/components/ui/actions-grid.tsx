@@ -153,8 +153,8 @@ export function ActionsGrid({ actions }: { actions: ActionCardType[] }) {
       {filtered.length > 0 ? (
         <div className="grid sm:grid-cols-2 gap-4">
           {filtered.map((action) => (
-            <div key={action.id} className="relative">
-              <ActionCard action={action} onClick={() => setSelectedAction(action)} />
+            <div key={action.id} className="relative flex">
+              <ActionCard action={action} onClick={() => setSelectedAction(action)} className="flex-1" />
               {action.country_iso3 && (
                 <div className="absolute top-4 right-4">
                   <CountryChip iso3={action.country_iso3} />
