@@ -135,6 +135,37 @@ export async function getMetricsWithHistory(iso3: string): Promise<CountryMetric
   }))
 }
 
+export async function getAllMetricsWithHistory(): Promise<Record<string, CountryMetric[]>> {
+  const supabase = getClient()
+  const [metricsResult, historyResult] = await Promise.all([
+    supabase.from('metrics').select('*'),
+    supabase.from('metrics_history').select('country_iso3, key, value_num, year')
+      .order('year', { ascending: true }),
+  ])
+
+  const allMetrics = (metricsResult.data ?? [])
+  const historyRows = historyResult.data ?? []
+
+  // Group history by country_iso3 + key
+  const historyMap: Record<string, { year: number; value: number }[]> = {}
+  for (const row of historyRows) {
+    const k = `${row.country_iso3}::${row.key}`
+    if (!historyMap[k]) historyMap[k] = []
+    historyMap[k].push({ year: row.year, value: Number(row.value_num) })
+  }
+
+  // Group metrics by country
+  const result: Record<string, CountryMetric[]> = {}
+  for (const row of allMetrics) {
+    const iso3 = row.country_iso3
+    if (!result[iso3]) result[iso3] = []
+    const m = rowToMetric(row)
+    m.history = historyMap[`${iso3}::${m.key}`] ?? []
+    result[iso3].push(m)
+  }
+  return result
+}
+
 export async function getSectors(iso3: string): Promise<string[]> {
   const { data, error } = await getClient()
     .from('sectors')

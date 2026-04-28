@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/navbar"
-import { PageShell, PageHeader } from "@/components/layout/page-shell"
+import { PageShell } from "@/components/layout/page-shell"
 import { SDGExplorer } from "@/components/ui/sdg-explorer"
-import { getCountries, getMetrics } from "@/lib/supabase-server"
+import { getCountries, getAllMetricsWithHistory } from "@/lib/supabase-server"
 import { MOCK_COUNTRIES } from "@/lib/mock-data"
 import type { CountryMetric, CountrySummary } from "@/types"
 import type { Metadata } from "next"
@@ -14,10 +14,10 @@ async function getSDGData(): Promise<{
   metrics: Record<string, CountryMetric[]>
 }> {
   try {
-    const countries = await getCountries()
-    const metricsArr = await Promise.all(countries.map((c) => getMetrics(c.iso3)))
-    const metrics: Record<string, CountryMetric[]> = {}
-    countries.forEach((c, i) => { metrics[c.iso3] = metricsArr[i] })
+    const [countries, metrics] = await Promise.all([
+      getCountries(),
+      getAllMetricsWithHistory(),
+    ])
     return { countries, metrics }
   } catch {
     return { countries: MOCK_COUNTRIES, metrics: {} }
@@ -31,10 +31,6 @@ export default async function SDGPage() {
     <>
       <Navbar />
       <PageShell>
-        <PageHeader
-          title="SDG Explorer"
-          description="Track progress on the UN Sustainable Development Goals — click any goal with live data to see per-country breakdown."
-        />
         <SDGExplorer countries={countries} metrics={metrics} />
       </PageShell>
     </>

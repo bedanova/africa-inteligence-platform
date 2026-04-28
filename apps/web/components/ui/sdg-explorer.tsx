@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { Minus, Plus, X, ChevronRight } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { Minus, Plus, X, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react'
 import { CountryFlag } from '@/components/ui/country-flag'
 import { formatNum } from '@/lib/utils'
 import type { CountrySummary, CountryMetric } from '@/types'
@@ -139,7 +139,7 @@ const GOALS: GoalDef[] = [
     n: 13, label: 'Climate Action', color: '#3f7e44',
     about: 'SDG 13 calls for urgent action to combat climate change. Africa contributes less than 4% of global emissions but is among the most climate-vulnerable regions. Droughts, floods, desertification, and rising temperatures threaten food systems, health, and livelihoods.',
     keyQuestions: [
-      'What are CO₂ emissions per capita and is the trend improving?',
+      'What are CO2 emissions per capita and is the trend improving?',
       'Are national adaptation plans (NAPs) being implemented?',
       'How much climate finance is flowing to adaptation vs mitigation?',
       'Are early warning systems for extreme weather events in place?',
@@ -194,7 +194,7 @@ interface MetricDef {
   label: string
   higherIsBetter: boolean
   source: string
-  display: DisplayType // 'percent' = absolute bar 0–100, 'rate' = ranked list with color badge
+  display: DisplayType
   unit?: string
 }
 
@@ -263,10 +263,10 @@ const SDG_METRICS: Record<number, MetricDef[]> = {
   12: [
     { key: 'energy_use_per_capita', label: 'Energy use per capita (kg oil eq.)',    higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 'kg' },
     { key: 'renewable_electricity', label: 'Renewable electricity output (%)',      higherIsBetter: true,  source: 'World Bank', display: 'percent', unit: '%' },
-    { key: 'co2_per_capita',        label: 'CO₂ emissions per capita (tonnes)',     higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 't/cap' },
+    { key: 'co2_per_capita',        label: 'CO2 emissions per capita (tonnes)',     higherIsBetter: false, source: 'World Bank', display: 'rate',    unit: 't/cap' },
   ],
   13: [
-    { key: 'co2_per_capita', label: 'CO₂ emissions per capita (tonnes)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 't/cap' },
+    { key: 'co2_per_capita', label: 'CO2 emissions per capita (tonnes)', higherIsBetter: false, source: 'World Bank', display: 'rate', unit: 't/cap' },
   ],
   14: [
     { key: 'marine_protected_areas', label: 'Marine protected areas (% of territorial waters)', higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
@@ -276,13 +276,137 @@ const SDG_METRICS: Record<number, MetricDef[]> = {
     { key: 'protected_areas', label: 'Protected areas (% of total territory)',    higherIsBetter: true, source: 'World Bank', display: 'percent', unit: '%' },
   ],
   16: [
-    { key: 'score_stability',     label: 'Governance & peace score (0–100)',    higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
-    { key: 'political_stability', label: 'Political stability index (0–100)',   higherIsBetter: true, source: 'World Bank WGI',     display: 'percent', unit: '/100' },
+    { key: 'score_stability',     label: 'Governance & peace score (0-100)',    higherIsBetter: true, source: 'Platform composite', display: 'percent', unit: '/100' },
+    { key: 'political_stability', label: 'Political stability index (0-100)',   higherIsBetter: true, source: 'World Bank WGI',     display: 'percent', unit: '/100' },
     { key: 'conflict_deaths',     label: 'Conflict-related deaths (per 100k)', higherIsBetter: false, source: 'UN SDG',            display: 'rate',    unit: 'per 100k' },
   ],
   17: [
     { key: 'fdi', label: 'FDI net inflows (% of GDP) — investment proxy', higherIsBetter: true, source: 'World Bank', display: 'rate', unit: '% GDP' },
   ],
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+interface TrendResult {
+  key: string
+  label: string
+  sdgGoal: number
+  sdgLabel: string
+  sdgColor: string
+  higherIsBetter: boolean
+  avgOldest: number
+  avgNewest: number
+  changePct: number
+  direction: 'improving' | 'worsening'
+  countriesWithData: number
+}
+
+function computeContinentTrends(
+  countries: CountrySummary[],
+  metrics: Record<string, CountryMetric[]>,
+): TrendResult[] {
+  const seen = new Set<string>()
+  const results: TrendResult[] = []
+
+  for (const goal of GOALS) {
+    const defs = SDG_METRICS[goal.n]
+    if (!defs) continue
+
+    for (const def of defs) {
+      if (seen.has(def.key)) continue
+      seen.add(def.key)
+
+      const histories: { oldest: number; newest: number }[] = []
+
+      for (const c of countries) {
+        const cm = (metrics[c.iso3] ?? []).find(m => m.key === def.key)
+        if (!cm?.history || cm.history.length < 2) continue
+        const sorted = [...cm.history].sort((a, b) => a.year - b.year)
+        // Use first and last data points
+        histories.push({ oldest: sorted[0].value, newest: sorted[sorted.length - 1].value })
+      }
+
+      if (histories.length < 3) continue // need at least 3 countries for meaningful average
+
+      const avgOldest = histories.reduce((s, h) => s + h.oldest, 0) / histories.length
+      const avgNewest = histories.reduce((s, h) => s + h.newest, 0) / histories.length
+
+      if (avgOldest === 0) continue
+      const changePct = ((avgNewest - avgOldest) / Math.abs(avgOldest)) * 100
+      if (Math.abs(changePct) < 0.5) continue // skip negligible changes
+
+      const isGoodChange = def.higherIsBetter ? changePct > 0 : changePct < 0
+
+      results.push({
+        key: def.key,
+        label: def.label,
+        sdgGoal: goal.n,
+        sdgLabel: goal.label,
+        sdgColor: goal.color,
+        higherIsBetter: def.higherIsBetter,
+        avgOldest,
+        avgNewest,
+        changePct,
+        direction: isGoodChange ? 'improving' : 'worsening',
+        countriesWithData: histories.length,
+      })
+    }
+  }
+
+  return results.sort((a, b) => Math.abs(b.changePct) - Math.abs(a.changePct))
+}
+
+function MiniSparkline({ data, color, width = 80, height = 28 }: {
+  data: { year: number; value: number }[]
+  color: string
+  width?: number
+  height?: number
+}) {
+  if (data.length < 2) return null
+  const sorted = [...data].sort((a, b) => a.year - b.year)
+  const values = sorted.map(d => d.value)
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+  const range = max - min || 1
+  const padding = 2
+
+  const points = sorted.map((d, i) => {
+    const x = padding + (i / (sorted.length - 1)) * (width - padding * 2)
+    const y = height - padding - ((d.value - min) / range) * (height - padding * 2)
+    return `${x},${y}`
+  }).join(' ')
+
+  return (
+    <svg width={width} height={height} className="flex-shrink-0">
+      <polyline
+        points={points}
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function getAggregateHistory(
+  countries: CountrySummary[],
+  metrics: Record<string, CountryMetric[]>,
+  metricKey: string,
+): { year: number; value: number }[] {
+  const byYear: Record<number, number[]> = {}
+  for (const c of countries) {
+    const cm = (metrics[c.iso3] ?? []).find(m => m.key === metricKey)
+    if (!cm?.history) continue
+    for (const h of cm.history) {
+      if (!byYear[h.year]) byYear[h.year] = []
+      byYear[h.year].push(h.value)
+    }
+  }
+  return Object.entries(byYear)
+    .map(([year, vals]) => ({ year: Number(year), value: vals.reduce((s, v) => s + v, 0) / vals.length }))
+    .sort((a, b) => a.year - b.year)
 }
 
 interface Props {
@@ -315,7 +439,7 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
             <ul className="space-y-1.5">
               {goal.keyQuestions.map((q, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-slate-600">
-                  <span className="text-slate-300 mt-0.5 flex-shrink-0">›</span>
+                  <span className="text-slate-300 mt-0.5 flex-shrink-0">&#8250;</span>
                   {q}
                 </li>
               ))}
@@ -327,17 +451,123 @@ function EducationPanel({ goal }: { goal: GoalDef }) {
   )
 }
 
+// ── Main Component ───────────────────────────────────────────────────────────
+
 export function SDGExplorer({ countries, metrics }: Props) {
   const [selected, setSelected] = useState<number | null>(null)
   const goalMetrics = selected ? SDG_METRICS[selected] : undefined
   const selectedGoal = selected ? GOALS[selected - 1] : undefined
 
+  const trends = useMemo(
+    () => computeContinentTrends(countries, metrics),
+    [countries, metrics],
+  )
+
+  const improving = trends.filter(t => t.direction === 'improving').slice(0, 6)
+  const worsening = trends.filter(t => t.direction === 'worsening').slice(0, 6)
+  const hasTrends = improving.length > 0 || worsening.length > 0
+
   return (
     <div>
-      {/* Goal tiles — all 17 are clickable */}
+      {/* ── Hero: Page header ────────────────────────────────────────── */}
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-2">SDG Explorer</h1>
+        <p className="text-sm text-slate-500 max-w-2xl">
+          Track Africa's progress on the UN Sustainable Development Goals — powered by 10+ years of verified data from World Bank, WHO, UN SDG, and IMF sources.
+        </p>
+      </div>
+
+      {/* ── Trend Hero Section ───────────────────────────────────────── */}
+      {hasTrends && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-10">
+          {/* Improving */}
+          {improving.length > 0 && (
+            <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-100 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-emerald-900">Improving across Africa</h2>
+                  <p className="text-[11px] text-emerald-600">10-year continent-wide average trends</p>
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {improving.map((t) => {
+                  const aggHistory = getAggregateHistory(countries, metrics, t.key)
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setSelected(t.sdgGoal)}
+                      className="w-full flex items-center gap-3 bg-white/80 rounded-xl border border-emerald-100/60 px-3 py-2.5 hover:bg-emerald-50/50 transition-colors text-left"
+                    >
+                      <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: t.sdgColor }}>
+                        {t.sdgGoal}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
+                        <p className="text-[10px] text-slate-400">{t.countriesWithData} countries</p>
+                      </div>
+                      <MiniSparkline data={aggHistory} color="#22c55e" />
+                      <span className="text-xs font-bold text-emerald-600 flex-shrink-0">
+                        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Worsening */}
+          {worsening.length > 0 && (
+            <div className="bg-gradient-to-br from-rose-50 to-white border border-rose-100 rounded-2xl p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                  <TrendingDown className="w-4 h-4 text-rose-600" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-semibold text-rose-900">Needs attention</h2>
+                  <p className="text-[11px] text-rose-600">Indicators moving in the wrong direction</p>
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {worsening.map((t) => {
+                  const aggHistory = getAggregateHistory(countries, metrics, t.key)
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setSelected(t.sdgGoal)}
+                      className="w-full flex items-center gap-3 bg-white/80 rounded-xl border border-rose-100/60 px-3 py-2.5 hover:bg-rose-50/50 transition-colors text-left"
+                    >
+                      <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: t.sdgColor }}>
+                        {t.sdgGoal}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-medium text-slate-700 truncate">{t.label}</p>
+                        <p className="text-[10px] text-slate-400">{t.countriesWithData} countries</p>
+                      </div>
+                      <MiniSparkline data={aggHistory} color="#ef4444" />
+                      <span className="text-xs font-bold text-rose-600 flex-shrink-0">
+                        {t.changePct > 0 ? '+' : ''}{t.changePct.toFixed(1)}%
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Goal tiles ───────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8">
         {GOALS.map(({ n, label, color }) => {
           const isSelected = selected === n
+          const goalTrends = trends.filter(t => t.sdgGoal === n)
+          const improvingCount = goalTrends.filter(t => t.direction === 'improving').length
+          const worseningCount = goalTrends.filter(t => t.direction === 'worsening').length
+
           return (
             <button
               key={n}
@@ -356,13 +586,28 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 {n}
               </div>
               <p className="text-xs font-medium text-slate-700 leading-snug">{label}</p>
-              <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 w-fit border border-emerald-100">Live data</span>
+              {goalTrends.length > 0 ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {improvingCount > 0 && (
+                    <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 border border-emerald-100 flex items-center gap-0.5">
+                      <TrendingUp className="w-2.5 h-2.5" /> {improvingCount}
+                    </span>
+                  )}
+                  {worseningCount > 0 && (
+                    <span className="text-[10px] font-medium text-rose-600 bg-rose-50 rounded-full px-2 py-0.5 border border-rose-100 flex items-center gap-0.5">
+                      <TrendingDown className="w-2.5 h-2.5" /> {worseningCount}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <span className="text-[10px] font-medium text-emerald-600 bg-emerald-50 rounded-full px-2 py-0.5 w-fit border border-emerald-100">Live data</span>
+              )}
             </button>
           )
         })}
       </div>
 
-      {/* Detail panel */}
+      {/* ── Detail panel ─────────────────────────────────────────────── */}
       {selected && selectedGoal && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-8">
           <div className="flex items-center gap-3 mb-6">
@@ -381,7 +626,6 @@ export function SDGExplorer({ countries, metrics }: Props) {
             <button onClick={() => setSelected(null)} className="ml-auto text-slate-300 hover:text-slate-500"><X className="w-5 h-5" /></button>
           </div>
 
-          {/* Education panel — always shown, collapsed by default */}
           <div className="mb-6">
             <EducationPanel goal={selectedGoal} />
           </div>
@@ -394,19 +638,19 @@ export function SDGExplorer({ countries, metrics }: Props) {
                   return {
                     country: c,
                     metric: { key, label, value: c.scores.stability, unit: '/100', source, source_year: new Date().getFullYear(), freshness: 'fresh' } as CountryMetric,
+                    history: [] as { year: number; value: number }[],
                   }
                 }
-                // political_stability from WGI is stored as raw -2.5→+2.5 in metrics — normalize to 0-100
                 if (key === 'political_stability') {
                   const raw = (metrics[c.iso3] ?? []).find((x) => x.key === 'political_stability')
                   if (raw) {
                     const normalized = Math.min(100, Math.max(0, Math.round((Number(raw.value) + 2.5) * 20)))
-                    return { country: c, metric: { ...raw, value: normalized, unit: '/100' } as CountryMetric }
+                    return { country: c, metric: { ...raw, value: normalized, unit: '/100' } as CountryMetric, history: raw.history ?? [] }
                   }
-                  return { country: c, metric: undefined }
+                  return { country: c, metric: undefined, history: [] as { year: number; value: number }[] }
                 }
                 const m = (metrics[c.iso3] ?? []).find((x) => x.key === key)
-                return { country: c, metric: m }
+                return { country: c, metric: m, history: m?.history ?? [] }
               })
               .filter((r) => r.metric != null)
               .sort((a, b) =>
@@ -422,6 +666,21 @@ export function SDGExplorer({ countries, metrics }: Props) {
                 </div>
               )
 
+              // Compute aggregate trend for this indicator
+              const aggHistory = getAggregateHistory(countries, metrics, key)
+              const hasTrendData = aggHistory.length >= 2
+              let trendChangePct = 0
+              let trendDirection: 'up' | 'down' | 'flat' = 'flat'
+              if (hasTrendData) {
+                const first = aggHistory[0].value
+                const last = aggHistory[aggHistory.length - 1].value
+                if (first !== 0) {
+                  trendChangePct = ((last - first) / Math.abs(first)) * 100
+                  trendDirection = Math.abs(trendChangePct) < 0.5 ? 'flat' : trendChangePct > 0 ? 'up' : 'down'
+                }
+              }
+              const isGoodTrend = higherIsBetter ? trendDirection === 'up' : trendDirection === 'down'
+
               const values = rows.map((r) => r.metric!.value as number)
               const max = Math.max(...values)
               const min = Math.min(...values)
@@ -429,20 +688,37 @@ export function SDGExplorer({ countries, metrics }: Props) {
 
               return (
                 <div key={key}>
-                  <div className="flex items-baseline justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                     <h3 className="text-sm font-semibold text-slate-700">{label}</h3>
-                    <span className="text-[11px] text-slate-400">{source} · {higherIsBetter ? 'higher = better ↑' : 'lower = better ↓'}</span>
+                    <div className="flex items-center gap-3">
+                      {hasTrendData && trendDirection !== 'flat' && (
+                        <div className="flex items-center gap-1.5">
+                          <MiniSparkline
+                            data={aggHistory}
+                            color={isGoodTrend ? '#22c55e' : '#ef4444'}
+                            width={60}
+                            height={22}
+                          />
+                          <span className={`text-[11px] font-bold ${isGoodTrend ? 'text-emerald-600' : 'text-rose-600'}`}>
+                            {trendChangePct > 0 ? '+' : ''}{trendChangePct.toFixed(1)}%
+                          </span>
+                          <span className="text-[10px] text-slate-400">10yr avg</span>
+                        </div>
+                      )}
+                      <span className="text-[11px] text-slate-400">{source} · {higherIsBetter ? 'higher = better' : 'lower = better'}</span>
+                    </div>
                   </div>
 
                   {display === 'percent' ? (
-                    /* ── Percentage bar chart (absolute scale 0–100) ── */
                     <div className="space-y-2.5">
-                      {rows.map(({ country, metric }, rank) => {
+                      {rows.map(({ country, metric, history }, rank) => {
                         const val = metric!.value as number
                         const goodPct = higherIsBetter ? val : 100 - val
                         const { dot } = perfColor(goodPct)
-                        // bar = absolute value (0–100 scale)
                         const barWidth = Math.min(100, Math.max(2, Math.abs(val)))
+                        const sorted = [...history].sort((a, b) => a.year - b.year)
+                        const hasCountryTrend = sorted.length >= 2
+
                         return (
                           <div key={country.iso3} className="flex items-center gap-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">{rank + 1}</span>
@@ -454,6 +730,11 @@ export function SDGExplorer({ countries, metrics }: Props) {
                             <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
                               {formatNum(val)}{unit ? ` ${unit}` : ''}
                             </span>
+                            {hasCountryTrend && (
+                              <div className="flex-shrink-0 hidden sm:block">
+                                <MiniSparkline data={sorted} color={dot} width={48} height={18} />
+                              </div>
+                            )}
                           </div>
                         )
                       })}
@@ -464,18 +745,25 @@ export function SDGExplorer({ countries, metrics }: Props) {
                       </div>
                     </div>
                   ) : (
-                    /* ── Rate / non-percentage: ranked cards ── */
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {rows.map(({ country, metric }, rank) => {
+                      {rows.map(({ country, metric, history }, rank) => {
                         const val = metric!.value as number
                         const rawPct = ((val - min) / range) * 100
                         const goodPct = higherIsBetter ? rawPct : 100 - rawPct
                         const { bg, text, dot } = perfColor(goodPct)
+                        const sorted = [...history].sort((a, b) => a.year - b.year)
+                        const hasCountryTrend = sorted.length >= 2
+
                         return (
                           <div key={country.iso3} className="flex items-center gap-3 rounded-xl border border-slate-100 px-4 py-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 flex-shrink-0">{rank + 1}</span>
                             <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
                             <span className="text-sm text-slate-700 flex-1 truncate">{country.name}</span>
+                            {hasCountryTrend && (
+                              <div className="flex-shrink-0 hidden sm:block">
+                                <MiniSparkline data={sorted} color={dot} width={48} height={18} />
+                              </div>
+                            )}
                             <div className="flex items-center gap-1.5">
                               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: dot }} />
                               <span
@@ -511,9 +799,8 @@ export function SDGExplorer({ countries, metrics }: Props) {
             {label}
           </div>
         ))}
-        <span className="text-xs text-slate-400">· Ranked best to worst within platform countries</span>
+        <span className="text-xs text-slate-400">· Ranked best to worst within platform countries · Sparklines show 10-year trend</span>
       </div>
-
     </div>
   )
 }
