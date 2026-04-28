@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/navbar";
 import { PageShell, SectionHeader } from "@/components/layout/page-shell";
 import { AIBriefCard } from "@/components/ui/ai-brief-card";
-import { CountryCard } from "@/components/ui/country-card";
 import { ScoreChip } from "@/components/ui/score-chip";
 import { AfricaMap } from "@/components/ui/charts-client";
 import { CountryFlag } from "@/components/ui/country-flag";
@@ -221,23 +220,6 @@ export default async function HomePage() {
             </div>
           </div>
         )}
-
-        {/* ── COUNTRIES ───────────────────────────────────────────── */}
-        <div className="mb-10">
-          <SectionHeader
-            title="Countries"
-            action={
-              <Link href="/countries" className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-                All countries &rarr;
-              </Link>
-            }
-          />
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {countries.map((country) => (
-              <CountryCard key={country.iso3} country={country} />
-            ))}
-          </div>
-        </div>
 
         {/* ── DATA SOURCES ────────────────────────────────────────── */}
         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5 sm:p-6">
