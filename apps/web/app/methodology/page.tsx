@@ -2,7 +2,16 @@ import { Navbar } from "@/components/layout/navbar";
 import { PageShell, PageHeader } from "@/components/layout/page-shell";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Methodology" };
+export const metadata: Metadata = {
+  title: "Methodology",
+  description:
+    "How AfricaImpactLab collects, verifies, and scores data from World Bank, WHO, UN SDG, ACLED, IMF and other sources to produce actionable intelligence on Africa.",
+  openGraph: {
+    title: "Methodology | AfricaImpactLab",
+    description:
+      "How we collect, verify, and score data from 7+ international sources to produce actionable intelligence on Africa.",
+  },
+};
 
 const SOURCES = [
   { name: "World Bank Open Data", type: "GDP, poverty, education, infrastructure" },

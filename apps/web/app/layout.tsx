@@ -9,7 +9,10 @@ const inter = Inter({
   display: "swap",
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.africaimpactlab.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "AfricaImpactLab",
     template: "%s | AfricaImpactLab",
@@ -19,6 +22,7 @@ export const metadata: Metadata = {
   keywords: ["Africa", "impact", "SDG", "humanitarian", "data", "AI briefs", "AfricaImpactLab"],
   authors: [{ name: "AfricaImpactLab" }],
   manifest: "/manifest.json",
+  alternates: { canonical: "/" },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -28,6 +32,12 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "AfricaImpactLab",
+    title: "AfricaImpactLab — Africa Data & Impact Intelligence",
+    description:
+      "Daily AI briefs, verified partners, and actionable insights — grounded in live data from UN, World Bank, WHO, ACLED and more.",
+  },
+  twitter: {
+    card: "summary_large_image",
     title: "AfricaImpactLab — Africa Data & Impact Intelligence",
     description:
       "Daily AI briefs, verified partners, and actionable insights — grounded in live data from UN, World Bank, WHO, ACLED and more.",
@@ -47,7 +57,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full`}>
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "AfricaImpactLab",
+              url: SITE_URL,
+              description:
+                "Daily AI briefs, verified partners, and actionable data insights on Africa — grounded in UN, World Bank, WHO, ACLED, IMF and UNHCR data.",
+              sameAs: [],
+            }),
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
