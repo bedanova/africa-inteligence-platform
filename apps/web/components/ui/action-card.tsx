@@ -40,7 +40,7 @@ export function ActionCard({ action, className, onClick }: ActionCardProps) {
   return (
     <div
       className={cn(
-        "bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex flex-col gap-3",
+        "bg-white rounded-xl border border-slate-100 p-4 shadow-sm flex flex-col gap-3 h-full",
         isRestricted && "opacity-60",
         onClick && "cursor-pointer hover:shadow-md hover:border-blue-200 transition-all",
         className
