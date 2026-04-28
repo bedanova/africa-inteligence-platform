@@ -721,11 +721,8 @@ export function SDGExplorer({ countries, metrics }: Props) {
                           <div key={country.iso3} className="flex items-center gap-2 sm:gap-3">
                             <span className="text-[11px] font-bold text-slate-300 w-4 text-right flex-shrink-0">{rank + 1}</span>
                             <CountryFlag iso3={country.iso3} countryName={country.name} size="sm" />
-                            <span className="text-xs text-slate-600 w-24 flex-shrink-0 truncate">{country.name}</span>
-                            <div className="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                              <div className="h-2.5 rounded-full transition-all duration-500" style={{ width: `${barWidth}%`, backgroundColor: dot }} />
-                            </div>
-                            <span className="text-xs font-semibold text-slate-700 w-14 text-right flex-shrink-0">
+                            <span className="text-xs text-slate-600 flex-1 truncate">{country.name}</span>
+                            <span className="text-xs font-semibold text-slate-700 flex-shrink-0">
                               {formatNum(val)}{unit ? ` ${unit}` : ''}
                             </span>
                             {hasCountryTrend && countryTrendGood !== null && (
@@ -736,11 +733,6 @@ export function SDGExplorer({ countries, metrics }: Props) {
                           </div>
                         )
                       })}
-                      <div className="flex ml-[7.5rem] mt-1">
-                        <span className="text-[10px] text-slate-300">0%</span>
-                        <span className="flex-1 text-center text-[10px] text-slate-300">50%</span>
-                        <span className="text-[10px] text-slate-300">100%</span>
-                      </div>
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
